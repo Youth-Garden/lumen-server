@@ -1,5 +1,10 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Post, Req, Get } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { FastifyRequest } from 'fastify';
 
@@ -18,8 +23,7 @@ import {
   GoogleLoginResponseDto,
 } from '../application/dto/auth-tokens.response.dto';
 import { UserResponseDto } from '../application/dto/user.response.dto';
-import { JwtAuthGuard } from '../../../shared-kernel/guards/jwt-auth.guard';
-import { UseGuards, Get } from '@nestjs/common';
+import { Public } from '../../../shared-kernel/decorators/public.decorator';
 
 @ApiTags('IAM')
 @Controller('iam')
@@ -29,6 +33,7 @@ export class IamController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @Public()
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully registered' })
@@ -38,6 +43,7 @@ export class IamController {
     );
   }
 
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
@@ -58,6 +64,7 @@ export class IamController {
     return result;
   }
 
+  @Public()
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh tokens' })
   @ApiResponse({
@@ -78,6 +85,7 @@ export class IamController {
     return result;
   }
 
+  @Public()
   @Post('google-login')
   @ApiOperation({ summary: 'Login via Google' })
   @ApiResponse({
@@ -98,8 +106,8 @@ export class IamController {
     return result;
   }
 
+  @ApiBearerAuth()
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current logged in user' })
   @ApiResponse({
     status: 200,

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { IamModule } from './contexts/iam/iam.module';
@@ -13,6 +14,7 @@ import {
 } from './config';
 import { VocabularyModule } from './contexts/vocabulary/vocabulary.module';
 import { QuizModule } from './contexts/quiz/quiz.module';
+import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -30,7 +32,14 @@ import { QuizModule } from './contexts/quiz/quiz.module';
     QuizModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TypedConfigService],
+  providers: [
+    AppService,
+    TypedConfigService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
   exports: [TypedConfigService],
 })
 export class AppModule {}

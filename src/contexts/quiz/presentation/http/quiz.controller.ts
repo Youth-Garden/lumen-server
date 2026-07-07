@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Param } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -13,7 +13,6 @@ import {
 import { GenerateQuizCommand } from '../../application/commands/generate-quiz.command';
 import { SubmitAnswerCommand } from '../../application/commands/submit-answer.command';
 import { FinishQuizCommand } from '../../application/commands/finish-quiz.command';
-import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import {
   GenerateQuizResponseDto,
@@ -23,7 +22,6 @@ import {
 @ApiTags('Quiz')
 @ApiBearerAuth()
 @Controller('quizzes')
-@UseGuards(JwtAuthGuard)
 export class QuizController {
   constructor(private readonly commandBus: CommandBus) {}
 

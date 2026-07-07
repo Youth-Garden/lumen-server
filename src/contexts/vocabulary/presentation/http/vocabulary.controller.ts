@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -18,10 +18,11 @@ import { CreateFlashcardCommand } from '../../application/commands/create-flashc
 import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
 import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
-import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { Public } from '../../../../shared-kernel/decorators/public.decorator';
 
 @ApiTags('Vocabulary')
+@ApiBearerAuth()
 @Controller('vocabulary/words')
 export class VocabularyController {
   constructor(
@@ -53,6 +54,7 @@ export class VocabularyController {
     return { id };
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get vocabulary word by ID' })
   @ApiResponse({
@@ -68,8 +70,6 @@ export class VocabularyController {
     >(new GetVocabularyWordByIdQuery(id));
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('decks')
   @ApiOperation({ summary: 'Create a new deck' })
   @ApiResponse({ status: 201, description: 'Deck created' })
@@ -83,8 +83,6 @@ export class VocabularyController {
     return { id };
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('flashcards')
   @ApiOperation({ summary: 'Create a new flashcard' })
   @ApiResponse({ status: 201, description: 'Flashcard created' })
@@ -97,8 +95,6 @@ export class VocabularyController {
     return { id };
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('flashcards/review')
   @ApiOperation({ summary: 'Review a flashcard (SM-2 algorithm)' })
   @ApiResponse({ status: 201, description: 'Flashcard reviewed' })
