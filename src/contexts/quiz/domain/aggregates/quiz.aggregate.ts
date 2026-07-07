@@ -1,7 +1,10 @@
 import { QuizStatus } from '../enums/quiz.enum';
 import { Question } from '../entities/question.entity';
+import { AggregateRoot } from '@nestjs/cqrs';
+import { QuizGeneratedEvent } from '../events/quiz-generated.event';
+import { QuizFinishedEvent } from '../events/quiz-finished.event';
 
-export class Quiz {
+export class Quiz extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _userId: string,
@@ -10,16 +13,32 @@ export class Quiz {
     private readonly _questions: Question[],
     private readonly _createdAt: Date,
     private _completedAt: Date | null,
-  ) {}
+  ) {
+    super();
+  }
 
-  static create(
+  static create(id: string, userId: string): Quiz {
+    const quiz = new Quiz(
+      id,
+      userId,
+      QuizStatus.IN_PROGRESS,
+      0,
+      [],
+      new Date(),
+      null,
+    );
+    quiz.apply(new QuizGeneratedEvent(id, userId));
+    return quiz;
+  }
+
+  static restore(
     id: string,
     userId: string,
-    status: QuizStatus = QuizStatus.IN_PROGRESS,
-    score: number = 0,
-    questions: Question[] = [],
-    createdAt: Date = new Date(),
-    completedAt: Date | null = null,
+    status: QuizStatus,
+    score: number,
+    questions: Question[],
+    createdAt: Date,
+    completedAt: Date | null,
   ): Quiz {
     return new Quiz(
       id,
@@ -81,14 +100,15 @@ export class Quiz {
       throw new Error('Cannot finish quiz with unanswered questions');
     }
 
-    this._status = QuizStatus.COMPLETED;
-    this._completedAt = new Date();
-
     const correctCount = this._questions.filter((q) => q.isCorrect).length;
     // Score based on percentage
     this._score =
       this._questions.length > 0
         ? (correctCount / this._questions.length) * 100
         : 0;
+    this._status = QuizStatus.COMPLETED;
+    this._completedAt = new Date();
+
+    this.apply(new QuizFinishedEvent(this._id, this._userId, this._score));
   }
 }

@@ -6,28 +6,32 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
 import { HashingService } from '../../infrastructure/services/hashing.service';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
+import { AuthTokensResponseDto } from '../dto/auth-tokens.response.dto';
 
 @CommandHandler(LoginUserCommand)
-export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
+export class LoginUserHandler implements ICommandHandler<
+  LoginUserCommand,
+  AuthTokensResponseDto
+> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly hashingService: HashingService,
     private readonly tokenService: TokenService,
   ) {}
 
-  async execute(command: LoginUserCommand): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    user: { id: string; email: string; role: string };
-  }> {
+  async execute(command: LoginUserCommand): Promise<AuthTokensResponseDto> {
     const user = await this.userRepository.findByEmail(command.email);
     if (!user) {
       throw new AppException(AuthEx.InvalidCredentials);
     }
 
+    if (!user.password) {
+      throw new AppException(AuthEx.InvalidCredentials);
+    }
+
     const isPasswordValid = await this.hashingService.compare(
       command.passwordRaw,
-      user.password ?? '',
+      user.password,
     );
     if (!isPasswordValid) {
       throw new AppException(AuthEx.InvalidCredentials);
@@ -51,14 +55,12 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
       command.ipAddress,
     );
 
-    return {
+    return new AuthTokensResponseDto(
       accessToken,
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    };
+      user.id,
+      user.email,
+      user.role,
+    );
   }
 }

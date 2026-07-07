@@ -1,8 +1,10 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { AppException, QuizEx } from '../../../../shared-kernel/exceptions';
 import { FinishQuizCommand } from './finish-quiz.command';
 import type { IQuizRepository } from '../../domain/repositories/quiz.repository.interface';
 import { QUIZ_REPOSITORY } from '../../domain/repositories/quiz.repository.interface';
+import { QuizCompletedEvent } from '../../../../shared-kernel/events/quiz-completed.event';
 
 @CommandHandler(FinishQuizCommand)
 export class FinishQuizHandler implements ICommandHandler<
@@ -12,18 +14,20 @@ export class FinishQuizHandler implements ICommandHandler<
   constructor(
     @Inject(QUIZ_REPOSITORY)
     private readonly quizRepo: IQuizRepository,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: FinishQuizCommand): Promise<number> {
     const { quizId, userId } = command;
 
-    const quiz = await this.quizRepo.findById(quizId);
-    if (!quiz) throw new NotFoundException('Quiz not found');
-    if (quiz.userId !== userId) throw new BadRequestException('Not your quiz');
+    const quiz = await this.quizRepo.findByIdAndUserId(quizId, userId);
+    if (!quiz) throw new AppException(QuizEx.NotFound());
 
     quiz.finish();
 
     await this.quizRepo.save(quiz);
+
+    this.eventBus.publish(new QuizCompletedEvent(userId, quizId, quiz.score));
 
     return quiz.score;
   }

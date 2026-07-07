@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { ReviewFlashcardCommand } from './review-flashcard.command';
 import type { IUserProgressRepository } from '../../domain/repositories/user-progress.repository.interface';
@@ -7,6 +7,7 @@ import type { IFlashcardRepository } from '../../domain/repositories/flashcard.r
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
 import { UserProgress } from '../../domain/aggregates/user-progress.aggregate';
 import { AppException, VocabEx } from '../../../../shared-kernel/exceptions';
+import { FlashcardReviewedEvent } from '../../../../shared-kernel/events/flashcard-reviewed.event';
 
 @CommandHandler(ReviewFlashcardCommand)
 export class ReviewFlashcardHandler implements ICommandHandler<
@@ -18,6 +19,7 @@ export class ReviewFlashcardHandler implements ICommandHandler<
     private readonly progressRepo: IUserProgressRepository,
     @Inject(FLASHCARD_REPOSITORY)
     private readonly flashcardRepo: IFlashcardRepository,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: ReviewFlashcardCommand): Promise<void> {
@@ -41,5 +43,9 @@ export class ReviewFlashcardHandler implements ICommandHandler<
     progress.review(quality);
 
     await this.progressRepo.save(progress);
+
+    this.eventBus.publish(
+      new FlashcardReviewedEvent(userId, flashcardId, quality),
+    );
   }
 }

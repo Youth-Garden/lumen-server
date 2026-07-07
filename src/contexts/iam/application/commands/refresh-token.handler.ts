@@ -5,18 +5,19 @@ import type { IUserRepository } from '../../domain/repositories/user.repository.
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
+import { AuthTokensResponseDto } from '../dto/auth-tokens.response.dto';
 
 @CommandHandler(RefreshTokenCommand)
-export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand> {
+export class RefreshTokenHandler implements ICommandHandler<
+  RefreshTokenCommand,
+  AuthTokensResponseDto
+> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly tokenService: TokenService,
   ) {}
 
-  async execute(command: RefreshTokenCommand): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
+  async execute(command: RefreshTokenCommand): Promise<AuthTokensResponseDto> {
     const session = await this.userRepository.findSessionByRefreshToken(
       command.refreshToken,
     );
@@ -50,9 +51,12 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
       command.ipAddress,
     );
 
-    return {
+    return new AuthTokensResponseDto(
       accessToken,
-      refreshToken: newRefreshToken,
-    };
+      newRefreshToken,
+      session.userId,
+      session.email,
+      session.role,
+    );
   }
 }

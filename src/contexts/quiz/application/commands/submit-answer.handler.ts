@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
+import { AppException, QuizEx } from '../../../../shared-kernel/exceptions';
 import { SubmitAnswerCommand } from './submit-answer.command';
 import type { IQuizRepository } from '../../domain/repositories/quiz.repository.interface';
 import { QUIZ_REPOSITORY } from '../../domain/repositories/quiz.repository.interface';
@@ -15,13 +16,12 @@ export class SubmitAnswerHandler implements ICommandHandler<
   ) {}
 
   async execute(command: SubmitAnswerCommand): Promise<void> {
-    const { quizId, questionId, dto, userId } = command;
+    const { quizId, questionId, answer, userId } = command;
 
-    const quiz = await this.quizRepo.findById(quizId);
-    if (!quiz) throw new NotFoundException('Quiz not found');
-    if (quiz.userId !== userId) throw new BadRequestException('Not your quiz');
+    const quiz = await this.quizRepo.findByIdAndUserId(quizId, userId);
+    if (!quiz) throw new AppException(QuizEx.NotFound());
 
-    quiz.submitAnswer(questionId, dto.answer);
+    quiz.submitAnswer(questionId, answer);
 
     await this.quizRepo.save(quiz);
   }

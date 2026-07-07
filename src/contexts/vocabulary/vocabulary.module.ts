@@ -13,6 +13,10 @@ import { CreateDeckHandler } from './application/commands/create-deck.handler';
 import { CreateFlashcardHandler } from './application/commands/create-flashcard.handler';
 import { ReviewFlashcardHandler } from './application/commands/review-flashcard.handler';
 import { GetVocabularyWordByIdHandler } from './application/queries/get-vocabulary-word-by-id.handler';
+import { ListWordsHandler } from './application/queries/list-words.handler';
+import { ListDecksHandler } from './application/queries/list-decks.handler';
+import { GetDeckByIdHandler } from './application/queries/get-deck-by-id.handler';
+import { ListDueFlashcardsHandler } from './application/queries/list-due-flashcards.handler';
 import { VOCABULARY_WORD_REPOSITORY } from './domain/repositories/vocabulary-word.repository.interface';
 import { DECK_REPOSITORY } from './domain/repositories/deck.repository.interface';
 import { FLASHCARD_REPOSITORY } from './domain/repositories/flashcard.repository.interface';
@@ -41,6 +45,10 @@ import { UserProgressRepository } from './infrastructure/typeorm/repositories/us
     CreateFlashcardHandler,
     ReviewFlashcardHandler,
     GetVocabularyWordByIdHandler,
+    ListWordsHandler,
+    ListDecksHandler,
+    GetDeckByIdHandler,
+    ListDueFlashcardsHandler,
     {
       provide: VOCABULARY_WORD_REPOSITORY,
       useClass: VocabularyWordRepository,

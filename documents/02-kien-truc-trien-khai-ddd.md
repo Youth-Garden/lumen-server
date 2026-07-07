@@ -1,16 +1,16 @@
-# Tài liệu Kiến trúc Triển khai — Lumen
-### Modular Monolith theo DDD (NestJS + Next.js)
+# Architecture and Deployment Document — Lumen
+### Modular Monolith with DDD (NestJS + Next.js)
 
-## 1. Nguyên tắc kiến trúc tổng thể
+## 1. Overall Architecture Principles
 
-- **Không dùng microservices ở giai đoạn đầu.** Áp dụng **Modular Monolith**: tách rõ ranh giới domain trong code (theo tinh thần DDD) nhưng deploy như một service duy nhất — dễ debug, dễ transaction, tốc độ phát triển nhanh.
-- **Một ngoại lệ tách riêng ngay từ đầu:** module xử lý AI nặng (chấm Speaking/Writing, speech-to-text) chạy dưới dạng **worker riêng** giao tiếp qua queue, vì tác vụ này tốn compute, cần xử lý bất đồng bộ, và có thể cần scale độc lập.
-- Khi hệ thống thực sự lớn (nhiều team, traffic cao), ranh giới Bounded Context đã rõ ràng sẵn → có thể tách microservices dễ dàng mà không phải viết lại từ đầu.
+- **No microservices in the early stages.** Apply **Modular Monolith**: clearly separate domain boundaries in code (following DDD principles) but deploy as a single service — easier to debug, simpler transactions, and faster development speed.
+- **One exception separated from the start:** the module handling heavy AI tasks (Speaking/Writing grading, speech-to-text) runs as a separate **worker** communicating via a queue, as these tasks are compute-intensive, require asynchronous processing, and may need to scale independently.
+- When the system truly scales up (multiple teams, high traffic), Bounded Context boundaries will already be clear → microservices can be easily separated without rewriting from scratch.
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                      Next.js (FE)                        │
-│         App Router · SSR cho SEO · React Query           │
+│         App Router · SSR for SEO · React Query           │
 └───────────────────────┬───────────────────────────────────┘
                          │ REST/GraphQL (HTTPS)
 ┌───────────────────────▼───────────────────────────────────┐
@@ -30,42 +30,42 @@
 │  └──────────┘ └───────────┘ └──────────────┘               │
 └───────┬─────────────────────────────┬───────────────────────┘
         │ PostgreSQL (1 DB, schema    │ BullMQ (Redis)
-        │ theo schema-per-context)    │ Publish job
+        │ per schema-per-context)     │ Publish job
         │                             ▼
         │                 ┌───────────────────────────┐
         │                 │   AI Worker Service        │
         │                 │  (Speaking/Writing grading)│
-        │                 │  Node.js hoặc Python worker│
+        │                 │  Node.js or Python worker  │
         │                 └──────────┬────────────────┘
-        │                            │ gọi ngoài
+        │                            │ external call
         ▼                            ▼
    PostgreSQL                 External AI APIs
-   (nguồn dữ liệu chính)      (LLM, Speech-to-Text)
+   (main data source)         (LLM, Speech-to-Text)
 ```
 
-## 2. Xác định Bounded Context (theo DDD)
+## 2. Defining Bounded Contexts (following DDD)
 
-Bounded Context là ranh giới nghiệp vụ — mỗi context có model dữ liệu, ngôn ngữ nghiệp vụ (ubiquitous language) riêng, tránh việc một "Entity" bị dùng chung ý nghĩa cho nhiều mục đích khác nhau.
+A Bounded Context is a business boundary — each context has its own data model and ubiquitous language, preventing a single "Entity" from being used for multiple different meanings.
 
-| Bounded Context | Trách nhiệm | Ubiquitous Language (thuật ngữ chính) |
+| Bounded Context | Responsibility | Ubiquitous Language (key terms) |
 |---|---|---|
-| **IAM** (Identity & Access) | Đăng ký, đăng nhập, phân quyền, subscription tier | User, Role, Session, Plan |
-| **Vocabulary** | Từ vựng, flashcard, spaced repetition | Word, WordSet, ReviewSchedule, Deck |
-| **Grammar** | Bài học ngữ pháp, bài tập | Lesson, Exercise, Rule |
-| **ExamPractice** | Đề thi thử, chấm điểm trắc nghiệm, band score | MockTest, Question, Attempt, Score |
-| **ListeningSpeaking** | Bài nghe, luyện nói, chấm phát âm | AudioLesson, SpeakingTask, PronunciationScore |
-| **Progress** | Theo dõi tiến độ tổng thể, dashboard, gợi ý lộ trình | LearningPath, Milestone, StreakRecord |
-| **Billing** | Thanh toán, gói subscription, hóa đơn | Subscription, Invoice, Payment |
+| **IAM** (Identity & Access) | Registration, login, authorization, subscription tiers | User, Role, Session, Plan |
+| **Vocabulary** | Vocabulary, flashcards, spaced repetition | Word, WordSet, ReviewSchedule, Deck |
+| **Grammar** | Grammar lessons, exercises | Lesson, Exercise, Rule |
+| **ExamPractice** | Mock tests, multiple-choice grading, band scores | MockTest, Question, Attempt, Score |
+| **ListeningSpeaking** | Audio lessons, speaking practice, pronunciation grading | AudioLesson, SpeakingTask, PronunciationScore |
+| **Progress** | Overall progress tracking, dashboards, path suggestions | LearningPath, Milestone, StreakRecord |
+| **Billing** | Payments, subscription plans, invoices | Subscription, Invoice, Payment |
 
-**Nguyên tắc giao tiếp giữa các Context:**
-- Trong monolith: giao tiếp qua **Domain Events** nội bộ (VD: `ExamAttemptCompletedEvent` được `ExamPractice` phát ra, `Progress` context lắng nghe để cập nhật dashboard) — tránh gọi trực tiếp service của context khác để giữ tính độc lập (loose coupling).
-- Không context nào được truy vấn thẳng vào bảng database của context khác — chỉ giao tiếp qua interface/service công khai của context đó.
+**Communication Principles between Contexts:**
+- Within the monolith: communicate via internal **Domain Events** (e.g., `ExamAttemptCompletedEvent` emitted by `ExamPractice`, listened to by `Progress` to update the dashboard) — avoid directly calling other context's services to maintain loose coupling.
+- No context is allowed to query another context's database tables directly — communication must happen through the public interface/service of that context.
 
-## 3. Cấu trúc thư mục dự án NestJS (theo DDD)
+## 3. NestJS Project Directory Structure (following DDD)
 
-Mỗi Bounded Context tổ chức theo 4 lớp kinh điển của DDD: **Domain — Application — Infrastructure — Presentation**.
+Each Bounded Context is organized into the 4 classic DDD layers: **Domain — Application — Infrastructure — Presentation**.
 
-```
+```text
 src/
 ├── contexts/
 │   ├── vocabulary/
@@ -76,18 +76,18 @@ src/
 │   │   │   ├── value-objects/
 │   │   │   │   ├── cefr-level.vo.ts
 │   │   │   │   └── review-interval.vo.ts
-│   │   │   ├── repositories/            # interface (port), KHÔNG implement ở đây
+│   │   │   ├── repositories/            # interface (port), NO implementation here
 │   │   │   │   └── word.repository.interface.ts
-│   │   │   ├── services/                # Domain Services (business logic thuần)
+│   │   │   ├── services/                # Domain Services (pure business logic)
 │   │   │   │   └── spaced-repetition.domain-service.ts
 │   │   │   └── events/
 │   │   │       └── word-mastered.event.ts
 │   │   │
 │   │   ├── application/
-│   │   │   ├── commands/                # CQRS - Command side (ghi dữ liệu)
+│   │   │   ├── commands/                # CQRS - Command side (writes)
 │   │   │   │   ├── add-word-to-deck.command.ts
 │   │   │   │   └── add-word-to-deck.handler.ts
-│   │   │   ├── queries/                 # CQRS - Query side (đọc dữ liệu)
+│   │   │   ├── queries/                 # CQRS - Query side (reads)
 │   │   │   │   ├── get-due-flashcards.query.ts
 │   │   │   │   └── get-due-flashcards.handler.ts
 │   │   │   └── dto/
@@ -95,10 +95,10 @@ src/
 │   │   │
 │   │   ├── infrastructure/
 │   │   │   ├── persistence/
-│   │   │   │   ├── word.orm-entity.ts       # TypeORM/Prisma entity (khác domain entity)
-│   │   │   │   └── word.repository.ts       # implement interface ở domain/
+│   │   │   │   ├── word.orm-entity.ts       # TypeORM/Prisma entity (different from domain entity)
+│   │   │   │   └── word.repository.ts       # implements interface from domain/
 │   │   │   ├── external/
-│   │   │   │   └── dictionary-api.adapter.ts # gọi Free Dictionary API/WordsAPI
+│   │   │   │   └── dictionary-api.adapter.ts # calls Free Dictionary API/WordsAPI
 │   │   │   └── event-handlers/
 │   │   │       └── word-mastered.listener.ts
 │   │   │
@@ -106,16 +106,16 @@ src/
 │   │   │   ├── vocabulary.controller.ts
 │   │   │   └── vocabulary.module.ts
 │   │   │
-│   │   └── vocabulary.module.ts   # Nest Module gộp tất cả lại
+│   │   └── vocabulary.module.ts   # Nest Module wrapping everything together
 │   │
-│   ├── grammar/            # cấu trúc tương tự vocabulary/
-│   ├── exam-practice/      # cấu trúc tương tự
-│   ├── listening-speaking/ # cấu trúc tương tự, có thêm client gọi AI Worker qua queue
-│   ├── progress/           # cấu trúc tương tự
-│   ├── billing/            # cấu trúc tương tự
-│   └── iam/                # cấu trúc tương tự
+│   ├── grammar/            # similar structure to vocabulary/
+│   ├── exam-practice/      # similar structure
+│   ├── listening-speaking/ # similar structure, includes client calling AI Worker via queue
+│   ├── progress/           # similar structure
+│   ├── billing/            # similar structure
+│   └── iam/                # similar structure
 │
-├── shared-kernel/           # Code dùng chung GIỮA các context (hạn chế tối đa)
+├── shared-kernel/           # Shared code BETWEEN contexts (keep to a minimum)
 │   ├── domain/
 │   │   └── base-entity.ts
 │   ├── decorators/
@@ -134,16 +134,16 @@ src/
 └── main.ts
 ```
 
-### Giải thích các lớp
+### Layer Explanations
 
-- **Domain layer**: chứa logic nghiệp vụ thuần túy, KHÔNG phụ thuộc vào NestJS, database hay framework nào. VD: thuật toán Spaced Repetition tính ngày ôn tập tiếp theo phải là hàm thuần (pure function), test được độc lập không cần mock database.
-- **Application layer**: điều phối use case, dùng pattern **CQRS** (Command Query Responsibility Segregation) — tách rõ luồng ghi (Command) và đọc (Query). NestJS hỗ trợ sẵn package `@nestjs/cqrs`.
-- **Infrastructure layer**: chi tiết kỹ thuật — ORM, gọi API ngoài, cache. Đây là nơi duy nhất được phép "biết" về TypeORM/Prisma, Redis, HTTP client.
-- **Presentation layer**: Controller, DTO validate request/response, Nest Module wiring.
+- **Domain layer**: Contains pure business logic, NOT dependent on NestJS, databases, or any framework. E.g., the Spaced Repetition algorithm calculating the next review date must be a pure function, testable independently without mocking a database.
+- **Application layer**: Coordinates use cases, using the **CQRS** (Command Query Responsibility Segregation) pattern — clearly separating the write flow (Command) and read flow (Query). NestJS provides native support via the `@nestjs/cqrs` package.
+- **Infrastructure layer**: Technical details — ORM, external API calls, caching. This is the only place allowed to "know" about TypeORM/Prisma, Redis, HTTP clients.
+- **Presentation layer**: Controllers, DTOs for request/response validation, Nest Module wiring.
 
-## 4. Domain Model mẫu chi tiết — Context "Vocabulary"
+## 4. Detailed Sample Domain Model — "Vocabulary" Context
 
-Để minh họa cách áp dụng DDD thực tế, đây là ví dụ đầy đủ cho module Vocabulary:
+To illustrate how to apply DDD in practice, here is a complete example for the Vocabulary module:
 
 ### Value Object: `CefrLevel`
 ```typescript
@@ -184,7 +184,7 @@ export class Word {
   static create(props: CreateWordProps): Word { /* ... factory + validate invariants */ }
 
   markAsReviewed(quality: ReviewQuality): DomainEvent[] {
-    // Business logic: cập nhật trạng thái ghi nhớ theo thuật toán SM-2
+    // Business logic: update memorization state based on SM-2 algorithm
     this.masteryStatus = this.masteryStatus.advance(quality);
     if (this.masteryStatus.isMastered()) {
       return [new WordMasteredEvent(this.id)];
@@ -194,17 +194,17 @@ export class Word {
 }
 ```
 
-### Domain Service: thuật toán Spaced Repetition
+### Domain Service: Spaced Repetition Algorithm
 ```typescript
 // domain/services/spaced-repetition.domain-service.ts
-// Thuần logic nghiệp vụ, KHÔNG import gì từ NestJS/database
+// Pure business logic, NO imports from NestJS/database
 export class SpacedRepetitionDomainService {
   calculateNextReviewDate(
     previousInterval: number,
     easeFactor: number,
     quality: ReviewQuality,
   ): ReviewSchedule {
-    // Áp dụng thuật toán SM-2 (SuperMemo)
+    // Apply SM-2 (SuperMemo) algorithm
     // ...
   }
 }
@@ -231,120 +231,120 @@ export class ReviewFlashcardHandler
 }
 ```
 
-**Điểm mấu chốt:** Controller chỉ gọi `CommandBus.execute()` / `QueryBus.execute()`, không chứa logic nghiệp vụ. Toàn bộ logic nằm ở Domain + Application layer, giúp dễ test và dễ thay đổi framework sau này nếu cần.
+**Key takeaway:** The Controller only calls `CommandBus.execute()` / `QueryBus.execute()` and contains no business logic. All logic resides in the Domain + Application layers, making it easy to test and facilitating framework replacement later if needed.
 
-## 5. Giao tiếp bất đồng bộ — Domain Events giữa các Context
+## 5. Asynchronous Communication — Domain Events between Contexts
 
-Ví dụ luồng: Người dùng hoàn thành một bài thi thử (ExamPractice context) → cần cập nhật Progress dashboard.
+Example flow: A user completes a mock test (ExamPractice context) → the Progress dashboard needs updating.
 
-```
+```text
 ExamPractice Context                          Progress Context
 ─────────────────────                          ─────────────────
 ExamAttempt.complete()
-   └─> phát ExamAttemptCompletedEvent
+   └─> emits ExamAttemptCompletedEvent
               │
               ▼
-     EventBus (nội bộ, trong process)
+     EventBus (internal, in-process)
               │
               ▼
-                                    ProgressUpdateListener lắng nghe event
-                                    └─> cập nhật LearningPath, Milestone
+                                    ProgressUpdateListener listens to event
+                                    └─> updates LearningPath, Milestone
 ```
 
-- Dùng `@nestjs/cqrs` EventBus cho giao tiếp **nội bộ trong process** (đủ dùng ở quy mô monolith).
-- Khi cần độ tin cậy cao hơn (không mất event nếu service crash), cân nhắc **Outbox Pattern**: lưu event vào bảng `outbox_events` trong cùng transaction với write chính, sau đó một background job đọc và publish — tránh mất dữ liệu khi có lỗi giữa chừng.
+- Use `@nestjs/cqrs` EventBus for **internal in-process communication** (sufficient for a monolith scale).
+- When higher reliability is needed (no event loss if the service crashes), consider the **Outbox Pattern**: save the event to an `outbox_events` table in the same transaction as the main write, then a background job reads and publishes it — preventing data loss if errors occur midway.
 
-## 6. Xử lý tác vụ AI nặng — Worker riêng qua Queue
+## 6. Heavy AI Task Processing — Separate Worker via Queue
 
-```
+```text
 NestJS Monolith                    Redis (BullMQ)              AI Worker Service
 ────────────────                   ───────────────              ──────────────────
 POST /speaking/submit
-   └─> validate, lưu audio (S3)
+   └─> validate, save audio (S3)
    └─> push job "grade-speaking"
                   │
                   ▼
            Queue: speaking-grading
                   │
                                                           ┌──────▼──────────────┐
-                                                          │ Worker nhận job       │
+                                                          │ Worker receives job   │
                                                           │ 1. Speech-to-text     │
-                                                          │ 2. Gọi LLM chấm điểm  │
-                                                          │ 3. Lưu kết quả vào DB │
-                                                          │ 4. Emit event hoàn tất│
+                                                          │ 2. Call LLM to grade  │
+                                                          │ 3. Save result to DB  │
+                                                          │ 4. Emit completion evt│
                                                           └───────────────────────┘
-GET /speaking/result/:id  <── FE polling hoặc WebSocket khi job xong
+GET /speaking/result/:id  <── FE polling or WebSocket when job is done
 ```
 
-- **Vì sao tách worker riêng:** tác vụ gọi Speech-to-Text + LLM có độ trễ vài giây đến vài chục giây — không thể block HTTP request. Tách worker cho phép scale riêng (thêm worker instance) khi lượng người dùng luyện Speaking tăng, không ảnh hưởng phần API chính.
-- **Thông báo kết quả cho FE:** dùng WebSocket (NestJS Gateway) hoặc polling định kỳ vào endpoint kết quả.
+- **Why separate the worker:** Calling Speech-to-Text + LLM has a latency of a few seconds to tens of seconds — HTTP requests cannot be blocked. Separating the worker allows independent scaling (adding worker instances) when the number of users practicing Speaking increases, without affecting the main API.
+- **Notifying FE of results:** Use WebSockets (NestJS Gateway) or periodic polling on the result endpoint.
 
-## 7. Data Layer — Chiến lược Database
+## 7. Data Layer — Database Strategy
 
-- **1 PostgreSQL instance duy nhất ở giai đoạn đầu**, nhưng tổ chức theo **schema riêng cho mỗi Bounded Context** (VD: `vocabulary.words`, `exam_practice.mock_tests`) — giúp giữ ranh giới rõ ràng, dễ tách database riêng sau này nếu cần scale.
-- **Không dùng chung 1 bảng User cho nhiều mục đích khác nhau** — context nào cần thông tin user chỉ lưu `userId` tham chiếu, không JOIN trực tiếp qua schema khác trong code nghiệp vụ (tránh coupling).
-- ORM đề xuất: **Prisma** (dễ dùng, type-safe, schema migration tốt) hoặc **TypeORM** (tích hợp native với NestJS, hỗ trợ pattern Repository rõ ràng hơn cho DDD).
+- **1 single PostgreSQL instance initially**, but organized by **separate schemas for each Bounded Context** (e.g., `vocabulary.words`, `exam_practice.mock_tests`) — helps maintain clear boundaries, making it easier to separate into different databases later if scaling is needed.
+- **Do not share 1 User table for multiple different purposes** — contexts that need user info should only store a referencing `userId` and not JOIN directly across schemas in business code (avoiding coupling).
+- Suggested ORM: **Prisma** (easy to use, type-safe, good schema migrations) or **TypeORM** (native integration with NestJS, supports the Repository pattern more clearly for DDD).
 
-## 8. Công nghệ cụ thể — Tổng hợp
+## 8. Specific Technologies — Summary
 
-| Thành phần | Công nghệ | Ghi chú |
+| Component | Technology | Notes |
 |---|---|---|
 | Backend framework | NestJS | Modular Monolith, CQRS module |
-| Frontend | Next.js (App Router) | SSR cho trang bài học (SEO), CSR cho phần luyện tập tương tác |
+| Frontend | Next.js (App Router) | SSR for lesson pages (SEO), CSR for interactive practice parts |
 | Database | PostgreSQL | Schema-per-context |
-| ORM | Prisma hoặc TypeORM | Tùy đội ngũ quen thuộc hơn |
+| ORM | Prisma or TypeORM | Depending on team familiarity |
 | Cache/Session | Redis | Session, rate-limit, cache flashcard due list |
-| Queue | BullMQ (trên Redis) | Job chấm AI, gửi email, tác vụ nặng |
-| AI Worker | Node.js hoặc Python service riêng | Gọi LLM API, Speech-to-Text API |
-| Object Storage | S3 hoặc Cloudflare R2 | Lưu file audio ghi âm, ảnh minh họa |
+| Queue | BullMQ (on Redis) | AI grading jobs, email sending, heavy tasks |
+| AI Worker | Separate Node.js or Python service | Calls LLM API, Speech-to-Text API |
+| Object Storage | S3 or Cloudflare R2 | Stores recorded audio files, illustrations |
 | Auth | Passport.js + JWT (NestJS) | Access token + refresh token |
-| API docs | Swagger (`@nestjs/swagger`) | Tự sinh từ decorator |
-| Realtime (tùy chọn) | Socket.IO (NestJS Gateway) | Thông báo kết quả chấm AI |
+| API docs | Swagger (`@nestjs/swagger`) | Auto-generated from decorators |
+| Realtime (optional) | Socket.IO (NestJS Gateway) | AI grading result notifications |
 
-## 9. Chiến lược triển khai (Deployment)
+## 9. Deployment Strategy
 
-### Giai đoạn MVP
-```
+### MVP Phase
+```text
 ┌─────────────────────────────────────────────┐
-│              Cloud Provider (VD: AWS/GCP)     │
+│              Cloud Provider (e.g., AWS/GCP)   │
 │                                                │
 │  ┌───────────┐  ┌───────────┐  ┌───────────┐ │
 │  │  Next.js   │  │  NestJS   │  │AI Worker  │ │
 │  │ (Vercel    │  │ Monolith  │  │ (1 instance│ │
-│  │  hoặc      │  │ (Docker,  │  │ 1-2       │ │
-│  │  container)│  │ instance) │  │ hoặc job  │ │
-│  │            │  │           │  │ serverless)│ │
+│  │  or        │  │ (Docker,  │  │ 1-2       │ │
+│  │  container)│  │ instances)│  │ or        │ │
+│  │            │  │           │  │serverless)│ │
 │  └───────────┘  └─────┬─────┘  └─────┬─────┘ │
 │                       │              │        │
 │              ┌────────▼──────┐ ┌─────▼─────┐  │
 │              │  PostgreSQL    │ │   Redis   │  │
-│              │  (managed, VD: │ │ (managed) │  │
+│              │  (managed,     │ │ (managed) │  │
 │              │  RDS/Supabase) │ │           │  │
 │              └────────────────┘ └───────────┘  │
 └─────────────────────────────────────────────┘
 ```
 
-- **Frontend**: deploy Next.js lên Vercel (đơn giản, tối ưu SSR/CDN sẵn) hoặc container riêng nếu muốn đồng bộ hạ tầng.
-- **Backend**: Docker hóa NestJS, chạy trên 1-2 instance (VD: ECS Fargate, Cloud Run, hoặc Railway/Render cho giai đoạn đầu chi phí thấp).
-- **Database**: dùng managed PostgreSQL (RDS, Supabase, Neon) để tránh tự vận hành backup/failover.
-- **CI/CD**: GitHub Actions — build, test, deploy tự động khi merge vào `main`.
+- **Frontend**: deploy Next.js on Vercel (simple, optimized SSR/CDN out of the box) or a separate container if infrastructure synchronization is desired.
+- **Backend**: Dockerize NestJS, run on 1-2 instances (e.g., ECS Fargate, Cloud Run, or Railway/Render for low-cost initial phase).
+- **Database**: use managed PostgreSQL (RDS, Supabase, Neon) to avoid operating backups/failovers manually.
+- **CI/CD**: GitHub Actions — automated build, test, deploy when merging to `main`.
 
-### Khi scale lên (traffic lớn hơn)
-- Tách AI Worker thành service độc lập có thể auto-scale theo độ dài queue.
-- Thêm load balancer trước NestJS, scale ngang nhiều instance (vì đã stateless nhờ session lưu ở Redis).
-- Cân nhắc tách riêng schema `exam-practice` hoặc `vocabulary` thành database riêng nếu một trong hai trở thành bottleneck rõ rệt — lúc này ranh giới Bounded Context đã sẵn sàng để tách mà ít rủi ro.
+### When scaling up (higher traffic)
+- Separate AI Worker into an independent service that can auto-scale based on queue length.
+- Add a load balancer in front of NestJS, scale horizontally across multiple instances (since it is already stateless thanks to sessions stored in Redis).
+- Consider separating the `exam-practice` or `vocabulary` schema into a distinct database if one becomes a noticeable bottleneck — by this time, the Bounded Context boundaries are already prepared for separation with minimal risk.
 
-## 10. Testing Strategy theo từng layer
+## 10. Testing Strategy by Layer
 
-| Layer | Loại test | Công cụ |
+| Layer | Test Type | Tool |
 |---|---|---|
-| Domain | Unit test thuần (không mock DB) | Jest |
-| Application | Unit test với mock Repository interface | Jest |
-| Infrastructure | Integration test với DB thật (test container) | Jest + Testcontainers |
-| Presentation | E2E test qua HTTP | Supertest (tích hợp sẵn NestJS) |
+| Domain | Pure unit tests (no DB mock) | Jest |
+| Application | Unit tests with mock Repository interfaces | Jest |
+| Infrastructure | Integration tests with real DB (test containers) | Jest + Testcontainers |
+| Presentation | E2E tests via HTTP | Supertest (built-in with NestJS) |
 
-Vì Domain layer không phụ thuộc framework, đây là phần dễ đạt coverage cao nhất và ít cần thay đổi khi refactor hạ tầng.
+Because the Domain layer does not depend on a framework, it is the easiest part to achieve high coverage for and requires the least amount of change when refactoring infrastructure.
 
 ---
 
-*Tài liệu liên quan: xem `01-y-tuong-san-pham.md` để biết bối cảnh sản phẩm và roadmap tổng thể của Lumen.*
+*Related Documents: see `01-y-tuong-san-pham.md` for product context and overall Lumen roadmap.*

@@ -7,57 +7,42 @@ import { TokenService } from '../../infrastructure/services/token.service';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
-import { OAuth2Client } from 'google-auth-library';
-import { ConfigService } from '@nestjs/config';
+import { GoogleAuthService } from '../../infrastructure/services/google-auth.service';
+import { User } from '../../domain/entities/user.entity';
+import { GoogleLoginResponseDto } from '../dto/auth-tokens.response.dto';
 
 @CommandHandler(GoogleLoginCommand)
-export class GoogleLoginHandler implements ICommandHandler<GoogleLoginCommand> {
-  private googleClient: OAuth2Client;
-  private clientId: string;
-
+export class GoogleLoginHandler implements ICommandHandler<
+  GoogleLoginCommand,
+  GoogleLoginResponseDto
+> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly tokenService: TokenService,
-    private readonly configService: ConfigService,
-  ) {
-    // Assuming GOOGLE_CLIENT_ID is added to config
-    this.clientId = this.configService.getOrThrow<string>('iam.googleClientId');
-    this.googleClient = new OAuth2Client(this.clientId);
-  }
+    private readonly googleAuthService: GoogleAuthService,
+  ) {}
 
-  async execute(command: GoogleLoginCommand): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    user: { id: string; email: string; role: string };
-  }> {
-    let payload;
-    try {
-      const ticket = await this.googleClient.verifyIdToken({
-        idToken: command.idToken,
-        audience: this.clientId,
-      });
-      payload = ticket.getPayload();
-    } catch {
+  async execute(command: GoogleLoginCommand): Promise<GoogleLoginResponseDto> {
+    const payload = await this.googleAuthService.verifyIdToken(command.idToken);
+
+    if (!payload.email) {
       throw new AppException(AuthEx.InvalidCredentials);
     }
-
-    if (!payload || !payload.email) {
-      throw new AppException(AuthEx.InvalidCredentials);
-    }
-
     const email = payload.email;
+
     let user = await this.userRepository.findByEmail(email);
 
     if (!user) {
       // Auto register
-      user = await this.userRepository.save({
-        email: email,
-        password: null,
-        authProvider: AuthProvider.GOOGLE,
-        providerId: payload.sub,
-        role: Role.USER,
-        planId: null,
-      });
+      const newUser = User.create(
+        email,
+        null,
+        AuthProvider.GOOGLE,
+        payload.sub,
+        Role.USER,
+        null,
+      );
+      user = await this.userRepository.save(newUser);
     }
 
     const accessToken = this.tokenService.generateAccessToken(
@@ -77,14 +62,12 @@ export class GoogleLoginHandler implements ICommandHandler<GoogleLoginCommand> {
       command.ipAddress,
     );
 
-    return {
+    return new GoogleLoginResponseDto(
       accessToken,
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    };
+      user.id,
+      user.email,
+      user.role,
+    );
   }
 }

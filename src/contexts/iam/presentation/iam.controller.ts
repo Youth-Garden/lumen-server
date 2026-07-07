@@ -1,11 +1,5 @@
 import { Body, Controller, Post, Req, Get } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { FastifyRequest } from 'fastify';
 
@@ -24,6 +18,10 @@ import {
   GoogleLoginResponseDto,
 } from '../application/dto/auth-tokens.response.dto';
 import { UserResponseDto } from '../application/dto/user.response.dto';
+import { LogoutDto } from '../application/dto/logout.dto';
+import { SessionResponseDto } from '../application/dto/session.response.dto';
+import { LogoutCommand } from '../application/commands/logout.command';
+import { ListSessionsQuery } from '../application/queries/list-sessions.query';
 import { Public } from '../../../shared-kernel/decorators/public.decorator';
 
 @ApiTags('IAM')
@@ -139,7 +137,6 @@ export class IamController {
     return result;
   }
 
-  @ApiBearerAuth()
   @Get('me')
   @ApiOperation({
     summary: 'Get current logged-in user',
@@ -160,6 +157,40 @@ export class IamController {
     const result = await this.queryBus.execute<GetMeQuery, UserResponseDto>(
       new GetMeQuery(user.sub),
     );
+    return result;
+  }
+
+  @Post('logout')
+  @ApiOperation({
+    summary: 'Logout user',
+    description: 'Revoke the specified refresh token, ending the session.',
+  })
+  @ApiBody({ type: LogoutDto })
+  @ApiResponse({ status: 201, description: 'Logged out successfully.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async logout(@Body() dto: LogoutDto): Promise<void> {
+    await this.commandBus.execute(new LogoutCommand(dto.refreshToken));
+  }
+
+  @Get('sessions')
+  @ApiOperation({
+    summary: 'List active sessions',
+    description: 'Get all active sessions for the current logged-in user.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns list of sessions.',
+    type: [SessionResponseDto],
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async getSessions(
+    @Req() req: RequestWithUser,
+  ): Promise<SessionResponseDto[]> {
+    const user = req.user;
+    const result = await this.queryBus.execute<
+      ListSessionsQuery,
+      SessionResponseDto[]
+    >(new ListSessionsQuery(user.sub));
     return result;
   }
 }

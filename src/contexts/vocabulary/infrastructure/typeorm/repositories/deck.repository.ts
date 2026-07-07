@@ -31,4 +31,15 @@ export class DeckRepository implements IDeckRepository {
     entity.authorId = deck.authorId;
     await this.repo.save(entity);
   }
+
+  async findByUserId(userId: string): Promise<Deck[]> {
+    const entities = await this.repo.find({
+      where: { authorId: userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return entities.map((entity) =>
+      Deck.restore(entity.id, entity.name, entity.description, entity.authorId),
+    );
+  }
 }

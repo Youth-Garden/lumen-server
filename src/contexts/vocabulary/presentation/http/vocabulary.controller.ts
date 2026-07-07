@@ -3,7 +3,6 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiBearerAuth,
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
@@ -19,9 +18,19 @@ import { CreateDeckCommand } from '../../application/commands/create-deck.comman
 import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
 import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
 import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
+import { ListWordsQuery } from '../../application/queries/list-words.query';
+import { ListDecksQuery } from '../../application/queries/list-decks.query';
+import { GetDeckByIdQuery } from '../../application/queries/get-deck-by-id.query';
+import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
+import { WordListResponseDto } from '../../application/queries/list-words.handler';
+import { DeckResponseDto } from '../../application/queries/list-decks.handler';
+import { DeckDetailResponseDto } from '../../application/queries/get-deck-by-id.handler';
+import { DueFlashcardResponseDto } from '../../application/queries/list-due-flashcards.handler';
+import { IdResponseDto } from '../../../../shared-kernel/dto/id-response.dto';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { Query as QueryParam } from '@nestjs/common';
 
 @ApiTags('Vocabulary')
 @Controller('vocabulary/words')
@@ -31,7 +40,6 @@ export class VocabularyController {
     private readonly queryBus: QueryBus,
   ) {}
 
-  @ApiBearerAuth()
   @Post()
   @ApiOperation({
     summary: 'Create a new vocabulary word',
@@ -54,7 +62,7 @@ export class VocabularyController {
   })
   async createWord(
     @Body() dto: CreateVocabularyWordDto,
-  ): Promise<{ id: string }> {
+  ): Promise<IdResponseDto> {
     const id = await this.commandBus.execute<
       CreateVocabularyWordCommand,
       string
@@ -67,7 +75,22 @@ export class VocabularyController {
         dto.definitions,
       ),
     );
-    return { id };
+    return new IdResponseDto(id);
+  }
+
+  @Public()
+  @Get()
+  @ApiOperation({ summary: 'List vocabulary words' })
+  @ApiResponse({ type: WordListResponseDto, status: 200 })
+  async listWords(
+    @QueryParam('page') page: number = 1,
+    @QueryParam('limit') limit: number = 20,
+    @QueryParam('search') search?: string,
+    @QueryParam('cefrLevel') cefrLevel?: string,
+  ): Promise<WordListResponseDto> {
+    return this.queryBus.execute<ListWordsQuery, WordListResponseDto>(
+      new ListWordsQuery(page, limit, search, cefrLevel),
+    );
   }
 
   @Public()
@@ -95,7 +118,27 @@ export class VocabularyController {
     >(new GetVocabularyWordByIdQuery(id));
   }
 
-  @ApiBearerAuth()
+  @Get('decks')
+  @ApiOperation({ summary: 'List user decks' })
+  @ApiResponse({ type: [DeckResponseDto], status: 200 })
+  async listDecks(@CurrentUser() userId: string): Promise<DeckResponseDto[]> {
+    return this.queryBus.execute<ListDecksQuery, DeckResponseDto[]>(
+      new ListDecksQuery(userId),
+    );
+  }
+
+  @Get('decks/:id')
+  @ApiOperation({ summary: 'Get deck details with flashcards' })
+  @ApiResponse({ type: DeckDetailResponseDto, status: 200 })
+  async getDeckById(
+    @Param('id') id: string,
+    @CurrentUser() userId: string,
+  ): Promise<DeckDetailResponseDto> {
+    return this.queryBus.execute<GetDeckByIdQuery, DeckDetailResponseDto>(
+      new GetDeckByIdQuery(id, userId),
+    );
+  }
+
   @Post('decks')
   @ApiOperation({
     summary: 'Create a flashcard deck',
@@ -113,14 +156,13 @@ export class VocabularyController {
   async createDeck(
     @Body() dto: CreateDeckDto,
     @CurrentUser() userId: string,
-  ): Promise<{ id: string }> {
+  ): Promise<IdResponseDto> {
     const id = await this.commandBus.execute<CreateDeckCommand, string>(
       new CreateDeckCommand(dto.name, dto.description, userId),
     );
-    return { id };
+    return new IdResponseDto(id);
   }
 
-  @ApiBearerAuth()
   @Post('flashcards')
   @ApiOperation({
     summary: 'Add a flashcard to a deck',
@@ -138,14 +180,25 @@ export class VocabularyController {
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async createFlashcard(
     @Body() dto: CreateFlashcardDto,
-  ): Promise<{ id: string }> {
+  ): Promise<IdResponseDto> {
     const id = await this.commandBus.execute<CreateFlashcardCommand, string>(
       new CreateFlashcardCommand(dto.deckId, dto.wordId),
     );
-    return { id };
+    return new IdResponseDto(id);
   }
 
-  @ApiBearerAuth()
+  @Get('flashcards/due')
+  @ApiOperation({ summary: 'List due flashcards for today' })
+  @ApiResponse({ type: [DueFlashcardResponseDto], status: 200 })
+  async listDueFlashcards(
+    @CurrentUser() userId: string,
+  ): Promise<DueFlashcardResponseDto[]> {
+    return this.queryBus.execute<
+      ListDueFlashcardsQuery,
+      DueFlashcardResponseDto[]
+    >(new ListDueFlashcardsQuery(userId));
+  }
+
   @Post('flashcards/review')
   @ApiOperation({
     summary: 'Review a flashcard (SM-2)',

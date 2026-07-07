@@ -1,107 +1,107 @@
-# Tài liệu Ý tưởng Sản phẩm — Lumen
+# Product Idea Document — Lumen
 
-## 1. Tổng quan
+## 1. Overview
 
-**Tên dự án:** Lumen
+**Project Name:** Lumen
 
-**Mô tả một câu:** Lumen là nền tảng web học tiếng Anh toàn diện, kết hợp luyện thi chứng chỉ (IELTS, TOEIC), xây dựng nền tảng ngữ pháp & từ vựng, và rèn luyện kỹ năng nghe nói — cá nhân hóa theo trình độ và mục tiêu từng người học.
+**One-sentence Description:** Lumen is a comprehensive English learning web platform combining certification prep (IELTS, TOEIC), grammar & vocabulary foundation building, and speaking & listening practice — personalized to each learner's level and goals.
 
-**Vấn đề cần giải quyết:**
-- Người học tiếng Anh tại Việt Nam thường phải dùng nhiều công cụ rời rạc: một app từ vựng, một app luyện nghe, một trung tâm luyện thi, một app chấm phát âm — không có nơi nào gộp đủ và cá nhân hóa theo lộ trình.
-- Việc luyện Speaking/Writing thiếu phản hồi tức thì nếu không có gia sư — đa số người tự học không biết mình sai ở đâu.
-- Nội dung học không bám sát mục tiêu cụ thể (VD: cần TOEIC 650 để tốt nghiệp, cần IELTS 6.5 để du học) khiến người học lãng phí thời gian học lan man.
+**Problem Statement:**
+- English learners in Vietnam often have to use fragmented tools: a vocabulary app, a listening app, a test prep center, a pronunciation checking app — there is no single place that aggregates everything and personalizes the learning path.
+- Speaking/Writing practice lacks immediate feedback without a tutor — most self-learners don't know where they went wrong.
+- Learning content is not closely tied to specific goals (e.g., needing TOEIC 650 for graduation, IELTS 6.5 for studying abroad) causing learners to waste time learning aimlessly.
 
-## 2. Đối tượng người dùng
+## 2. Target Audience
 
-Mục tiêu ban đầu: **tất cả đối tượng**, nhưng vận hành qua các persona rõ ràng để cá nhân hóa:
+Initial target: **all audiences**, but operated through clear personas for personalization:
 
-| Persona | Mục tiêu chính | Ưu tiên tính năng |
+| Persona | Main Goal | Feature Priority |
 |---|---|---|
-| Học sinh/sinh viên | Nền tảng ngữ pháp, từ vựng theo giáo trình | Grammar, Vocabulary |
-| Người đi làm luyện thi | Đạt điểm chứng chỉ trong thời hạn cụ thể | Đề thi thử, chấm AI, tracking điểm |
-| Người mất gốc | Xây nền tảng từ A1 | Lộ trình từng bước, không áp lực thi cử |
-| Người cần giao tiếp thực tế | Nghe nói tự nhiên, phản xạ | Speaking practice, Listening, Shadowing |
+| Students | Grammar & vocabulary foundation according to curriculum | Grammar, Vocabulary |
+| Working Professionals (Test Prep) | Achieve certification scores within a specific timeframe | Mock tests, AI grading, score tracking |
+| Beginners (Lost Basics) | Build foundation from A1 | Step-by-step learning path, no exam pressure |
+| Real-world Communication Seekers | Natural listening and speaking, reflexes | Speaking practice, Listening, Shadowing |
 
-Cơ chế phân loại: **bài test đầu vào (placement test)** ngay khi đăng ký, gợi ý lộ trình phù hợp thay vì áp một lộ trình chung cho tất cả.
+Classification mechanism: **Placement test** upon registration, suggesting a suitable learning path instead of imposing a one-size-fits-all approach.
 
-## 3. Phạm vi tính năng (Scope)
+## 3. Scope of Features
 
-### 3.1. Luyện thi (IELTS, TOEIC...)
-- Ngân hàng đề thi thử, chấm tự động cho phần trắc nghiệm (Listening, Reading)
-- Chấm Writing/Speaking bằng AI — chấm sơ bộ theo tiêu chí band điểm + gợi ý sửa cụ thể
-- Theo dõi tiến độ điểm số theo thời gian (band score tracker / dự đoán điểm)
-- Phân tích điểm yếu theo dạng câu hỏi (VD: yếu ở "matching headings" trong IELTS Reading)
+### 3.1. Test Prep (IELTS, TOEIC...)
+- Mock test bank, automatic grading for multiple-choice sections (Listening, Reading)
+- AI grading for Writing/Speaking — preliminary grading based on band criteria + specific correction suggestions
+- Score tracking over time (band score tracker / score prediction)
+- Weakness analysis by question type (e.g., weak at "matching headings" in IELTS Reading)
 
-### 3.2. Ngữ pháp & Từ vựng
-- Bài học theo cấp độ CEFR (A1–C2)
-- Flashcard áp dụng thuật toán Spaced Repetition (lặp lại ngắt quãng)
-- Bài tập trắc nghiệm/điền từ, phản hồi tức thì
-- Từ vựng phân theo chủ đề (công việc, học thuật, đời sống, chuyên ngành thi)
-- Từ điển tra cứu tích hợp: định nghĩa, phiên âm, audio, ví dụ, nghĩa tiếng Việt
+### 3.2. Grammar & Vocabulary
+- Lessons by CEFR levels (A1–C2)
+- Flashcards using Spaced Repetition algorithm
+- Multiple-choice/fill-in-the-blank exercises with immediate feedback
+- Vocabulary categorized by topics (work, academic, daily life, specialized exams)
+- Integrated dictionary: definitions, phonetics, audio, examples, Vietnamese meanings
 
-### 3.3. Nghe & Nói
-- Bài nghe có phụ đề song ngữ, điều chỉnh tốc độ phát
-- Luyện nói với AI: ghi âm → speech-to-text → chấm phát âm, độ trôi chảy, ngữ điệu
-- Shadowing (nghe và nhại theo câu)
-- (Giai đoạn sau) Phòng luyện nói ghép cặp người dùng thật
+### 3.3. Listening & Speaking
+- Audio lessons with bilingual subtitles, adjustable playback speed
+- Speaking practice with AI: recording → speech-to-text → pronunciation, fluency, and intonation grading
+- Shadowing (listen and repeat)
+- (Later phase) Speaking practice rooms pairing real users
 
-## 4. MVP — Phạm vi giai đoạn 1
+## 4. MVP — Phase 1 Scope
 
-Ưu tiên tính năng dễ triển khai, giá trị nhanh, chi phí vận hành thấp trước khi đầu tư vào AI phức tạp:
+Prioritize easy-to-implement features with quick value and low operational costs before investing in complex AI:
 
-1. Đăng ký/đăng nhập, placement test
-2. Module Từ vựng & Ngữ pháp cơ bản (CEFR A1–B2)
-3. Một bộ đề thi thử (TOEIC hoặc IELTS Reading/Listening — chấm tự động, không cần AI phức tạp)
-4. Dashboard theo dõi tiến độ cơ bản
+1. Registration/login, placement test
+2. Basic Vocabulary & Grammar module (CEFR A1–B2)
+3. One mock test set (TOEIC or IELTS Reading/Listening — auto-graded, no complex AI needed)
+4. Basic progress tracking dashboard
 
-**Để giai đoạn 2 (cần tích hợp AI, chi phí vận hành cao hơn):**
-- Chấm Writing/Speaking bằng AI
-- Luyện nói với phản hồi phát âm chi tiết
-- Cá nhân hóa lộ trình bằng AI
+**For Phase 2 (requires AI integration, higher operational costs):**
+- AI grading for Writing/Speaking
+- Speaking practice with detailed pronunciation feedback
+- AI-personalized learning paths
 
-## 5. Mô hình kinh doanh (cần chốt sớm)
+## 5. Business Model (To be finalized early)
 
-- **Freemium**: miễn phí bài học cơ bản (từ vựng, ngữ pháp), thu phí cho:
-  - Đề thi thử không giới hạn
-  - Chấm Writing/Speaking bằng AI
-  - Lộ trình cá nhân hóa
-- Gói theo mục tiêu cụ thể (VD: "Gói IELTS 3 tháng", "Gói TOEIC cấp tốc")
-- Cần chốt sớm vì ảnh hưởng trực tiếp đến thiết kế giới hạn free vs trả phí trong hệ thống
+- **Freemium**: free basic lessons (vocabulary, grammar), paid subscriptions for:
+  - Unlimited mock tests
+  - AI grading for Writing/Speaking
+  - Personalized learning paths
+- Goal-specific packages (e.g., "3-Month IELTS Package", "Crash TOEIC Package")
+- Needs to be finalized early as it directly affects the design of free vs. paid limits in the system.
 
-## 6. Nguồn lực nội dung (Content Resources)
+## 6. Content Resources
 
-### Dữ liệu từ vựng theo cấp độ
-- CEFR-J Wordlist (miễn phí cho mục đích thương mại, cần trích dẫn nguồn)
-- Words-CEFR-Dataset (GitHub, đóng gói thành thư viện Python `cefrpy`)
-- Oxford 5000 (tham khảo cấu trúc, không copy nguyên văn — có bản quyền)
+### Vocabulary Data by Level
+- CEFR-J Wordlist (free for commercial use, requires attribution)
+- Words-CEFR-Dataset (GitHub, packaged into Python library `cefrpy`)
+- Oxford 5000 (reference structure, do not copy verbatim — copyrighted)
 
-### API tra cứu định nghĩa/phát âm
-- Free Dictionary API (dictionaryapi.dev) — miễn phí, không cần key, dùng cho MVP
-- Merriam-Webster API — miễn phí phi thương mại (giới hạn 1000 request/ngày), cần thỏa thuận riêng khi thương mại hóa
-- WordsAPI — có thể mua trọn bộ dữ liệu để tự host, tránh phụ thuộc rate-limit
+### Definition/Pronunciation API
+- Free Dictionary API (dictionaryapi.dev) — free, no key needed, for MVP
+- Merriam-Webster API — free for non-commercial use (limit 1000 requests/day), requires separate agreement for commercialization
+- WordsAPI — can purchase full dataset to self-host, avoiding rate limits
 
-### Nội dung luyện thi
-- Tự biên soạn từ vựng theo chủ đề thi (tham khảo cấu trúc từ các nguồn: chủ đề công sở TOEIC như Contracts, Marketing, Finance, HR...)
-- Đề thi mẫu cần tự biên soạn hoặc mua bản quyền — **không dùng nguyên đề thi thật có bản quyền** (Cambridge, ETS...)
+### Test Prep Content
+- Self-compile vocabulary by exam topics (reference structures from sources: TOEIC office topics like Contracts, Marketing, Finance, HR...)
+- Sample tests must be self-compiled or licensed — **do not use real copyrighted tests directly** (Cambridge, ETS...)
 
-## 7. Rủi ro & Điểm cần quyết định sớm
+## 7. Risks & Early Decisions Needed
 
-| Vấn đề | Cần quyết định |
+| Issue | Decision Needed |
 |---|---|
-| Bản quyền đề thi | Tự biên soạn hay mua license từ đơn vị luyện thi? |
-| Chi phí AI chấm Speaking/Writing | Dùng API nào (chi phí theo lượt gọi), giới hạn free tier ra sao? |
-| Ngôn ngữ giao diện | Chỉ tiếng Việt hay hỗ trợ đa ngôn ngữ để mở rộng thị trường sau này? |
-| Dữ liệu người dùng | Compliance khi lưu ghi âm giọng nói (dữ liệu nhạy cảm) |
+| Test copyrights | Self-compile or purchase licenses from test prep entities? |
+| AI costs for Speaking/Writing | Which API to use (cost per call), what are the free tier limits? |
+| UI Language | Vietnamese only or multi-language support for future market expansion? |
+| User Data | Compliance regarding voice recordings (sensitive data) |
 
-## 8. Roadmap tổng quan
+## 8. Overall Roadmap
 
-| Giai đoạn | Thời gian dự kiến | Nội dung chính |
+| Phase | Estimated Time | Core Content |
 |---|---|---|
-| Giai đoạn 1 (MVP) | Tháng 1–4 | Từ vựng/ngữ pháp, 1 đề thi thử, placement test |
-| Giai đoạn 2 | Tháng 5–7 | Chấm Speaking/Writing bằng AI, mở rộng ngân hàng đề |
-| Giai đoạn 3 | Tháng 8–10 | Luyện nghe nói nâng cao, cá nhân hóa lộ trình bằng AI |
-| Giai đoạn 4 | Sau đó | Mobile app, cộng đồng luyện tập, gamification |
+| Phase 1 (MVP) | Months 1–4 | Vocabulary/grammar, 1 mock test, placement test |
+| Phase 2 | Months 5–7 | AI Speaking/Writing grading, expand test bank |
+| Phase 3 | Months 8–10 | Advanced listening/speaking, AI personalized paths |
+| Phase 4 | Future | Mobile app, practice community, gamification |
 
 ---
 
-*Tài liệu liên quan: xem `02-kien-truc-trien-khai-ddd.md` để biết chi tiết kiến trúc kỹ thuật của Lumen.*
+*Related Documents: see `02-kien-truc-trien-khai-ddd.md` for detailed technical architecture of Lumen.*

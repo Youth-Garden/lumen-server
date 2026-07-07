@@ -14,6 +14,7 @@ import {
 } from './config';
 import { VocabularyModule } from './contexts/vocabulary/vocabulary.module';
 import { QuizModule } from './contexts/quiz/quiz.module';
+import { ProgressModule } from './contexts/progress/progress.module';
 import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
 
 @Module({
@@ -30,6 +31,7 @@ import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
     VocabularyModule,
     DatabaseModule,
     QuizModule,
+    ProgressModule,
   ],
   controllers: [AppController],
   providers: [

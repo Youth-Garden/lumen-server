@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import type { IVocabularyWordRepository } from '../../../domain/repositories/vocabulary-word.repository.interface';
+import { PaginatedResult } from '../../../../../shared-kernel/interfaces/paginated-result.interface';
 import { VocabularyWord } from '../../../domain/aggregates/vocabulary-word.aggregate';
 import { VocabularyDefinition } from '../../../domain/entities/vocabulary-definition.entity';
 import { VocabularyExample } from '../../../domain/entities/vocabulary-example.entity';
@@ -108,5 +109,38 @@ export class VocabularyWordRepository implements IVocabularyWordRepository {
       entity.cefrLevel,
       definitions,
     );
+  }
+
+  async findAll(filter: {
+    search?: string;
+    cefrLevel?: string;
+    page: number;
+    limit: number;
+  }): Promise<PaginatedResult<VocabularyWord>> {
+    const query = this.wordRepo
+      .createQueryBuilder('word')
+      .leftJoinAndSelect('word.definitions', 'definition')
+      .leftJoinAndSelect('definition.examples', 'example')
+      .orderBy('word.createdAt', 'DESC');
+
+    if (filter.search) {
+      query.andWhere('word.term ILIKE :search', {
+        search: `%${filter.search}%`,
+      });
+    }
+
+    if (filter.cefrLevel) {
+      query.andWhere('word.cefrLevel = :cefrLevel', {
+        cefrLevel: filter.cefrLevel,
+      });
+    }
+
+    const [entities, total] = await query
+      .skip((filter.page - 1) * filter.limit)
+      .take(filter.limit)
+      .getManyAndCount();
+
+    const items = entities.map((entity) => this.toDomain(entity));
+    return { items, total };
   }
 }

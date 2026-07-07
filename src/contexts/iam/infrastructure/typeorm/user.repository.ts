@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from '../../domain/enums/role.enum';
 import { Repository } from 'typeorm';
-import { IUserRepository } from '../../domain/repositories/user.repository.interface';
+import {
+  IUserRepository,
+  Session,
+  SessionMetadata,
+} from '../../domain/repositories/user.repository.interface';
 import { User } from '../../domain/entities/user.entity';
 import { UserEntity } from './entities/user.entity';
 import { SessionEntity } from './entities/session.entity';
@@ -16,14 +19,14 @@ export class UserRepository implements IUserRepository {
     private readonly sessionRepository: Repository<SessionEntity>,
   ) {}
 
-  private mapToDomain(ormEntity: User): User {
-    return new User(
+  private mapToDomain(ormEntity: UserEntity): User {
+    return User.restore(
       ormEntity.id,
       ormEntity.email,
       ormEntity.password,
       ormEntity.authProvider,
       ormEntity.providerId,
-      ormEntity.role, // ép tạm enum
+      ormEntity.role,
       ormEntity.planId,
       ormEntity.createdAt,
       ormEntity.updatedAt,
@@ -40,17 +43,18 @@ export class UserRepository implements IUserRepository {
     if (!user) return null;
     return this.mapToDomain(user);
   }
-  async save(
-    user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<User> {
-    const ormEntity = this.userRepository.create({
-      email: user.email,
-      password: user.password,
-      authProvider: user.authProvider,
-      providerId: user.providerId,
-      role: user.role,
-      planId: user.planId,
-    });
+  async save(user: User): Promise<User> {
+    const ormEntity = new UserEntity();
+    ormEntity.id = user.id;
+    ormEntity.email = user.email;
+    ormEntity.password = user.password;
+    ormEntity.authProvider = user.authProvider;
+    ormEntity.providerId = user.providerId;
+    ormEntity.role = user.role;
+    ormEntity.planId = user.planId;
+    ormEntity.createdAt = user.createdAt;
+    ormEntity.updatedAt = user.updatedAt;
+
     const saved = await this.userRepository.save(ormEntity);
     return this.mapToDomain(saved);
   }
@@ -76,9 +80,24 @@ export class UserRepository implements IUserRepository {
     await this.sessionRepository.delete({ refreshToken });
   }
 
+  async listSessions(userId: string): Promise<Session[]> {
+    const sessions = await this.sessionRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return sessions.map((s) => ({
+      id: s.id,
+      userAgent: s.userAgent,
+      ipAddress: s.ipAddress,
+      createdAt: s.createdAt,
+      expiresAt: s.expiresAt,
+    }));
+  }
+
   async findSessionByRefreshToken(
     refreshToken: string,
-  ): Promise<{ userId: string; role: Role; expiresAt: Date } | null> {
+  ): Promise<SessionMetadata | null> {
     const session = await this.sessionRepository.findOne({
       where: { refreshToken },
       relations: { user: true },
@@ -87,6 +106,7 @@ export class UserRepository implements IUserRepository {
     return {
       userId: session.userId,
       role: session.user.role,
+      email: session.user.email,
       expiresAt: session.expiresAt,
     };
   }

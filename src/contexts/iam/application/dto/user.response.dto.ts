@@ -9,5 +9,11 @@ export class UserResponseDto {
   email: string;
 
   @ApiProperty({ enum: Role })
-  role: Role;
+  role: string;
+
+  constructor(id: string, email: string, role: string) {
+    this.id = id;
+    this.email = email;
+    this.role = role;
+  }
 }

@@ -1,8 +1,6 @@
-import { GenerateQuizDto } from '../dtos/quiz.dto';
-
 export class GenerateQuizCommand {
   constructor(
-    public readonly dto: GenerateQuizDto,
+    public readonly limit: number,
     public readonly userId: string,
   ) {}
 }
