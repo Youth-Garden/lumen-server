@@ -15,7 +15,7 @@ export class DeckRepository implements IDeckRepository {
   async findById(id: string): Promise<Deck | null> {
     const entity = await this.repo.findOne({ where: { id } });
     if (!entity) return null;
-    return Deck.create(
+    return Deck.restore(
       entity.id,
       entity.name,
       entity.description,

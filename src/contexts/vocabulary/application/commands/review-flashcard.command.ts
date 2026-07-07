@@ -1,8 +1,7 @@
-import { ReviewFlashcardDto } from '../dtos/review-flashcard.dto';
-
 export class ReviewFlashcardCommand {
   constructor(
-    public readonly dto: ReviewFlashcardDto,
+    public readonly flashcardId: string,
+    public readonly quality: number, // 0 to 5
     public readonly userId: string,
   ) {}
 }

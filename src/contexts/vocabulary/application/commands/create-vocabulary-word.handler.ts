@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { CreateVocabularyWordCommand } from './create-vocabulary-word.command';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
@@ -7,6 +7,7 @@ import { VocabularyWord } from '../../domain/aggregates/vocabulary-word.aggregat
 import { VocabularyDefinition } from '../../domain/entities/vocabulary-definition.entity';
 import { VocabularyExample } from '../../domain/entities/vocabulary-example.entity';
 import { randomUUID } from 'crypto';
+import { AppException, VocabEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(CreateVocabularyWordCommand)
 export class CreateVocabularyWordHandler implements ICommandHandler<
@@ -19,16 +20,12 @@ export class CreateVocabularyWordHandler implements ICommandHandler<
   ) {}
 
   async execute(command: CreateVocabularyWordCommand): Promise<string> {
-    const { dto } = command;
-
-    const existingWord = await this.repository.findByTerm(dto.term);
+    const existingWord = await this.repository.findByTerm(command.term);
     if (existingWord) {
-      throw new BadRequestException('Word already exists');
+      throw new AppException(VocabEx.WordAlreadyExists);
     }
 
-    const wordId = randomUUID();
-
-    const definitions = dto.definitions.map((defDto) => {
+    const definitions = command.definitions.map((defDto) => {
       const def = new VocabularyDefinition(
         randomUUID(),
         defDto.partOfSpeech,
@@ -48,16 +45,15 @@ export class CreateVocabularyWordHandler implements ICommandHandler<
     });
 
     const word = VocabularyWord.create(
-      wordId,
-      dto.term,
-      dto.phonetic,
-      dto.audioUrl,
-      dto.cefrLevel,
+      command.term,
+      command.phonetic,
+      command.audioUrl,
+      command.cefrLevel,
       definitions,
     );
 
     await this.repository.save(word);
 
-    return wordId;
+    return word.id;
   }
 }

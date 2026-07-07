@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RegisterUserCommand } from './register-user.command';
-import { Inject, ConflictException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
+import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand> {
@@ -17,7 +18,7 @@ export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand>
   ): Promise<{ id: string; email: string; role: string }> {
     const existingUser = await this.userRepository.findByEmail(command.email);
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new AppException(AuthEx.EmailAlreadyExists(command.email));
     }
 
     const passwordHash = await this.passwordHashingService.hash(

@@ -12,6 +12,7 @@ import { CreateVocabularyWordHandler } from './application/commands/create-vocab
 import { CreateDeckHandler } from './application/commands/create-deck.handler';
 import { CreateFlashcardHandler } from './application/commands/create-flashcard.handler';
 import { ReviewFlashcardHandler } from './application/commands/review-flashcard.handler';
+import { GetVocabularyWordByIdHandler } from './application/queries/get-vocabulary-word-by-id.handler';
 import { VOCABULARY_WORD_REPOSITORY } from './domain/repositories/vocabulary-word.repository.interface';
 import { DECK_REPOSITORY } from './domain/repositories/deck.repository.interface';
 import { FLASHCARD_REPOSITORY } from './domain/repositories/flashcard.repository.interface';
@@ -39,6 +40,7 @@ import { UserProgressRepository } from './infrastructure/typeorm/repositories/us
     CreateDeckHandler,
     CreateFlashcardHandler,
     ReviewFlashcardHandler,
+    GetVocabularyWordByIdHandler,
     {
       provide: VOCABULARY_WORD_REPOSITORY,
       useClass: VocabularyWordRepository,
@@ -56,5 +58,6 @@ import { UserProgressRepository } from './infrastructure/typeorm/repositories/us
       useClass: UserProgressRepository,
     },
   ],
+  exports: [VOCABULARY_WORD_REPOSITORY],
 })
 export class VocabularyModule {}

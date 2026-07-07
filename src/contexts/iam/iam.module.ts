@@ -12,16 +12,20 @@ import { TokenService } from './infrastructure/services/token.service';
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
 import { UserOrmEntity } from './infrastructure/persistence/entities/user.orm-entity';
 import { SessionOrmEntity } from './infrastructure/persistence/entities/session.orm-entity';
+import { TypedConfigService } from '../../config/typed-config.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserOrmEntity, SessionOrmEntity]),
     CqrsModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'fallback_secret',
-      signOptions: {
-        expiresIn: parseInt(process.env.JWT_EXPIRES_IN || '900', 10),
-      },
+    JwtModule.registerAsync({
+      inject: [TypedConfigService],
+      useFactory: (config: TypedConfigService) => ({
+        secret: config.jwt.secret,
+        signOptions: {
+          expiresIn: config.jwt.expiresIn,
+        },
+      }),
     }),
   ],
   controllers: [IamController],

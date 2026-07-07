@@ -368,9 +368,9 @@ export interface AuthUserRepository {
   findByEmail(email: string): Promise<AuthUser | null>;
 }
 
-// infrastructure/typeorm/typeorm-auth-user.repository.ts
+// infrastructure/typeorm/auth-user.repository.ts
 @Injectable()
-export class TypeOrmAuthUserRepository implements AuthUserRepository {
+export class AuthUserRepositoryImpl implements AuthUserRepository {
   constructor(
     @InjectRepository(UserEntity)
     private readonly repository: Repository<UserEntity>,
@@ -506,3 +506,18 @@ Do not use technology-specific prefixes like `typeorm-` or `TypeOrm` for reposit
 
 - Check for implicit `any` from an untyped third-party library — add a local `.d.ts` declaration instead of casting to `any`.
 - Check for `JSON.parse()` results used without narrowing — wrap in a type guard or a `class-transformer` `plainToInstance()` call against a DTO class.
+  
+## 11. Custom System Rules & Patterns
+
+### 11.1 API Response & Error Handling Standards
+See details at https://github.com/Youth-Garden/lumen-server/wiki
+
+- **Exceptions**: The current architecture uses `AppException` combined with an `ErrorDefinition` Object (instead of multiple scattered Exception classes) following DDD patterns.
+- **Controller Returns**: Do not return inline promise types (e.g., `Promise<{ id: string }>`) from Controllers manually wrapped in explicit classes. Instead, **return the direct payload** (e.g., `{ id }` or `void`). The global `ResponseWrapperInterceptor` will automatically map and wrap the data into the `data` field of a `BaseResponse`, correctly handling both standard data and `PagedData`. Do NOT use redundant DTOs like `SuccessResponseDto` or `IdResponseDto`.
+
+### 11.2 Environment Variables
+- **Rule of Three**: Whenever a new environment variable is added, you MUST update it in three places:
+  1. `validation.schema.ts` (Joi validation)
+  2. The corresponding `*.config.ts` file (Typed ConfigService setup)
+  3. `.env.example`
+

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { CreateFlashcardCommand } from './create-flashcard.command';
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
@@ -8,7 +8,7 @@ import { DECK_REPOSITORY } from '../../domain/repositories/deck.repository.inter
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { Flashcard } from '../../domain/aggregates/flashcard.aggregate';
-import { randomUUID } from 'crypto';
+import { AppException, VocabEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(CreateFlashcardCommand)
 export class CreateFlashcardHandler implements ICommandHandler<
@@ -25,22 +25,26 @@ export class CreateFlashcardHandler implements ICommandHandler<
   ) {}
 
   async execute(command: CreateFlashcardCommand): Promise<string> {
-    const { deckId, wordId } = command.dto;
+    const { deckId, wordId } = command;
 
     const deck = await this.deckRepo.findById(deckId);
-    if (!deck) throw new BadRequestException('Deck not found');
+    if (!deck) {
+      throw new AppException(VocabEx.DeckNotFound);
+    }
 
     const word = await this.wordRepo.findById(wordId);
-    if (!word) throw new BadRequestException('Word not found');
+    if (!word) {
+      throw new AppException(VocabEx.WordNotFound(wordId));
+    }
 
     const existing = await this.flashcardRepo.findByDeckAndWord(deckId, wordId);
-    if (existing)
-      throw new BadRequestException('Flashcard already exists in this deck');
+    if (existing) {
+      throw new AppException(VocabEx.FlashcardAlreadyExists);
+    }
 
-    const flashcardId = randomUUID();
-    const flashcard = Flashcard.create(flashcardId, deckId, wordId);
+    const flashcard = Flashcard.create(deckId, wordId);
 
     await this.flashcardRepo.save(flashcard);
-    return flashcardId;
+    return flashcard.id;
   }
 }

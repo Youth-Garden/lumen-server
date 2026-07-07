@@ -1,8 +1,15 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import type { FastifyRequest } from 'fastify';
+import { AppException, CommonEx } from '../exceptions';
 
 export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest<{ user?: unknown }>();
-    return request.user;
+  (_data: unknown, ctx: ExecutionContext): string => {
+    const request = ctx
+      .switchToHttp()
+      .getRequest<FastifyRequest & { user?: { userId: string } }>();
+    if (!request.user || !request.user.userId) {
+      throw new AppException(CommonEx.Unauthorized);
+    }
+    return request.user.userId;
   },
 );

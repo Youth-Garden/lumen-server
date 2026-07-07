@@ -19,8 +19,8 @@ export class DeckEntity {
   @Column({ nullable: true })
   description: string | null;
 
-  @Column({ type: 'uuid', nullable: true })
-  authorId: string | null;
+  @Column({ type: 'uuid', nullable: false })
+  authorId: string;
 
   @CreateDateColumn()
   createdAt: Date;

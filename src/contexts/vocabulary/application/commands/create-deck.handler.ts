@@ -4,7 +4,6 @@ import { CreateDeckCommand } from './create-deck.command';
 import type { IDeckRepository } from '../../domain/repositories/deck.repository.interface';
 import { DECK_REPOSITORY } from '../../domain/repositories/deck.repository.interface';
 import { Deck } from '../../domain/aggregates/deck.aggregate';
-import { randomUUID } from 'crypto';
 
 @CommandHandler(CreateDeckCommand)
 export class CreateDeckHandler implements ICommandHandler<
@@ -17,12 +16,13 @@ export class CreateDeckHandler implements ICommandHandler<
   ) {}
 
   async execute(command: CreateDeckCommand): Promise<string> {
-    const { dto, authorId } = command;
-    const deckId = randomUUID();
-
-    const deck = Deck.create(deckId, dto.name, dto.description, authorId);
+    const deck = Deck.create(
+      command.name,
+      command.description,
+      command.authorId,
+    );
 
     await this.repository.save(deck);
-    return deckId;
+    return deck.id;
   }
 }

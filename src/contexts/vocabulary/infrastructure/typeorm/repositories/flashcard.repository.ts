@@ -15,7 +15,7 @@ export class FlashcardRepository implements IFlashcardRepository {
   async findById(id: string): Promise<Flashcard | null> {
     const entity = await this.repo.findOne({ where: { id } });
     if (!entity) return null;
-    return Flashcard.create(entity.id, entity.deckId, entity.wordId);
+    return Flashcard.restore(entity.id, entity.deckId, entity.wordId);
   }
 
   async findByDeckAndWord(
@@ -24,7 +24,7 @@ export class FlashcardRepository implements IFlashcardRepository {
   ): Promise<Flashcard | null> {
     const entity = await this.repo.findOne({ where: { deckId, wordId } });
     if (!entity) return null;
-    return Flashcard.create(entity.id, entity.deckId, entity.wordId);
+    return Flashcard.restore(entity.id, entity.deckId, entity.wordId);
   }
 
   async save(flashcard: Flashcard): Promise<void> {

@@ -6,4 +6,5 @@ export interface IVocabularyWordRepository {
   save(word: VocabularyWord): Promise<void>;
   findById(id: string): Promise<VocabularyWord | null>;
   findByTerm(term: string): Promise<VocabularyWord | null>;
+  findRandom(limit: number): Promise<VocabularyWord[]>;
 }

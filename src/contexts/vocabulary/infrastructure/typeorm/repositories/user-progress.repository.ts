@@ -19,7 +19,7 @@ export class UserProgressRepository implements IUserProgressRepository {
     const entity = await this.repo.findOne({ where: { userId, flashcardId } });
     if (!entity) return null;
 
-    return UserProgress.create(
+    return UserProgress.restore(
       entity.id,
       entity.userId,
       entity.flashcardId,

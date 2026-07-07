@@ -1,0 +1,27 @@
+export const VocabEx = {
+  WordNotFound: (id: string) => ({
+    code: 'VOCAB_WORD_NOT_FOUND',
+    message: `Word with ID ${id} not found`,
+    httpStatus: 404,
+  }),
+  WordAlreadyExists: {
+    code: 'VOCAB_WORD_ALREADY_EXISTS',
+    message: 'Word already exists',
+    httpStatus: 400,
+  },
+  DeckNotFound: {
+    code: 'VOCAB_DECK_NOT_FOUND',
+    message: 'Deck not found',
+    httpStatus: 404,
+  },
+  FlashcardAlreadyExists: {
+    code: 'VOCAB_FLASHCARD_ALREADY_EXISTS',
+    message: 'Flashcard already exists in this deck',
+    httpStatus: 400,
+  },
+  FlashcardNotFound: {
+    code: 'VOCAB_FLASHCARD_NOT_FOUND',
+    message: 'Flashcard not found',
+    httpStatus: 404,
+  },
+};

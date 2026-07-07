@@ -1,6 +1,8 @@
+import { AggregateRoot } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
 import { VocabularyDefinition } from '../entities/vocabulary-definition.entity';
 
-export class VocabularyWord {
+export class VocabularyWord extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _term: string,
@@ -8,9 +10,28 @@ export class VocabularyWord {
     private _audioUrl: string | null,
     private _cefrLevel: string | null,
     private _definitions: VocabularyDefinition[] = [],
-  ) {}
+  ) {
+    super();
+  }
 
   static create(
+    term: string,
+    phonetic: string | null,
+    audioUrl: string | null,
+    cefrLevel: string | null,
+    definitions: VocabularyDefinition[],
+  ): VocabularyWord {
+    return new VocabularyWord(
+      randomUUID(),
+      term,
+      phonetic,
+      audioUrl,
+      cefrLevel,
+      definitions,
+    );
+  }
+
+  static restore(
     id: string,
     term: string,
     phonetic: string | null,

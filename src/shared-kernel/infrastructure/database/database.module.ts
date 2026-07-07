@@ -1,14 +1,18 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypedConfigService } from '../../../config/typed-config.service';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: true, // Only for dev mode
+    TypeOrmModule.forRootAsync({
+      inject: [TypedConfigService],
+      useFactory: (config: TypedConfigService) => ({
+        type: 'postgres',
+        url: config.database.url,
+        autoLoadEntities: true,
+        synchronize: true, // Only for dev mode
+      }),
     }),
   ],
   exports: [TypeOrmModule],

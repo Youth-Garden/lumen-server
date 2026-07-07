@@ -35,6 +35,18 @@ export class VocabularyWordRepository implements IVocabularyWordRepository {
     return this.toDomain(entity);
   }
 
+  async findRandom(limit: number): Promise<VocabularyWord[]> {
+    const entities = await this.wordRepo
+      .createQueryBuilder('word')
+      .leftJoinAndSelect('word.definitions', 'definition')
+      .leftJoinAndSelect('definition.examples', 'example')
+      .orderBy('RANDOM()')
+      .take(limit)
+      .getMany();
+
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
   async save(word: VocabularyWord): Promise<void> {
     const wordEntity = new WordEntity();
     wordEntity.id = word.id;
@@ -88,7 +100,7 @@ export class VocabularyWordRepository implements IVocabularyWordRepository {
         return def;
       }) || [];
 
-    return VocabularyWord.create(
+    return VocabularyWord.restore(
       entity.id,
       entity.term,
       entity.phonetic,

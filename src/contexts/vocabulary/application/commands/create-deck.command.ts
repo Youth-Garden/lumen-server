@@ -1,8 +1,7 @@
-import { CreateDeckDto } from '../dtos/deck-flashcard.dto';
-
 export class CreateDeckCommand {
   constructor(
-    public readonly dto: CreateDeckDto,
+    public readonly name: string,
+    public readonly description: string | null,
     public readonly authorId: string,
   ) {}
 }

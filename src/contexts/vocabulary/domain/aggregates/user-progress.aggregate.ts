@@ -1,4 +1,7 @@
-export class UserProgress {
+import { AggregateRoot } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
+
+export class UserProgress extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _userId: string,
@@ -7,16 +10,30 @@ export class UserProgress {
     private _interval: number,
     private _repetitions: number,
     private _nextReviewDate: Date,
-  ) {}
+  ) {
+    super();
+  }
 
-  static create(
+  static create(userId: string, flashcardId: string): UserProgress {
+    return new UserProgress(
+      randomUUID(),
+      userId,
+      flashcardId,
+      2.5, // Default Ease Factor
+      0, // Initial Interval
+      0, // Initial Repetitions
+      new Date(), // Next Review is Now
+    );
+  }
+
+  static restore(
     id: string,
     userId: string,
     flashcardId: string,
-    easeFactor: number = 2.5,
-    interval: number = 0,
-    repetitions: number = 0,
-    nextReviewDate: Date = new Date(),
+    easeFactor: number,
+    interval: number,
+    repetitions: number,
+    nextReviewDate: Date,
   ): UserProgress {
     return new UserProgress(
       id,

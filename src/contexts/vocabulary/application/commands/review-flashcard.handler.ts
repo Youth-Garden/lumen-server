@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { ReviewFlashcardCommand } from './review-flashcard.command';
 import type { IUserProgressRepository } from '../../domain/repositories/user-progress.repository.interface';
 import { USER_PROGRESS_REPOSITORY } from '../../domain/repositories/user-progress.repository.interface';
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
 import { UserProgress } from '../../domain/aggregates/user-progress.aggregate';
-import { randomUUID } from 'crypto';
+import { AppException, VocabEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(ReviewFlashcardCommand)
 export class ReviewFlashcardHandler implements ICommandHandler<
@@ -21,24 +21,24 @@ export class ReviewFlashcardHandler implements ICommandHandler<
   ) {}
 
   async execute(command: ReviewFlashcardCommand): Promise<void> {
-    const { dto, userId } = command;
+    const { flashcardId, quality, userId } = command;
 
-    const flashcard = await this.flashcardRepo.findById(dto.flashcardId);
+    const flashcard = await this.flashcardRepo.findById(flashcardId);
     if (!flashcard) {
-      throw new BadRequestException('Flashcard not found');
+      throw new AppException(VocabEx.FlashcardNotFound);
     }
 
     let progress = await this.progressRepo.findByUserAndFlashcard(
       userId,
-      dto.flashcardId,
+      flashcardId,
     );
 
     if (!progress) {
-      progress = UserProgress.create(randomUUID(), userId, dto.flashcardId);
+      progress = UserProgress.create(userId, flashcardId);
     }
 
     // Apply Domain Logic (SM-2 Algorithm)
-    progress.review(dto.grade);
+    progress.review(quality);
 
     await this.progressRepo.save(progress);
   }

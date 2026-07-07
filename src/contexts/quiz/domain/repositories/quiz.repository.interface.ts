@@ -1,0 +1,8 @@
+import { Quiz } from '../aggregates/quiz.aggregate';
+
+export const QUIZ_REPOSITORY = Symbol('QUIZ_REPOSITORY');
+
+export interface IQuizRepository {
+  save(quiz: Quiz): Promise<void>;
+  findById(id: string): Promise<Quiz | null>;
+}

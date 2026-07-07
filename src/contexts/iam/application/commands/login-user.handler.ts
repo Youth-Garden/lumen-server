@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LoginUserCommand } from './login-user.command';
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
 import { TokenService } from '../../infrastructure/services/token.service';
+import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(LoginUserCommand)
 export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
@@ -21,7 +22,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   }> {
     const user = await this.userRepository.findByEmail(command.email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new AppException(AuthEx.InvalidCredentials);
     }
 
     const isPasswordValid = await this.passwordHashingService.compare(
@@ -29,7 +30,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
       user.passwordHash,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new AppException(AuthEx.InvalidCredentials);
     }
 
     const accessToken = this.tokenService.generateAccessToken(
