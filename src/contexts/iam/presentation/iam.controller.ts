@@ -4,6 +4,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiBody,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { FastifyRequest } from 'fastify';
@@ -35,8 +36,16 @@ export class IamController {
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User successfully registered' })
+  @ApiOperation({
+    summary: 'Register a new user',
+    description: 'Create a new local account with email and password.',
+  })
+  @ApiBody({ type: RegisterUserDto })
+  @ApiResponse({ status: 201, description: 'User successfully registered.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Email already exists or validation error.',
+  })
   async register(@Body() dto: RegisterUserDto): Promise<void> {
     await this.commandBus.execute(
       new RegisterUserCommand(dto.email, dto.password),
@@ -45,12 +54,18 @@ export class IamController {
 
   @Public()
   @Post('login')
-  @ApiOperation({ summary: 'Login user' })
+  @ApiOperation({
+    summary: 'Login with email & password',
+    description:
+      'Authenticate with email and password. Returns access and refresh tokens.',
+  })
+  @ApiBody({ type: LoginUserDto })
   @ApiResponse({
     status: 201,
-    description: 'User successfully logged in',
+    description: 'Login successful. Returns access & refresh tokens.',
     type: AuthTokensResponseDto,
   })
+  @ApiResponse({ status: 401, description: 'Invalid email or password.' })
   async login(
     @Body() dto: LoginUserDto,
     @Req() req: FastifyRequest,
@@ -66,11 +81,20 @@ export class IamController {
 
   @Public()
   @Post('refresh')
-  @ApiOperation({ summary: 'Refresh tokens' })
+  @ApiOperation({
+    summary: 'Refresh access token',
+    description:
+      'Exchange a valid refresh token for a new access token and refresh token pair (token rotation).',
+  })
+  @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
     status: 201,
-    description: 'Tokens successfully refreshed',
+    description: 'Tokens refreshed successfully.',
     type: AuthTokensResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token is invalid or expired.',
   })
   async refresh(
     @Body() dto: RefreshTokenDto,
@@ -87,11 +111,20 @@ export class IamController {
 
   @Public()
   @Post('google-login')
-  @ApiOperation({ summary: 'Login via Google' })
+  @ApiOperation({
+    summary: 'Login with Google OAuth2',
+    description:
+      'Authenticate using a Google ID token obtained from the client-side Google Sign-In flow. Creates a new account if the email does not exist.',
+  })
+  @ApiBody({ type: GoogleLoginDto })
   @ApiResponse({
     status: 201,
-    description: 'User successfully logged in via Google',
+    description: 'Google login successful. Returns access & refresh tokens.',
     type: GoogleLoginResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired Google ID token.',
   })
   async googleLogin(
     @Body() dto: GoogleLoginDto,
@@ -108,11 +141,19 @@ export class IamController {
 
   @ApiBearerAuth()
   @Get('me')
-  @ApiOperation({ summary: 'Get current logged in user' })
+  @ApiOperation({
+    summary: 'Get current logged-in user',
+    description:
+      'Returns the profile of the currently authenticated user. Requires a valid JWT access token.',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Current user retrieved successfully',
+    description: 'Returns the current user profile.',
     type: UserResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized. Missing or invalid access token.',
   })
   async getMe(@Req() req: RequestWithUser): Promise<UserResponseDto> {
     const user = req.user;

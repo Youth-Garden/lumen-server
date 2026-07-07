@@ -4,6 +4,8 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiParam,
+  ApiBody,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateVocabularyWordDto } from '../../application/dtos/create-vocabulary-word.dto';
@@ -31,10 +33,24 @@ export class VocabularyController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new vocabulary word' })
+  @ApiOperation({
+    summary: 'Create a new vocabulary word',
+    description:
+      'Add a new word to the vocabulary bank. Requires authentication. Includes phonetics, audio, CEFR level, definitions and example sentences.',
+  })
+  @ApiBody({ type: CreateVocabularyWordDto })
   @ApiResponse({
     status: 201,
-    description: 'The word has been successfully created',
+    description: 'Word created successfully. Returns the new word ID.',
+    schema: { example: { id: 'uuid-string' } },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error in the request body.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized. Missing or invalid access token.',
   })
   async createWord(
     @Body() dto: CreateVocabularyWordDto,
@@ -56,13 +72,22 @@ export class VocabularyController {
 
   @Public()
   @Get(':id')
-  @ApiOperation({ summary: 'Get vocabulary word by ID' })
+  @ApiOperation({
+    summary: 'Get a vocabulary word by ID',
+    description:
+      'Retrieve the full details of a single vocabulary word including definitions and examples. This endpoint is publicly accessible.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'The UUID of the vocabulary word',
+    example: 'uuid-string',
+  })
   @ApiResponse({
     status: 200,
-    description: 'The word details',
+    description: 'Returns the vocabulary word details.',
     type: VocabularyWordResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Word not found' })
+  @ApiResponse({ status: 404, description: 'Word not found.' })
   async getWord(@Param('id') id: string): Promise<VocabularyWordResponseDto> {
     return this.queryBus.execute<
       GetVocabularyWordByIdQuery,
@@ -71,8 +96,19 @@ export class VocabularyController {
   }
 
   @Post('decks')
-  @ApiOperation({ summary: 'Create a new deck' })
-  @ApiResponse({ status: 201, description: 'Deck created' })
+  @ApiOperation({
+    summary: 'Create a flashcard deck',
+    description:
+      'Create a new personal deck to organize flashcards. The deck is owned by the authenticated user.',
+  })
+  @ApiBody({ type: CreateDeckDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Deck created successfully. Returns the new deck ID.',
+    schema: { example: { id: 'uuid-string' } },
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async createDeck(
     @Body() dto: CreateDeckDto,
     @CurrentUser() userId: string,
@@ -84,8 +120,20 @@ export class VocabularyController {
   }
 
   @Post('flashcards')
-  @ApiOperation({ summary: 'Create a new flashcard' })
-  @ApiResponse({ status: 201, description: 'Flashcard created' })
+  @ApiOperation({
+    summary: 'Add a flashcard to a deck',
+    description:
+      'Link a vocabulary word to a deck as a flashcard. The flashcard will be initialized with SM-2 algorithm defaults for spaced repetition.',
+  })
+  @ApiBody({ type: CreateFlashcardDto })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Flashcard created successfully. Returns the new flashcard ID.',
+    schema: { example: { id: 'uuid-string' } },
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async createFlashcard(
     @Body() dto: CreateFlashcardDto,
   ): Promise<{ id: string }> {
@@ -96,8 +144,22 @@ export class VocabularyController {
   }
 
   @Post('flashcards/review')
-  @ApiOperation({ summary: 'Review a flashcard (SM-2 algorithm)' })
-  @ApiResponse({ status: 201, description: 'Flashcard reviewed' })
+  @ApiOperation({
+    summary: 'Review a flashcard (SM-2)',
+    description:
+      'Submit a review grade (0–5) for a flashcard. The SM-2 spaced repetition algorithm will calculate the next review date and update the easiness factor.',
+  })
+  @ApiBody({ type: ReviewFlashcardDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Review submitted. Next review date calculated.',
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({
+    status: 404,
+    description: 'Flashcard not found or does not belong to this user.',
+  })
   async reviewFlashcard(
     @Body() dto: ReviewFlashcardDto,
     @CurrentUser() userId: string,

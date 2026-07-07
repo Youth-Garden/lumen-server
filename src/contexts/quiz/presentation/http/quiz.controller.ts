@@ -4,6 +4,8 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
+  ApiParam,
+  ApiBody,
 } from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
 import {
@@ -26,8 +28,22 @@ export class QuizController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('generate')
-  @ApiOperation({ summary: 'Tạo một bài Quiz mới' })
-  @ApiResponse({ status: 201, description: 'Trả về ID của bài Quiz' })
+  @ApiOperation({
+    summary: 'Generate a new quiz session',
+    description:
+      'Create a new quiz session based on the provided vocabulary word IDs or deck. Returns the quiz ID to be used for submitting answers.',
+  })
+  @ApiBody({ type: GenerateQuizDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Quiz generated successfully. Returns the quiz ID.',
+    type: GenerateQuizResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized. Missing or invalid access token.',
+  })
   async generateQuiz(
     @Body() dto: GenerateQuizDto,
     @CurrentUser() userId: string,
@@ -39,8 +55,26 @@ export class QuizController {
   }
 
   @Post(':id/questions/:questionId/answers')
-  @ApiOperation({ summary: 'Nộp đáp án cho một câu hỏi' })
-  @ApiResponse({ status: 201, description: 'Nộp thành công' })
+  @ApiOperation({
+    summary: 'Submit an answer for a quiz question',
+    description:
+      'Submit the selected answer for a specific question in a quiz session. The answer is recorded but scoring is calculated when the quiz is finished.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Quiz session ID',
+    example: 'uuid-string',
+  })
+  @ApiParam({
+    name: 'questionId',
+    description: 'Question ID within the quiz',
+    example: 'uuid-string',
+  })
+  @ApiBody({ type: SubmitAnswerDto })
+  @ApiResponse({ status: 201, description: 'Answer submitted successfully.' })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 404, description: 'Quiz or question not found.' })
   async submitAnswer(
     @Param('id') quizId: string,
     @Param('questionId') questionId: string,
@@ -53,8 +87,26 @@ export class QuizController {
   }
 
   @Post(':id/finish')
-  @ApiOperation({ summary: 'Kết thúc bài Quiz và tính điểm' })
-  @ApiResponse({ status: 201, description: 'Trả về điểm số' })
+  @ApiOperation({
+    summary: 'Finish a quiz and calculate score',
+    description:
+      'Mark the quiz session as completed. The system calculates the final score based on all submitted answers and returns the result.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Quiz session ID',
+    example: 'uuid-string',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Quiz finished. Returns the final score.',
+    type: FinishQuizResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({
+    status: 404,
+    description: 'Quiz not found or already finished.',
+  })
   async finishQuiz(
     @Param('id') quizId: string,
     @CurrentUser() userId: string,
