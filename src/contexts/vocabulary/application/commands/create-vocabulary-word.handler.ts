@@ -1,0 +1,63 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Inject, BadRequestException } from '@nestjs/common';
+import { CreateVocabularyWordCommand } from './create-vocabulary-word.command';
+import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
+import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
+import { VocabularyWord } from '../../domain/aggregates/vocabulary-word.aggregate';
+import { VocabularyDefinition } from '../../domain/entities/vocabulary-definition.entity';
+import { VocabularyExample } from '../../domain/entities/vocabulary-example.entity';
+import { randomUUID } from 'crypto';
+
+@CommandHandler(CreateVocabularyWordCommand)
+export class CreateVocabularyWordHandler implements ICommandHandler<
+  CreateVocabularyWordCommand,
+  string
+> {
+  constructor(
+    @Inject(VOCABULARY_WORD_REPOSITORY)
+    private readonly repository: IVocabularyWordRepository,
+  ) {}
+
+  async execute(command: CreateVocabularyWordCommand): Promise<string> {
+    const { dto } = command;
+
+    const existingWord = await this.repository.findByTerm(dto.term);
+    if (existingWord) {
+      throw new BadRequestException('Word already exists');
+    }
+
+    const wordId = randomUUID();
+
+    const definitions = dto.definitions.map((defDto) => {
+      const def = new VocabularyDefinition(
+        randomUUID(),
+        defDto.partOfSpeech,
+        defDto.definitionEn,
+        defDto.translationVi,
+      );
+      defDto.examples.forEach((exDto) => {
+        def.addExample(
+          new VocabularyExample(
+            randomUUID(),
+            exDto.sentenceEn,
+            exDto.translationVi,
+          ),
+        );
+      });
+      return def;
+    });
+
+    const word = VocabularyWord.create(
+      wordId,
+      dto.term,
+      dto.phonetic,
+      dto.audioUrl,
+      dto.cefrLevel,
+      definitions,
+    );
+
+    await this.repository.save(word);
+
+    return wordId;
+  }
+}
