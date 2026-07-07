@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AuthProvider } from '../../../domain/enums/auth-provider.enum';
+import { Role } from '../../../domain/enums/role.enum';
 
 @Entity('iam_users')
 export class UserEntity {
@@ -17,8 +19,8 @@ export class UserEntity {
   @Column({ nullable: true })
   password: string | null;
 
-  @Column({ default: 'LOCAL' })
-  authProvider: string;
+  @Column({ type: 'enum', enum: AuthProvider, default: AuthProvider.LOCAL })
+  authProvider: AuthProvider;
 
   @Column({ nullable: true })
   providerId: string | null;
@@ -32,8 +34,8 @@ export class UserEntity {
   @Column({ nullable: true })
   phone: string | null;
 
-  @Column({ default: 'USER' })
-  role: string;
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
 
   @Column({ type: 'uuid', nullable: true })
   planId: string | null;

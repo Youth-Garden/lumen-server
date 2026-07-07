@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from '../../domain/enums/role.enum';
 import { Repository } from 'typeorm';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { User } from '../../domain/entities/user.entity';
@@ -77,7 +78,7 @@ export class UserRepository implements IUserRepository {
 
   async findSessionByRefreshToken(
     refreshToken: string,
-  ): Promise<{ userId: string; role: string; expiresAt: Date } | null> {
+  ): Promise<{ userId: string; role: Role; expiresAt: Date } | null> {
     const session = await this.sessionRepository.findOne({
       where: { refreshToken },
       relations: { user: true },

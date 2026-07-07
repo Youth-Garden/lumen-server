@@ -4,6 +4,8 @@ import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { TokenService } from '../../infrastructure/services/token.service';
+import { AuthProvider } from '../../domain/enums/auth-provider.enum';
+import { Role } from '../../domain/enums/role.enum';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 import { OAuth2Client } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
@@ -51,9 +53,9 @@ export class GoogleLoginHandler implements ICommandHandler<GoogleLoginCommand> {
       user = await this.userRepository.save({
         email: email,
         password: null,
-        authProvider: 'GOOGLE',
+        authProvider: AuthProvider.GOOGLE,
         providerId: payload.sub,
-        role: 'USER',
+        role: Role.USER,
         planId: null,
       });
     }

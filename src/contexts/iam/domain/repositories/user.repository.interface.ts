@@ -1,4 +1,5 @@
 import { User } from '../entities/user.entity';
+import { Role } from '../enums/role.enum';
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
@@ -14,7 +15,7 @@ export interface IUserRepository {
   revokeSession(refreshToken: string): Promise<void>;
   findSessionByRefreshToken(
     refreshToken: string,
-  ): Promise<{ userId: string; role: string; expiresAt: Date } | null>;
+  ): Promise<{ userId: string; role: Role; expiresAt: Date } | null>;
 }
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');

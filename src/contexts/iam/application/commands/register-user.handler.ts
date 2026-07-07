@@ -4,6 +4,8 @@ import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
+import { AuthProvider } from '../../domain/enums/auth-provider.enum';
+import { Role } from '../../domain/enums/role.enum';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(RegisterUserCommand)
@@ -28,9 +30,9 @@ export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand>
     const newUser = await this.userRepository.save({
       email: command.email,
       password,
-      authProvider: 'LOCAL',
+      authProvider: AuthProvider.LOCAL,
       providerId: null,
-      role: 'USER',
+      role: Role.USER,
       planId: null,
     });
 
