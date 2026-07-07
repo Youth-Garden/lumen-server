@@ -24,7 +24,6 @@ import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.d
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
 
 @ApiTags('Vocabulary')
-@ApiBearerAuth()
 @Controller('vocabulary/words')
 export class VocabularyController {
   constructor(
@@ -32,6 +31,7 @@ export class VocabularyController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({
     summary: 'Create a new vocabulary word',
@@ -95,6 +95,7 @@ export class VocabularyController {
     >(new GetVocabularyWordByIdQuery(id));
   }
 
+  @ApiBearerAuth()
   @Post('decks')
   @ApiOperation({
     summary: 'Create a flashcard deck',
@@ -119,6 +120,7 @@ export class VocabularyController {
     return { id };
   }
 
+  @ApiBearerAuth()
   @Post('flashcards')
   @ApiOperation({
     summary: 'Add a flashcard to a deck',
@@ -143,6 +145,7 @@ export class VocabularyController {
     return { id };
   }
 
+  @ApiBearerAuth()
   @Post('flashcards/review')
   @ApiOperation({
     summary: 'Review a flashcard (SM-2)',
