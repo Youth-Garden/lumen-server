@@ -1,36 +1,61 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LoginUserCommand } from './login-user.command';
+import { GoogleLoginCommand } from './google-login.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
+import { OAuth2Client } from 'google-auth-library';
+import { ConfigService } from '@nestjs/config';
 
-@CommandHandler(LoginUserCommand)
-export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
+@CommandHandler(GoogleLoginCommand)
+export class GoogleLoginHandler implements ICommandHandler<GoogleLoginCommand> {
+  private googleClient: OAuth2Client;
+  private clientId: string;
+
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
-    private readonly passwordHashingService: PasswordHashingService,
     private readonly tokenService: TokenService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    // Assuming GOOGLE_CLIENT_ID is added to config
+    this.clientId = this.configService.getOrThrow<string>('iam.googleClientId');
+    this.googleClient = new OAuth2Client(this.clientId);
+  }
 
-  async execute(command: LoginUserCommand): Promise<{
+  async execute(command: GoogleLoginCommand): Promise<{
     accessToken: string;
     refreshToken: string;
     user: { id: string; email: string; role: string };
   }> {
-    const user = await this.userRepository.findByEmail(command.email);
-    if (!user) {
+    let payload;
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: command.idToken,
+        audience: this.clientId,
+      });
+      payload = ticket.getPayload();
+    } catch {
       throw new AppException(AuthEx.InvalidCredentials);
     }
 
-    const isPasswordValid = await this.passwordHashingService.compare(
-      command.passwordRaw,
-      user.password ?? '',
-    );
-    if (!isPasswordValid) {
+    if (!payload || !payload.email) {
       throw new AppException(AuthEx.InvalidCredentials);
+    }
+
+    const email = payload.email;
+    let user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      // Auto register
+      user = await this.userRepository.save({
+        email: email,
+        password: null,
+        authProvider: 'GOOGLE',
+        providerId: payload.sub,
+        role: 'USER',
+        planId: null,
+      });
     }
 
     const accessToken = this.tokenService.generateAccessToken(
@@ -39,7 +64,6 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
     );
     const refreshToken = this.tokenService.generateRefreshToken(user.id);
 
-    // Expires in 7 days
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 

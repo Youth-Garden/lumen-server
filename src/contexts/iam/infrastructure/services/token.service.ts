@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class TokenService {
@@ -11,7 +10,8 @@ export class TokenService {
     return this.jwtService.sign(payload);
   }
 
-  generateRefreshToken(): string {
-    return uuidv4();
+  generateRefreshToken(userId: string): string {
+    const payload = { sub: userId, type: 'refresh' };
+    return this.jwtService.sign(payload, { expiresIn: '7d' });
   }
 }

@@ -1,10 +1,9 @@
-import { UserEntity } from '../entities/user.entity';
+import { User } from '../entities/user.entity';
 
 export interface IUserRepository {
-  findByEmail(email: string): Promise<UserEntity | null>;
-  save(
-    user: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<UserEntity>;
+  findByEmail(email: string): Promise<User | null>;
+  findById(id: string): Promise<User | null>;
+  save(user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User>;
   createSession(
     userId: string,
     refreshToken: string,
@@ -12,6 +11,10 @@ export interface IUserRepository {
     userAgent?: string,
     ipAddress?: string,
   ): Promise<void>;
+  revokeSession(refreshToken: string): Promise<void>;
+  findSessionByRefreshToken(
+    refreshToken: string,
+  ): Promise<{ userId: string; role: string; expiresAt: Date } | null>;
 }
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');

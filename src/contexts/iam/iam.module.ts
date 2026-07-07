@@ -5,18 +5,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IamController } from './presentation/iam.controller';
 import { RegisterUserHandler } from './application/commands/register-user.handler';
 import { LoginUserHandler } from './application/commands/login-user.handler';
-import { UserRepository } from './infrastructure/persistence/user.repository';
+import { RefreshTokenHandler } from './application/commands/refresh-token.handler';
+import { GoogleLoginHandler } from './application/commands/google-login.handler';
+import { GetMeHandler } from './application/queries/get-me.handler';
+import { UserRepository } from './infrastructure/typeorm/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
 import { PasswordHashingService } from './infrastructure/services/password-hashing.service';
 import { TokenService } from './infrastructure/services/token.service';
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
-import { UserOrmEntity } from './infrastructure/persistence/entities/user.orm-entity';
-import { SessionOrmEntity } from './infrastructure/persistence/entities/session.orm-entity';
+import { UserEntity } from './infrastructure/typeorm/entities/user.entity';
+import { SessionEntity } from './infrastructure/typeorm/entities/session.entity';
 import { TypedConfigService } from '../../config/typed-config.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserOrmEntity, SessionOrmEntity]),
+    TypeOrmModule.forFeature([UserEntity, SessionEntity]),
     CqrsModule,
     JwtModule.registerAsync({
       inject: [TypedConfigService],
@@ -32,6 +35,9 @@ import { TypedConfigService } from '../../config/typed-config.service';
   providers: [
     RegisterUserHandler,
     LoginUserHandler,
+    RefreshTokenHandler,
+    GoogleLoginHandler,
+    GetMeHandler,
     PasswordHashingService,
     TokenService,
     JwtStrategy,

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { AppConfig } from './app.config';
 import type { JwtConfig } from './jwt.config';
 import type { DatabaseConfig } from './database.config';
+import type { IamConfig } from './iam.config';
 
 @Injectable()
 export class TypedConfigService {
@@ -18,5 +19,9 @@ export class TypedConfigService {
 
   get database(): DatabaseConfig {
     return this.configService.getOrThrow<DatabaseConfig>('database');
+  }
+
+  get iam(): IamConfig {
+    return this.configService.getOrThrow<IamConfig>('iam');
   }
 }

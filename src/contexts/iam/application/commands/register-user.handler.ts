@@ -21,13 +21,15 @@ export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand>
       throw new AppException(AuthEx.EmailAlreadyExists(command.email));
     }
 
-    const passwordHash = await this.passwordHashingService.hash(
+    const password = await this.passwordHashingService.hash(
       command.passwordRaw,
     );
 
     const newUser = await this.userRepository.save({
       email: command.email,
-      passwordHash,
+      password,
+      authProvider: 'LOCAL',
+      providerId: null,
       role: 'USER',
       planId: null,
     });

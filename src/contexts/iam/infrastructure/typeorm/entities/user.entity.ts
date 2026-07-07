@@ -7,15 +7,21 @@ import {
 } from 'typeorm';
 
 @Entity('iam_users')
-export class UserOrmEntity {
+export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  passwordHash: string;
+  @Column({ nullable: true })
+  password: string | null;
+
+  @Column({ default: 'LOCAL' })
+  authProvider: string;
+
+  @Column({ nullable: true })
+  providerId: string | null;
 
   @Column({ nullable: true })
   fullName: string | null;

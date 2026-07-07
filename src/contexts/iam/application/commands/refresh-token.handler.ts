@@ -1,51 +1,50 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LoginUserCommand } from './login-user.command';
+import { RefreshTokenCommand } from './refresh-token.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 
-@CommandHandler(LoginUserCommand)
-export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
+@CommandHandler(RefreshTokenCommand)
+export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
-    private readonly passwordHashingService: PasswordHashingService,
     private readonly tokenService: TokenService,
   ) {}
 
-  async execute(command: LoginUserCommand): Promise<{
+  async execute(command: RefreshTokenCommand): Promise<{
     accessToken: string;
     refreshToken: string;
-    user: { id: string; email: string; role: string };
   }> {
-    const user = await this.userRepository.findByEmail(command.email);
-    if (!user) {
+    const session = await this.userRepository.findSessionByRefreshToken(
+      command.refreshToken,
+    );
+
+    if (!session) {
       throw new AppException(AuthEx.InvalidCredentials);
     }
 
-    const isPasswordValid = await this.passwordHashingService.compare(
-      command.passwordRaw,
-      user.password ?? '',
-    );
-    if (!isPasswordValid) {
+    if (session.expiresAt < new Date()) {
+      await this.userRepository.revokeSession(command.refreshToken);
       throw new AppException(AuthEx.InvalidCredentials);
     }
 
     const accessToken = this.tokenService.generateAccessToken(
-      user.id,
-      user.role,
+      session.userId,
+      session.role,
     );
-    const refreshToken = this.tokenService.generateRefreshToken(user.id);
+    const newRefreshToken = this.tokenService.generateRefreshToken(
+      session.userId,
+    );
 
-    // Expires in 7 days
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
+    await this.userRepository.revokeSession(command.refreshToken);
     await this.userRepository.createSession(
-      user.id,
-      refreshToken,
+      session.userId,
+      newRefreshToken,
       expiresAt,
       command.userAgent,
       command.ipAddress,
@@ -53,12 +52,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
 
     return {
       accessToken,
-      refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
+      refreshToken: newRefreshToken,
     };
   }
 }

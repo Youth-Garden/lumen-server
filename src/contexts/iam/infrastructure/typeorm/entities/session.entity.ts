@@ -7,10 +7,10 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { UserOrmEntity } from './user.orm-entity';
+import { UserEntity } from './user.entity';
 
 @Entity('iam_sessions')
-export class SessionOrmEntity {
+export class SessionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -35,7 +35,7 @@ export class SessionOrmEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => UserOrmEntity)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
-  user: UserOrmEntity;
+  user: UserEntity;
 }
