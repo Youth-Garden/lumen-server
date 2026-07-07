@@ -3,7 +3,7 @@ import { RegisterUserCommand } from './register-user.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
+import { HashingService } from '../../infrastructure/services/hashing.service';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
@@ -12,7 +12,7 @@ import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
-    private readonly passwordHashingService: PasswordHashingService,
+    private readonly hashingService: HashingService,
   ) {}
 
   async execute(
@@ -23,9 +23,7 @@ export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand>
       throw new AppException(AuthEx.EmailAlreadyExists(command.email));
     }
 
-    const password = await this.passwordHashingService.hash(
-      command.passwordRaw,
-    );
+    const password = await this.hashingService.hash(command.passwordRaw);
 
     const newUser = await this.userRepository.save({
       email: command.email,

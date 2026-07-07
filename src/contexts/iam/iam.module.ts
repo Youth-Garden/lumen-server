@@ -10,7 +10,7 @@ import { GoogleLoginHandler } from './application/commands/google-login.handler'
 import { GetMeHandler } from './application/queries/get-me.handler';
 import { UserRepository } from './infrastructure/typeorm/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
-import { PasswordHashingService } from './infrastructure/services/password-hashing.service';
+import { HashingService } from './infrastructure/services/hashing.service';
 import { TokenService } from './infrastructure/services/token.service';
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
 import { UserEntity } from './infrastructure/typeorm/entities/user.entity';
@@ -38,7 +38,7 @@ import { TypedConfigService } from '../../config/typed-config.service';
     RefreshTokenHandler,
     GoogleLoginHandler,
     GetMeHandler,
-    PasswordHashingService,
+    HashingService,
     TokenService,
     JwtStrategy,
     {

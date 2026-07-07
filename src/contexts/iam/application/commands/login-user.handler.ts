@@ -3,7 +3,7 @@ import { LoginUserCommand } from './login-user.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { PasswordHashingService } from '../../infrastructure/services/password-hashing.service';
+import { HashingService } from '../../infrastructure/services/hashing.service';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 
@@ -11,7 +11,7 @@ import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
-    private readonly passwordHashingService: PasswordHashingService,
+    private readonly hashingService: HashingService,
     private readonly tokenService: TokenService,
   ) {}
 
@@ -25,7 +25,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
       throw new AppException(AuthEx.InvalidCredentials);
     }
 
-    const isPasswordValid = await this.passwordHashingService.compare(
+    const isPasswordValid = await this.hashingService.compare(
       command.passwordRaw,
       user.password ?? '',
     );
