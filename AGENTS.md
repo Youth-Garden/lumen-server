@@ -520,4 +520,5 @@ See details at https://github.com/Youth-Garden/lumen-server/wiki
   1. `validation.schema.ts` (Joi validation)
   2. The corresponding `*.config.ts` file (Typed ConfigService setup)
   3. `.env.example`
-
+  
+9. **Naming Convention**: Do not use single-letter variables (e.g., q, m, n). Always use descriptive variable names (e.g., question, user, index, item). 

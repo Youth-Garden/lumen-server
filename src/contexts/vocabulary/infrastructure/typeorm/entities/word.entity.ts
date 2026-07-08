@@ -17,13 +17,13 @@ export class WordEntity {
   @Column({ unique: true })
   term: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   phonetic: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   audioUrl: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   cefrLevel: string | null;
 
   @CreateDateColumn()

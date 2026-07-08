@@ -18,18 +18,18 @@ import { GoogleAuthService } from './infrastructure/services/google-auth.service
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
 import { UserEntity } from './infrastructure/typeorm/entities/user.entity';
 import { SessionEntity } from './infrastructure/typeorm/entities/session.entity';
-import { TypedConfigService } from '../../config/typed-config.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, SessionEntity]),
     CqrsModule,
     JwtModule.registerAsync({
-      inject: [TypedConfigService],
-      useFactory: (config: TypedConfigService) => ({
-        secret: config.jwt.secret,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('jwt.secret'),
         signOptions: {
-          expiresIn: config.jwt.expiresIn,
+          expiresIn: config.get<number>('jwt.expiresIn'),
         },
       }),
     }),

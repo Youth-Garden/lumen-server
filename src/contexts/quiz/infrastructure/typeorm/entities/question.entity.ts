@@ -30,10 +30,10 @@ export class QuestionEntity {
   @Column()
   correctAnswer: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   userAnswer: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'boolean', nullable: true })
   isCorrect: boolean | null;
 
   @ManyToOne(() => QuizEntity, (quiz) => quiz.questions, {

@@ -16,22 +16,22 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   password: string | null;
 
   @Column({ type: 'enum', enum: AuthProvider, default: AuthProvider.LOCAL })
   authProvider: AuthProvider;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   providerId: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   fullName: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   avatarUrl: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   phone: string | null;
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
