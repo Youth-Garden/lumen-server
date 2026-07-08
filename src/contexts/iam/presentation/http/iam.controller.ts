@@ -4,27 +4,27 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { FastifyRequest } from 'fastify';
 
 type RequestWithUser = FastifyRequest & { user: { sub: string } };
-import { GetMeQuery } from '../application/queries/get-me.query';
-import { RegisterUserDto } from '../application/dto/register-user.dto';
-import { RegisterUserCommand } from '../application/commands/register-user.command';
-import { LoginUserDto } from '../application/dto/login-user.dto';
-import { LoginUserCommand } from '../application/commands/login-user.command';
-import { RefreshTokenDto } from '../application/dto/refresh-token.dto';
-import { RefreshTokenCommand } from '../application/commands/refresh-token.command';
-import { GoogleLoginDto } from '../application/dto/google-login.dto';
-import { GoogleLoginCommand } from '../application/commands/google-login.command';
+import { GetMeQuery } from '../../application/queries/get-me.query';
+import { RegisterUserDto } from '../../application/dtos/register-user.dto';
+import { RegisterUserCommand } from '../../application/commands/register-user.command';
+import { LoginUserDto } from '../../application/dtos/login-user.dto';
+import { LoginUserCommand } from '../../application/commands/login-user.command';
+import { RefreshTokenDto } from '../../application/dtos/refresh-token.dto';
+import { RefreshTokenCommand } from '../../application/commands/refresh-token.command';
+import { GoogleLoginDto } from '../../application/dtos/google-login.dto';
+import { GoogleLoginCommand } from '../../application/commands/google-login.command';
 import {
   AuthTokensResponseDto,
   GoogleLoginResponseDto,
-} from '../application/dto/auth-tokens.response.dto';
-import { UserResponseDto } from '../application/dto/user.response.dto';
-import { LogoutDto } from '../application/dto/logout.dto';
-import { SessionResponseDto } from '../application/dto/session.response.dto';
-import { LogoutCommand } from '../application/commands/logout.command';
-import { ListSessionsQuery } from '../application/queries/list-sessions.query';
-import { Public } from '../../../shared-kernel/decorators/public.decorator';
-import { UpdateProfileDto } from '../application/dto/update-profile.dto';
-import { UpdateProfileCommand } from '../application/commands/update-profile.command';
+} from '../../application/dtos/auth-tokens.response.dto';
+import { UserResponseDto } from '../../application/dtos/user.response.dto';
+import { LogoutDto } from '../../application/dtos/logout.dto';
+import { SessionResponseDto } from '../../application/dtos/session.response.dto';
+import { LogoutCommand } from '../../application/commands/logout.command';
+import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
+import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
+import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
 
 @ApiTags('IAM')
 @Controller('iam')

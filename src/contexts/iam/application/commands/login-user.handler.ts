@@ -6,7 +6,7 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
 import { HashingService } from '../../infrastructure/services/hashing.service';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
-import { AuthTokensResponseDto } from '../dto/auth-tokens.response.dto';
+import { AuthTokensResponseDto } from '../dtos/auth-tokens.response.dto';
 
 @CommandHandler(LoginUserCommand)
 export class LoginUserHandler implements ICommandHandler<

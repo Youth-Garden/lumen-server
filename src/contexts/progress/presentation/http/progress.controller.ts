@@ -9,8 +9,8 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { GetDashboardQuery } from '../../application/queries/get-dashboard.query';
-import { DashboardResponseDto } from '../../application/dto/dashboard.response.dto';
-import { UpdateProgressSettingsDto } from '../../application/dto/update-progress-settings.dto';
+import { DashboardResponseDto } from '../../application/dtos/dashboard.response.dto';
+import { UpdateProgressSettingsDto } from '../../application/dtos/update-progress-settings.dto';
 import { UpdateProgressSettingsCommand } from '../../application/commands/update-progress-settings.command';
 
 @ApiTags('Progress')

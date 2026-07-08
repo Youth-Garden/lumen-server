@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { IamController } from './presentation/iam.controller';
+import { IamController } from './presentation/http/iam.controller';
 import { RegisterUserHandler } from './application/commands/register-user.handler';
 import { LoginUserHandler } from './application/commands/login-user.handler';
 import { RefreshTokenHandler } from './application/commands/refresh-token.handler';

@@ -3,7 +3,7 @@ import { UpdateProfileCommand } from './update-profile.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { UserResponseDto } from '../dto/user.response.dto';
+import { UserResponseDto } from '../dtos/user.response.dto';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 
 @CommandHandler(UpdateProfileCommand)

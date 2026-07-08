@@ -3,3 +3,7 @@ export * from './common.exception';
 export * from './auth.exception';
 export * from './vocabulary.exception';
 export * from './quiz.exception';
+export * from './reading.exception';
+export * from './material.exception';
+export * from './toeic.exception';
+export * from './progress.exception';

@@ -5,7 +5,7 @@ import type { IUserRepository } from '../../domain/repositories/user.repository.
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
-import { AuthTokensResponseDto } from '../dto/auth-tokens.response.dto';
+import { AuthTokensResponseDto } from '../dtos/auth-tokens.response.dto';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler implements ICommandHandler<

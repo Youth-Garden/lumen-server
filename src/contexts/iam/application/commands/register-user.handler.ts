@@ -8,7 +8,7 @@ import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 import { User } from '../../domain/entities/user.entity';
-import { UserResponseDto } from '../dto/user.response.dto';
+import { UserResponseDto } from '../dtos/user.response.dto';
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserHandler implements ICommandHandler<

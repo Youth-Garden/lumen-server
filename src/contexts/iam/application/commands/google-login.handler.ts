@@ -9,7 +9,7 @@ import { Role } from '../../domain/enums/role.enum';
 import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
 import { GoogleAuthService } from '../../infrastructure/services/google-auth.service';
 import { User } from '../../domain/entities/user.entity';
-import { GoogleLoginResponseDto } from '../dto/auth-tokens.response.dto';
+import { GoogleLoginResponseDto } from '../dtos/auth-tokens.response.dto';
 
 @CommandHandler(GoogleLoginCommand)
 export class GoogleLoginHandler implements ICommandHandler<
