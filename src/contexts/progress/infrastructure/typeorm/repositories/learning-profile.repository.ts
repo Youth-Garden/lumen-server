@@ -21,6 +21,7 @@ export class LearningProfileRepository implements ILearningProfileRepository {
       entity.streak,
       entity.lastActivityDate,
       entity.totalPoints,
+      entity.dailyGoalMinutes,
     );
   }
 
@@ -30,6 +31,7 @@ export class LearningProfileRepository implements ILearningProfileRepository {
       streak: profile.currentStreak,
       lastActivityDate: profile.lastActivity,
       totalPoints: profile.points,
+      dailyGoalMinutes: profile.dailyGoalMinutes,
     });
 
     await this.repo.save(entity);

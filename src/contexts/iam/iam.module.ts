@@ -10,6 +10,7 @@ import { GoogleLoginHandler } from './application/commands/google-login.handler'
 import { LogoutHandler } from './application/commands/logout.handler';
 import { GetMeHandler } from './application/queries/get-me.handler';
 import { ListSessionsHandler } from './application/queries/list-sessions.handler';
+import { UpdateProfileHandler } from './application/commands/update-profile.handler';
 import { UserRepository } from './infrastructure/typeorm/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
 import { HashingService } from './infrastructure/services/hashing.service';
@@ -43,6 +44,7 @@ import { ConfigService } from '@nestjs/config';
     LogoutHandler,
     GetMeHandler,
     ListSessionsHandler,
+    UpdateProfileHandler,
     HashingService,
     TokenService,
     GoogleAuthService,

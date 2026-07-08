@@ -62,12 +62,6 @@ export class GoogleLoginHandler implements ICommandHandler<
       command.ipAddress,
     );
 
-    return new GoogleLoginResponseDto(
-      accessToken,
-      refreshToken,
-      user.id,
-      user.email,
-      user.role,
-    );
+    return new GoogleLoginResponseDto(accessToken, refreshToken, user);
   }
 }

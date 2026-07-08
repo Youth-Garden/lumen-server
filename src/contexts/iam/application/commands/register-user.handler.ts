@@ -39,6 +39,6 @@ export class RegisterUserHandler implements ICommandHandler<
 
     const newUser = await this.userRepository.save(user);
 
-    return new UserResponseDto(newUser.id, newUser.email, newUser.role);
+    return new UserResponseDto(newUser);
   }
 }

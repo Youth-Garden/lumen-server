@@ -55,12 +55,6 @@ export class LoginUserHandler implements ICommandHandler<
       command.ipAddress,
     );
 
-    return new AuthTokensResponseDto(
-      accessToken,
-      refreshToken,
-      user.id,
-      user.email,
-      user.role,
-    );
+    return new AuthTokensResponseDto(accessToken, refreshToken, user);
   }
 }

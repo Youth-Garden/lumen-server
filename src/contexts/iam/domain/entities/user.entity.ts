@@ -14,6 +14,9 @@ export class User extends AggregateRoot {
     private readonly _planId: string | null,
     private readonly _createdAt: Date,
     private readonly _updatedAt: Date,
+    private _fullName: string | null = null,
+    private _avatarUrl: string | null = null,
+    private _phone: string | null = null,
   ) {
     super();
   }
@@ -51,6 +54,9 @@ export class User extends AggregateRoot {
     planId: string | null,
     createdAt: Date,
     updatedAt: Date,
+    fullName: string | null,
+    avatarUrl: string | null,
+    phone: string | null,
   ): User {
     return new User(
       id,
@@ -62,6 +68,9 @@ export class User extends AggregateRoot {
       planId,
       createdAt,
       updatedAt,
+      fullName,
+      avatarUrl,
+      phone,
     );
   }
 
@@ -91,5 +100,20 @@ export class User extends AggregateRoot {
   }
   get updatedAt(): Date {
     return this._updatedAt;
+  }
+  get fullName(): string | null {
+    return this._fullName;
+  }
+  get avatarUrl(): string | null {
+    return this._avatarUrl;
+  }
+  get phone(): string | null {
+    return this._phone;
+  }
+
+  updateProfile(fullName?: string, avatarUrl?: string, phone?: string): void {
+    if (fullName !== undefined) this._fullName = fullName;
+    if (avatarUrl !== undefined) this._avatarUrl = avatarUrl;
+    if (phone !== undefined) this._phone = phone;
   }
 }

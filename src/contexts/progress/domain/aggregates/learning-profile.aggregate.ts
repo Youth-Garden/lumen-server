@@ -4,10 +4,11 @@ export class LearningProfile {
     private streak: number,
     private lastActivityDate: Date | null,
     private totalPoints: number,
+    private _dailyGoalMinutes: number,
   ) {}
 
   static create(userId: string): LearningProfile {
-    return new LearningProfile(userId, 0, null, 0);
+    return new LearningProfile(userId, 0, null, 0, 15);
   }
 
   static reconstitute(
@@ -15,8 +16,15 @@ export class LearningProfile {
     streak: number,
     lastActivityDate: Date | null,
     totalPoints: number,
+    dailyGoalMinutes: number,
   ): LearningProfile {
-    return new LearningProfile(userId, streak, lastActivityDate, totalPoints);
+    return new LearningProfile(
+      userId,
+      streak,
+      lastActivityDate,
+      totalPoints,
+      dailyGoalMinutes,
+    );
   }
 
   get id(): string {
@@ -33,6 +41,16 @@ export class LearningProfile {
 
   get points(): number {
     return this.totalPoints;
+  }
+
+  get dailyGoalMinutes(): number {
+    return this._dailyGoalMinutes;
+  }
+
+  public updateSettings(dailyGoalMinutes: number) {
+    if (dailyGoalMinutes > 0) {
+      this._dailyGoalMinutes = dailyGoalMinutes;
+    }
   }
 
   public recordActivity(points: number, activityDate: Date = new Date()) {

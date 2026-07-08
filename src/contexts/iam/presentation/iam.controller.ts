@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Get } from '@nestjs/common';
+import { Body, Controller, Post, Req, Get, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { FastifyRequest } from 'fastify';
@@ -23,6 +23,8 @@ import { SessionResponseDto } from '../application/dto/session.response.dto';
 import { LogoutCommand } from '../application/commands/logout.command';
 import { ListSessionsQuery } from '../application/queries/list-sessions.query';
 import { Public } from '../../../shared-kernel/decorators/public.decorator';
+import { UpdateProfileDto } from '../application/dto/update-profile.dto';
+import { UpdateProfileCommand } from '../application/commands/update-profile.command';
 
 @ApiTags('IAM')
 @Controller('iam')
@@ -192,5 +194,32 @@ export class IamController {
       SessionResponseDto[]
     >(new ListSessionsQuery(user.sub));
     return result;
+  }
+
+  @Put('profile')
+  @ApiOperation({
+    summary: 'Update user profile',
+    description: 'Update the profile details of the current logged-in user.',
+  })
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile updated successfully.',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async updateProfile(
+    @Req() req: RequestWithUser,
+    @Body() dto: UpdateProfileDto,
+  ): Promise<UserResponseDto> {
+    const user = req.user;
+    return this.commandBus.execute(
+      new UpdateProfileCommand(
+        user.sub,
+        dto.fullName,
+        dto.avatarUrl,
+        dto.phone,
+      ),
+    );
   }
 }

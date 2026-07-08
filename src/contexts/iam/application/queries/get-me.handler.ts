@@ -21,6 +21,6 @@ export class GetMeHandler implements IQueryHandler<
       throw new AppException(AuthEx.InvalidCredentials);
     }
 
-    return new UserResponseDto(user.id, user.email, user.role);
+    return new UserResponseDto(user);
   }
 }

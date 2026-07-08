@@ -51,12 +51,11 @@ export class RefreshTokenHandler implements ICommandHandler<
       command.ipAddress,
     );
 
-    return new AuthTokensResponseDto(
-      accessToken,
-      newRefreshToken,
-      session.userId,
-      session.email,
-      session.role,
-    );
+    const user = await this.userRepository.findById(session.userId);
+    if (!user) {
+      throw new AppException(AuthEx.InvalidCredentials);
+    }
+
+    return new AuthTokensResponseDto(accessToken, newRefreshToken, user);
   }
 }

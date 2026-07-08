@@ -19,13 +19,14 @@ export class GetDashboardHandler implements IQueryHandler<
     const profile = await this.profileRepo.findByUserId(query.userId);
 
     if (!profile) {
-      return new DashboardResponseDto(0, null, 0);
+      return new DashboardResponseDto(0, null, 0, 15);
     }
 
     return new DashboardResponseDto(
       profile.currentStreak,
       profile.lastActivity,
       profile.points,
+      profile.dailyGoalMinutes,
     );
   }
 }

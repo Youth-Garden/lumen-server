@@ -20,6 +20,9 @@ export class LearningProfileEntity {
   @Column({ type: 'int', default: 0 })
   totalPoints: number;
 
+  @Column({ type: 'int', default: 15 })
+  dailyGoalMinutes: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

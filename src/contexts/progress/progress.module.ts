@@ -7,10 +7,12 @@ import { LEARNING_PROFILE_REPOSITORY } from './domain/repositories/learning-prof
 import { FlashcardReviewedListener } from './application/event-handlers/flashcard-reviewed.listener';
 import { QuizCompletedListener } from './application/event-handlers/quiz-completed.listener';
 import { GetDashboardHandler } from './application/queries/get-dashboard.handler';
+import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
 const EventHandlers = [FlashcardReviewedListener, QuizCompletedListener];
 const QueryHandlers = [GetDashboardHandler];
+const CommandHandlers = [UpdateProgressSettingsHandler];
 
 @Module({
   imports: [CqrsModule, TypeOrmModule.forFeature([LearningProfileEntity])],
@@ -18,6 +20,7 @@ const QueryHandlers = [GetDashboardHandler];
   providers: [
     ...EventHandlers,
     ...QueryHandlers,
+    ...CommandHandlers,
     {
       provide: LEARNING_PROFILE_REPOSITORY,
       useClass: LearningProfileRepository,

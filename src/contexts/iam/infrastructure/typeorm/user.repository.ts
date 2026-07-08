@@ -30,6 +30,9 @@ export class UserRepository implements IUserRepository {
       ormEntity.planId,
       ormEntity.createdAt,
       ormEntity.updatedAt,
+      ormEntity.fullName,
+      ormEntity.avatarUrl,
+      ormEntity.phone,
     );
   }
 
@@ -54,6 +57,9 @@ export class UserRepository implements IUserRepository {
     ormEntity.planId = user.planId;
     ormEntity.createdAt = user.createdAt;
     ormEntity.updatedAt = user.updatedAt;
+    ormEntity.fullName = user.fullName;
+    ormEntity.avatarUrl = user.avatarUrl;
+    ormEntity.phone = user.phone;
 
     const saved = await this.userRepository.save(ormEntity);
     return this.mapToDomain(saved);
