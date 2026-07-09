@@ -4,11 +4,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LearningProfileEntity } from './infrastructure/entities/learning-profile.entity';
 import { LearningProfileRepository } from './infrastructure/repositories/learning-profile.repository';
 import { LEARNING_PROFILE_REPOSITORY } from './domain/repositories/learning-profile.repository.interface';
+import { ActivityEntity } from './infrastructure/entities/activity.orm-entity';
+import { ActivityRepository } from './infrastructure/repositories/activity.repository';
+import { ACTIVITY_REPOSITORY } from './domain/repositories/activity.repository.interface';
 import { FlashcardReviewedListener } from './application/event-handlers/flashcard-reviewed.listener';
 import { QuizCompletedListener } from './application/event-handlers/quiz-completed.listener';
 import { GrammarExerciseCompletedListener } from './application/event-handlers/grammar-exercise-completed.listener';
 import { SpeakingTaskCompletedListener } from './application/event-handlers/speaking-task-completed.listener';
 import { GetDashboardHandler } from './application/queries/get-dashboard.handler';
+import { GetRecentActivitiesHandler } from './application/queries/get-recent-activities.handler';
 import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
@@ -18,11 +22,14 @@ const EventHandlers = [
   GrammarExerciseCompletedListener,
   SpeakingTaskCompletedListener,
 ];
-const QueryHandlers = [GetDashboardHandler];
+const QueryHandlers = [GetDashboardHandler, GetRecentActivitiesHandler];
 const CommandHandlers = [UpdateProgressSettingsHandler];
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([LearningProfileEntity])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([LearningProfileEntity, ActivityEntity]),
+  ],
   controllers: [ProgressController],
   providers: [
     ...EventHandlers,
@@ -31,6 +38,10 @@ const CommandHandlers = [UpdateProgressSettingsHandler];
     {
       provide: LEARNING_PROFILE_REPOSITORY,
       useClass: LearningProfileRepository,
+    },
+    {
+      provide: ACTIVITY_REPOSITORY,
+      useClass: ActivityRepository,
     },
   ],
 })

@@ -12,6 +12,8 @@ import { GetDashboardQuery } from '../../application/queries/get-dashboard.query
 import { DashboardResponseDto } from '../../application/responses/dashboard.response.dto';
 import { UpdateProgressSettingsDto } from '../../application/dtos/update-progress-settings.dto';
 import { UpdateProgressSettingsCommand } from '../../application/commands/update-progress-settings.command';
+import { GetRecentActivitiesQuery } from '../../application/queries/get-recent-activities.query';
+import { ActivityResponseDto } from '../../application/responses/activity.response.dto';
 
 @ApiTags('Progress')
 @ApiBearerAuth()
@@ -35,6 +37,22 @@ export class ProgressController {
     return this.queryBus.execute<GetDashboardQuery, DashboardResponseDto>(
       new GetDashboardQuery(userId),
     );
+  }
+
+  @Get('activities')
+  @ApiOperation({ summary: 'Get recent activities for user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Activities retrieved successfully.',
+    type: [ActivityResponseDto],
+  })
+  async getActivities(
+    @CurrentUser() userId: string,
+  ): Promise<ActivityResponseDto[]> {
+    return this.queryBus.execute<
+      GetRecentActivitiesQuery,
+      ActivityResponseDto[]
+    >(new GetRecentActivitiesQuery(userId, 10));
   }
 
   @Put('settings')
