@@ -12,7 +12,7 @@ import { CreateArticleDto } from '../../application/dtos/reading.dto';
 import {
   ArticleResponseDto,
   ArticleListResponseDto,
-} from '../../application/dtos/reading.response.dto';
+} from '../../application/responses/reading.response.dto';
 import { CreateArticleCommand } from '../../application/commands/create-article.command';
 import {
   ListArticlesQuery,
@@ -21,7 +21,7 @@ import {
 import {
   CreateArticleResponseDto,
   TranslationResponseDto,
-} from '../../application/dtos/translation.response.dto';
+} from '../../application/responses/translation.response.dto';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import axios from 'axios';
 

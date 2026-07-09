@@ -25,11 +25,11 @@ import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.d
 import {
   GenerateQuizResponseDto,
   FinishQuizResponseDto,
-} from '../../application/dtos/quiz.response.dto';
+  QuizDetailResponseDto,
+  QuizListResponseDto,
+} from '../../application/responses/quiz.response.dto';
 import { ListQuizzesQuery } from '../../application/queries/list-quizzes.query';
 import { GetQuizByIdQuery } from '../../application/queries/get-quiz-by-id.query';
-import { QuizListResponseDto } from '../../application/queries/list-quizzes.handler';
-import { QuizDetailResponseDto } from '../../application/queries/get-quiz-by-id.handler';
 
 @ApiTags('Quiz')
 @Controller('quizzes')

@@ -7,7 +7,8 @@ import { Quiz } from '../../domain/aggregates/quiz.aggregate';
 import { randomUUID } from 'crypto';
 import type { IVocabularyWordRepository } from '../../../vocabulary/domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../../vocabulary/domain/repositories/vocabulary-word.repository.interface';
-import { AppException, QuizEx } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { QuizEx } from '../../domain/exceptions/quiz.exception';
 import { QuizQuestionGeneratorService } from '../../domain/services/quiz-question-generator.service';
 
 @CommandHandler(GenerateQuizCommand)

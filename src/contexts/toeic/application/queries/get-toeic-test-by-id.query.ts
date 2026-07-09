@@ -1,13 +1,10 @@
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ToeicTestEntity } from '../../infrastructure/typeorm/entities/toeic-test.entity';
-import { ToeicQuestionEntity } from '../../infrastructure/typeorm/entities/toeic-question.entity';
-import {
-  ToeicTestResponseDto,
-  ToeicQuestionResponseDto,
-} from '../dtos/toeic-test.response.dto';
-import { NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
+import { ToeicTestResponseDto } from '../responses/toeic-test.response.dto';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { ToeicEx } from '../../domain/exceptions/toeic.exception';
+import { TOEIC_QUERY_REPOSITORY } from '../ports/toeic-query.repository';
+import type { IToeicQueryRepository } from '../ports/toeic-query.repository';
 
 export class GetToeicTestByIdQuery implements IQuery {
   constructor(public readonly id: string) {}
@@ -19,51 +16,19 @@ export class GetToeicTestByIdHandler implements IQueryHandler<
   ToeicTestResponseDto
 > {
   constructor(
-    @InjectRepository(ToeicTestEntity)
-    private readonly testRepo: Repository<ToeicTestEntity>,
+    @Inject(TOEIC_QUERY_REPOSITORY)
+    private readonly toeicQueryRepository: IToeicQueryRepository,
   ) {}
 
   async execute(query: GetToeicTestByIdQuery): Promise<ToeicTestResponseDto> {
-    const test = await this.testRepo.findOne({
-      where: { id: query.id, isPublished: true },
-      relations: { questions: true },
-      order: {
-        questions: {
-          questionNumber: 'ASC',
-        },
-      },
-    });
+    const test = await this.toeicQueryRepository.findPublishedTestById(
+      query.id,
+    );
 
     if (!test) {
-      throw new NotFoundException('Toeic test not found');
+      throw new AppException(ToeicEx.TestNotFound);
     }
 
-    const dto = new ToeicTestResponseDto();
-    dto.id = test.id;
-    dto.title = test.title;
-    dto.description = test.description;
-    dto.isPublished = test.isPublished;
-    dto.createdAt = test.createdAt;
-
-    if (test.questions) {
-      dto.questions = test.questions.map((question: ToeicQuestionEntity) => {
-        const questionDto = new ToeicQuestionResponseDto();
-        questionDto.id = question.id;
-        questionDto.testId = question.testId;
-        questionDto.part = question.part;
-        questionDto.questionNumber = question.questionNumber;
-        questionDto.audioUrl = question.audioUrl;
-        questionDto.imageUrl = question.imageUrl;
-        questionDto.transcript = question.transcript;
-        questionDto.questionText = question.questionText;
-        questionDto.options = question.options;
-        questionDto.materialId = question.materialId;
-        questionDto.correctAnswer = question.correctAnswer;
-        questionDto.explanation = question.explanation;
-        return questionDto;
-      });
-    }
-
-    return dto;
+    return test;
   }
 }

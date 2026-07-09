@@ -4,11 +4,7 @@ import {
   Column,
   CreateDateColumn,
 } from 'typeorm';
-
-export enum ActivityType {
-  DICTATION = 'DICTATION',
-  READING = 'READING',
-}
+import { ActivityType } from '../../../domain/enums/material.enum';
 
 @Entity('activity_logs')
 export class ActivityLogEntity {

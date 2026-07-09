@@ -3,38 +3,7 @@ import { Inject } from '@nestjs/common';
 import { ListQuizzesQuery } from './list-quizzes.query';
 import { QUIZ_REPOSITORY } from '../../domain/repositories/quiz.repository.interface';
 import type { IQuizRepository } from '../../domain/repositories/quiz.repository.interface';
-import { ApiProperty } from '@nestjs/swagger';
-
-export class QuizListItemDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  status: string;
-
-  @ApiProperty()
-  score: number;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty({ required: false })
-  completedAt?: Date;
-}
-
-export class QuizListResponseDto {
-  @ApiProperty({ type: [QuizListItemDto] })
-  items: QuizListItemDto[];
-
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  limit: number;
-}
+import { QuizListResponseDto } from '../responses/quiz.response.dto';
 
 @QueryHandler(ListQuizzesQuery)
 export class ListQuizzesHandler implements IQueryHandler<

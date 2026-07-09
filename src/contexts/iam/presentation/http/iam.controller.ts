@@ -16,10 +16,10 @@ import { GoogleLoginCommand } from '../../application/commands/google-login.comm
 import {
   AuthTokensResponseDto,
   GoogleLoginResponseDto,
-} from '../../application/dtos/auth-tokens.response.dto';
-import { UserResponseDto } from '../../application/dtos/user.response.dto';
+} from '../../application/responses/auth-tokens.response.dto';
+import { UserResponseDto } from '../../application/responses/user.response.dto';
 import { LogoutDto } from '../../application/dtos/logout.dto';
-import { SessionResponseDto } from '../../application/dtos/session.response.dto';
+import { SessionResponseDto } from '../../application/responses/session.response.dto';
 import { LogoutCommand } from '../../application/commands/logout.command';
 import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
@@ -47,7 +47,7 @@ export class IamController {
     description: 'Email already exists or validation error.',
   })
   async register(@Body() dto: RegisterUserDto): Promise<void> {
-    await this.commandBus.execute(
+    await this.commandBus.execute<RegisterUserCommand, void>(
       new RegisterUserCommand(dto.email, dto.password),
     );
   }
@@ -171,7 +171,9 @@ export class IamController {
   @ApiResponse({ status: 201, description: 'Logged out successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async logout(@Body() dto: LogoutDto): Promise<void> {
-    await this.commandBus.execute(new LogoutCommand(dto.refreshToken));
+    await this.commandBus.execute<LogoutCommand, void>(
+      new LogoutCommand(dto.refreshToken),
+    );
   }
 
   @Get('sessions')
@@ -213,7 +215,7 @@ export class IamController {
     @Body() dto: UpdateProfileDto,
   ): Promise<UserResponseDto> {
     const user = req.user;
-    return this.commandBus.execute(
+    return this.commandBus.execute<UpdateProfileCommand, UserResponseDto>(
       new UpdateProfileCommand(
         user.sub,
         dto.fullName,

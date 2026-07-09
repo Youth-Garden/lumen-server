@@ -4,13 +4,7 @@ import { ListWordsQuery } from './list-words.query';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VocabularyWordResponseDto } from '../responses/vocabulary-word.response.dto';
-
-export class WordListResponseDto {
-  items: VocabularyWordResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-}
+import { WordListResponseDto } from '../responses/word-list.response.dto';
 
 @QueryHandler(ListWordsQuery)
 export class ListWordsHandler implements IQueryHandler<

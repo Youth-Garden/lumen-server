@@ -23,12 +23,12 @@ import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.d
 import {
   MaterialDto,
   MaterialListDto,
-} from '../../application/dtos/material.response.dto';
+} from '../../application/responses/material.response.dto';
 import {
   ListMaterialsQuery,
   GetMaterialByIdQuery,
 } from '../../application/queries/get-material.query';
-import { MaterialType } from '../../infrastructure/typeorm/entities/material.entity';
+import { MaterialType } from '../../domain/enums/material.enum';
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
 
 @ApiTags('Materials (Content Hub)')

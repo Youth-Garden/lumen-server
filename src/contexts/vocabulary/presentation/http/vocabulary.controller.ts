@@ -23,11 +23,12 @@ import { ListDecksQuery } from '../../application/queries/list-decks.query';
 import { GetDeckByIdQuery } from '../../application/queries/get-deck-by-id.query';
 import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
-import { WordListResponseDto } from '../../application/queries/list-words.handler';
-import { DeckResponseDto } from '../../application/queries/list-decks.handler';
-import { DeckDetailResponseDto } from '../../application/queries/get-deck-by-id.handler';
-import { DueFlashcardResponseDto } from '../../application/queries/list-due-flashcards.handler';
-import { IdResponseDto } from '../../../../shared-kernel/dto/id-response.dto';
+import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
+import {
+  DeckDetailResponseDto,
+  DeckResponseDto,
+} from '../../application/responses/deck.response.dto';
+import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
 import { Query as QueryParam } from '@nestjs/common';
@@ -62,7 +63,7 @@ export class VocabularyController {
   })
   async createWord(
     @Body() dto: CreateVocabularyWordDto,
-  ): Promise<IdResponseDto> {
+  ): Promise<{ id: string }> {
     const id = await this.commandBus.execute<
       CreateVocabularyWordCommand,
       string
@@ -75,7 +76,7 @@ export class VocabularyController {
         dto.definitions,
       ),
     );
-    return new IdResponseDto(id);
+    return { id };
   }
 
   @Public()
@@ -91,31 +92,6 @@ export class VocabularyController {
     return this.queryBus.execute<ListWordsQuery, WordListResponseDto>(
       new ListWordsQuery(page, limit, search, cefrLevel),
     );
-  }
-
-  @Public()
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get a vocabulary word by ID',
-    description:
-      'Retrieve the full details of a single vocabulary word including definitions and examples. This endpoint is publicly accessible.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'The UUID of the vocabulary word',
-    example: 'uuid-string',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns the vocabulary word details.',
-    type: VocabularyWordResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Word not found.' })
-  async getWord(@Param('id') id: string): Promise<VocabularyWordResponseDto> {
-    return this.queryBus.execute<
-      GetVocabularyWordByIdQuery,
-      VocabularyWordResponseDto
-    >(new GetVocabularyWordByIdQuery(id));
   }
 
   @Get('decks')
@@ -156,11 +132,11 @@ export class VocabularyController {
   async createDeck(
     @Body() dto: CreateDeckDto,
     @CurrentUser() userId: string,
-  ): Promise<IdResponseDto> {
+  ): Promise<{ id: string }> {
     const id = await this.commandBus.execute<CreateDeckCommand, string>(
       new CreateDeckCommand(dto.name, dto.description, userId),
     );
-    return new IdResponseDto(id);
+    return { id };
   }
 
   @Post('flashcards')
@@ -180,11 +156,11 @@ export class VocabularyController {
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async createFlashcard(
     @Body() dto: CreateFlashcardDto,
-  ): Promise<IdResponseDto> {
+  ): Promise<{ id: string }> {
     const id = await this.commandBus.execute<CreateFlashcardCommand, string>(
       new CreateFlashcardCommand(dto.deckId, dto.wordId),
     );
-    return new IdResponseDto(id);
+    return { id };
   }
 
   @Get('flashcards/due')
@@ -197,6 +173,31 @@ export class VocabularyController {
       ListDueFlashcardsQuery,
       DueFlashcardResponseDto[]
     >(new ListDueFlashcardsQuery(userId));
+  }
+
+  @Public()
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get a vocabulary word by ID',
+    description:
+      'Retrieve the full details of a single vocabulary word including definitions and examples. This endpoint is publicly accessible.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'The UUID of the vocabulary word',
+    example: 'uuid-string',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the vocabulary word details.',
+    type: VocabularyWordResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Word not found.' })
+  async getWord(@Param('id') id: string): Promise<VocabularyWordResponseDto> {
+    return this.queryBus.execute<
+      GetVocabularyWordByIdQuery,
+      VocabularyWordResponseDto
+    >(new GetVocabularyWordByIdQuery(id));
   }
 
   @Post('flashcards/review')

@@ -7,7 +7,10 @@ import type { IArticleRepository } from '../../domain/repositories/article.repos
 import { Article } from '../../domain/entities/article';
 
 @CommandHandler(CreateArticleCommand)
-export class CreateArticleHandler implements ICommandHandler<CreateArticleCommand> {
+export class CreateArticleHandler implements ICommandHandler<
+  CreateArticleCommand,
+  string
+> {
   constructor(
     @Inject(ARTICLE_REPOSITORY)
     private readonly articleRepo: IArticleRepository,

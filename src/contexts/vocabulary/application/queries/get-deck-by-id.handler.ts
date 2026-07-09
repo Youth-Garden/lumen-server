@@ -1,23 +1,11 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { AppException, VocabEx } from '../../../../shared-kernel/exceptions';
+import { Inject } from '@nestjs/common';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 import { GetDeckByIdQuery } from './get-deck-by-id.query';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { DeckEntity } from '../../infrastructure/typeorm/entities/deck.entity';
-
-export class FlashcardSummaryDto {
-  id: string;
-  wordId: string;
-  term: string;
-  cefrLevel: string | null;
-}
-
-export class DeckDetailResponseDto {
-  id: string;
-  name: string;
-  description: string | null;
-  flashcards: FlashcardSummaryDto[];
-}
+import { VOCABULARY_QUERY_REPOSITORY } from '../ports/vocabulary-query.repository';
+import type { IVocabularyQueryRepository } from '../ports/vocabulary-query.repository';
+import { DeckDetailResponseDto } from '../responses/deck.response.dto';
 
 @QueryHandler(GetDeckByIdQuery)
 export class GetDeckByIdHandler implements IQueryHandler<
@@ -25,34 +13,20 @@ export class GetDeckByIdHandler implements IQueryHandler<
   DeckDetailResponseDto
 > {
   constructor(
-    @InjectRepository(DeckEntity)
-    private readonly deckRepo: Repository<DeckEntity>,
+    @Inject(VOCABULARY_QUERY_REPOSITORY)
+    private readonly vocabularyQueryRepository: IVocabularyQueryRepository,
   ) {}
 
   async execute(query: GetDeckByIdQuery): Promise<DeckDetailResponseDto> {
-    const deck = await this.deckRepo.findOne({
-      where: { id: query.id, authorId: query.userId },
-      relations: {
-        flashcards: {
-          word: true,
-        },
-      },
-    });
+    const deck = await this.vocabularyQueryRepository.findDeckByIdAndUserId(
+      query.id,
+      query.userId,
+    );
 
     if (!deck) {
       throw new AppException(VocabEx.DeckNotFound);
     }
 
-    return {
-      id: deck.id,
-      name: deck.name,
-      description: deck.description,
-      flashcards: deck.flashcards.map((f) => ({
-        id: f.id,
-        wordId: f.word.id,
-        term: f.word.term,
-        cefrLevel: f.word.cefrLevel,
-      })),
-    };
+    return deck;
   }
 }

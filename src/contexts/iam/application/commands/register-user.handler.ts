@@ -6,9 +6,10 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
 import { HashingService } from '../../infrastructure/services/hashing.service';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
-import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { AuthEx } from '../../domain/exceptions/auth.exception';
 import { User } from '../../domain/entities/user.entity';
-import { UserResponseDto } from '../dtos/user.response.dto';
+import { UserResponseDto } from '../responses/user.response.dto';
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserHandler implements ICommandHandler<

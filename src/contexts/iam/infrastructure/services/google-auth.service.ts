@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
-import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { AuthEx } from '../../domain/exceptions/auth.exception';
 
 @Injectable()
 export class GoogleAuthService {

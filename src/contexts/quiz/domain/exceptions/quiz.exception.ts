@@ -17,6 +17,6 @@ export const QuizEx = {
   Forbidden: () => ({
     code: 'QUIZ_FORBIDDEN',
     message: 'You do not have permission to access this quiz',
-    httpStatus: 403, // Can be 404 in handler for safety
+    httpStatus: 403,
   }),
 };

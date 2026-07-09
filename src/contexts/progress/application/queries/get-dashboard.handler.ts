@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { GetDashboardQuery } from './get-dashboard.query';
 import { LEARNING_PROFILE_REPOSITORY } from '../../domain/repositories/learning-profile.repository.interface';
 import type { ILearningProfileRepository } from '../../domain/repositories/learning-profile.repository.interface';
-import { DashboardResponseDto } from '../dtos/dashboard.response.dto';
+import { DashboardResponseDto } from '../responses/dashboard.response.dto';
 
 @QueryHandler(GetDashboardQuery)
 export class GetDashboardHandler implements IQueryHandler<

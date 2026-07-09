@@ -6,10 +6,11 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
 import { TokenService } from '../../infrastructure/services/token.service';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
-import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { AuthEx } from '../../domain/exceptions/auth.exception';
 import { GoogleAuthService } from '../../infrastructure/services/google-auth.service';
 import { User } from '../../domain/entities/user.entity';
-import { GoogleLoginResponseDto } from '../dtos/auth-tokens.response.dto';
+import { GoogleLoginResponseDto } from '../responses/auth-tokens.response.dto';
 
 @CommandHandler(GoogleLoginCommand)
 export class GoogleLoginHandler implements ICommandHandler<

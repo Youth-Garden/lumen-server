@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ToeicTestResponseDto } from '../../application/dtos/toeic-test.response.dto';
+import { ToeicTestResponseDto } from '../../application/responses/toeic-test.response.dto';
 import { ListToeicTestsQuery } from '../../application/queries/list-toeic-tests.query';
 import { GetToeicTestByIdQuery } from '../../application/queries/get-toeic-test-by-id.query';
 

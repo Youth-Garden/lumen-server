@@ -3,8 +3,9 @@ import { GetMeQuery } from './get-me.query';
 import { Inject } from '@nestjs/common';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
-import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
-import { UserResponseDto } from '../dtos/user.response.dto';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { AuthEx } from '../../domain/exceptions/auth.exception';
+import { UserResponseDto } from '../responses/user.response.dto';
 
 @QueryHandler(GetMeQuery)
 export class GetMeHandler implements IQueryHandler<

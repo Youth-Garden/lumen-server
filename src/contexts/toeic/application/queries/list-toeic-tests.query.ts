@@ -1,8 +1,8 @@
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ToeicTestEntity } from '../../infrastructure/typeorm/entities/toeic-test.entity';
-import { ToeicTestResponseDto } from '../dtos/toeic-test.response.dto';
+import { Inject } from '@nestjs/common';
+import { ToeicTestResponseDto } from '../responses/toeic-test.response.dto';
+import { TOEIC_QUERY_REPOSITORY } from '../ports/toeic-query.repository';
+import type { IToeicQueryRepository } from '../ports/toeic-query.repository';
 
 export class ListToeicTestsQuery implements IQuery {}
 
@@ -12,24 +12,11 @@ export class ListToeicTestsHandler implements IQueryHandler<
   ToeicTestResponseDto[]
 > {
   constructor(
-    @InjectRepository(ToeicTestEntity)
-    private readonly testRepo: Repository<ToeicTestEntity>,
+    @Inject(TOEIC_QUERY_REPOSITORY)
+    private readonly toeicQueryRepository: IToeicQueryRepository,
   ) {}
 
   async execute(): Promise<ToeicTestResponseDto[]> {
-    const tests = await this.testRepo.find({
-      where: { isPublished: true },
-      order: { createdAt: 'DESC' },
-    });
-
-    return tests.map((test) => {
-      const dto = new ToeicTestResponseDto();
-      dto.id = test.id;
-      dto.title = test.title;
-      dto.description = test.description;
-      dto.isPublished = test.isPublished;
-      dto.createdAt = test.createdAt;
-      return dto;
-    });
+    return this.toeicQueryRepository.findPublishedTests();
   }
 }

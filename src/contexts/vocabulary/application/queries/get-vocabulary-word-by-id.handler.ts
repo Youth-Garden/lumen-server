@@ -3,7 +3,8 @@ import { Inject } from '@nestjs/common';
 import { GetVocabularyWordByIdQuery } from './get-vocabulary-word-by-id.query';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
-import { AppException, VocabEx } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
 
 @QueryHandler(GetVocabularyWordByIdQuery)

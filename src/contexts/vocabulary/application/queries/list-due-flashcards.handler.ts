@@ -1,19 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { ListDueFlashcardsQuery } from './list-due-flashcards.query';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual } from 'typeorm';
-import { UserProgressEntity } from '../../infrastructure/typeorm/entities/user-progress.entity';
-
-export class DueFlashcardResponseDto {
-  flashcardId: string;
-  wordId: string;
-  term: string;
-  deckId: string;
-  deckName: string;
-  nextReviewDate: Date;
-  easeFactor: number;
-  repetitions: number;
-}
+import { VOCABULARY_QUERY_REPOSITORY } from '../ports/vocabulary-query.repository';
+import type { IVocabularyQueryRepository } from '../ports/vocabulary-query.repository';
+import { DueFlashcardResponseDto } from '../responses/due-flashcard.response.dto';
 
 @QueryHandler(ListDueFlashcardsQuery)
 export class ListDueFlashcardsHandler implements IQueryHandler<
@@ -21,36 +11,13 @@ export class ListDueFlashcardsHandler implements IQueryHandler<
   DueFlashcardResponseDto[]
 > {
   constructor(
-    @InjectRepository(UserProgressEntity)
-    private readonly progressRepo: Repository<UserProgressEntity>,
+    @Inject(VOCABULARY_QUERY_REPOSITORY)
+    private readonly vocabularyQueryRepository: IVocabularyQueryRepository,
   ) {}
 
   async execute(
     query: ListDueFlashcardsQuery,
   ): Promise<DueFlashcardResponseDto[]> {
-    const progresses = await this.progressRepo.find({
-      where: {
-        userId: query.userId,
-        nextReviewDate: LessThanOrEqual(new Date()),
-      },
-      relations: {
-        flashcard: {
-          word: true,
-          deck: true,
-        },
-      },
-      order: { nextReviewDate: 'ASC' },
-    });
-
-    return progresses.map((p) => ({
-      flashcardId: p.flashcard.id,
-      wordId: p.flashcard.word.id,
-      term: p.flashcard.word.term,
-      deckId: p.flashcard.deck.id,
-      deckName: p.flashcard.deck.name,
-      nextReviewDate: p.nextReviewDate,
-      easeFactor: p.easeFactor,
-      repetitions: p.repetitions,
-    }));
+    return this.vocabularyQueryRepository.findDueFlashcards(query.userId);
   }
 }

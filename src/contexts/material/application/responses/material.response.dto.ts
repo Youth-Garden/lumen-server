@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  MaterialType,
-  MaterialLevel,
-} from '../../infrastructure/typeorm/entities/material.entity';
+import { MaterialType, MaterialLevel } from '../../domain/enums/material.enum';
 
 export class TranscriptDto {
   @ApiProperty()

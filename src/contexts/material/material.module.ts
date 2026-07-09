@@ -11,6 +11,8 @@ import {
 } from './application/queries/get-material.query';
 import { SubmitDictationHandler } from './application/commands/submit-dictation.command';
 import { CqrsModule } from '@nestjs/cqrs';
+import { MATERIAL_QUERY_REPOSITORY } from './application/ports/material-query.repository';
+import { MaterialQueryRepository } from './infrastructure/typeorm/repositories/material-query.repository';
 
 const QueryHandlers = [ListMaterialsHandler, GetMaterialByIdHandler];
 const CommandHandlers = [SubmitDictationHandler];
@@ -25,7 +27,14 @@ const CommandHandlers = [SubmitDictationHandler];
     ]),
   ],
   controllers: [MaterialController],
-  providers: [...QueryHandlers, ...CommandHandlers],
+  providers: [
+    ...QueryHandlers,
+    ...CommandHandlers,
+    {
+      provide: MATERIAL_QUERY_REPOSITORY,
+      useClass: MaterialQueryRepository,
+    },
+  ],
   exports: [TypeOrmModule],
 })
 export class MaterialModule {}

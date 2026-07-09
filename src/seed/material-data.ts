@@ -1,7 +1,7 @@
 import {
-  MaterialType,
   MaterialLevel,
-} from '../contexts/material/infrastructure/typeorm/entities/material.entity';
+  MaterialType,
+} from '../contexts/material/domain/enums/material.enum';
 
 export const materialMockData = [
   {

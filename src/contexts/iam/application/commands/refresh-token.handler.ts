@@ -4,8 +4,9 @@ import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { TokenService } from '../../infrastructure/services/token.service';
-import { AppException, AuthEx } from '../../../../shared-kernel/exceptions';
-import { AuthTokensResponseDto } from '../dtos/auth-tokens.response.dto';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { AuthEx } from '../../domain/exceptions/auth.exception';
+import { AuthTokensResponseDto } from '../responses/auth-tokens.response.dto';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler implements ICommandHandler<

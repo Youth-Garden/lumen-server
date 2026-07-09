@@ -1,15 +1,20 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { ListArticlesQuery, GetArticleByIdQuery } from './reading.queries';
 import { ARTICLE_REPOSITORY } from '../../domain/repositories/article.repository.interface';
 import type { IArticleRepository } from '../../domain/repositories/article.repository.interface';
 import {
   ArticleListResponseDto,
   ArticleResponseDto,
-} from '../dtos/reading.response.dto';
+} from '../responses/reading.response.dto';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { ReadingEx } from '../../domain/exceptions/reading.exceptions';
 
 @QueryHandler(ListArticlesQuery)
-export class ListArticlesHandler implements IQueryHandler<ListArticlesQuery> {
+export class ListArticlesHandler implements IQueryHandler<
+  ListArticlesQuery,
+  ArticleListResponseDto
+> {
   constructor(
     @Inject(ARTICLE_REPOSITORY)
     private readonly articleRepo: IArticleRepository,
@@ -41,7 +46,10 @@ export class ListArticlesHandler implements IQueryHandler<ListArticlesQuery> {
 }
 
 @QueryHandler(GetArticleByIdQuery)
-export class GetArticleByIdHandler implements IQueryHandler<GetArticleByIdQuery> {
+export class GetArticleByIdHandler implements IQueryHandler<
+  GetArticleByIdQuery,
+  ArticleResponseDto
+> {
   constructor(
     @Inject(ARTICLE_REPOSITORY)
     private readonly articleRepo: IArticleRepository,
@@ -53,7 +61,7 @@ export class GetArticleByIdHandler implements IQueryHandler<GetArticleByIdQuery>
       query.userId,
     );
     if (!article) {
-      throw new NotFoundException('Article not found');
+      throw new AppException(ReadingEx.ArticleNotFound);
     }
 
     return new ArticleResponseDto({

@@ -3,7 +3,8 @@ import { VocabularyWord } from '../../../vocabulary/domain/aggregates/vocabulary
 import { Question } from '../entities/question.entity';
 import { QuestionType } from '../enums/quiz.enum';
 import { randomUUID } from 'crypto';
-import { AppException, QuizEx } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { QuizEx } from '../exceptions/quiz.exception';
 
 @Injectable()
 export class QuizQuestionGeneratorService {
@@ -20,8 +21,8 @@ export class QuizQuestionGeneratorService {
     const distractorPool = words.slice(limit);
     const questions: Question[] = [];
 
-    for (let i = 0; i < questionWords.length; i++) {
-      const word = questionWords[i];
+    for (let index = 0; index < questionWords.length; index++) {
+      const word = questionWords[index];
 
       const definition =
         word.definitions.length > 0 ? word.definitions[0].definitionEn : 'N/A';
@@ -58,9 +59,16 @@ export class QuizQuestionGeneratorService {
       }
 
       // Shuffle options
-      for (let k = options.length - 1; k > 0; k--) {
-        const r = Math.floor(Math.random() * (k + 1));
-        [options[k], options[r]] = [options[r], options[k]];
+      for (
+        let optionIndex = options.length - 1;
+        optionIndex > 0;
+        optionIndex--
+      ) {
+        const randomIndex = Math.floor(Math.random() * (optionIndex + 1));
+        [options[optionIndex], options[randomIndex]] = [
+          options[randomIndex],
+          options[optionIndex],
+        ];
       }
 
       const question = Question.create(

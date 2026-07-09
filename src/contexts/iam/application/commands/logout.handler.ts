@@ -5,7 +5,7 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 
 @CommandHandler(LogoutCommand)
-export class LogoutHandler implements ICommandHandler<LogoutCommand> {
+export class LogoutHandler implements ICommandHandler<LogoutCommand, void> {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
   ) {}

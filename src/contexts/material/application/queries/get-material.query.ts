@@ -1,12 +1,14 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Inject } from '@nestjs/common';
+import { MaterialType } from '../../domain/enums/material.enum';
 import {
-  MaterialEntity,
-  MaterialType,
-} from '../../infrastructure/typeorm/entities/material.entity';
-import { MaterialDto, MaterialListDto } from '../dtos/material.response.dto';
-import { NotFoundException } from '@nestjs/common';
+  MaterialDto,
+  MaterialListDto,
+} from '../responses/material.response.dto';
+import { AppException } from '../../../../shared-kernel/exceptions';
+import { MaterialEx } from '../../domain/exceptions/material.exception';
+import { MATERIAL_QUERY_REPOSITORY } from '../ports/material-query.repository';
+import type { IMaterialQueryRepository } from '../ports/material-query.repository';
 
 export class ListMaterialsQuery {
   constructor(
@@ -22,25 +24,16 @@ export class ListMaterialsHandler implements IQueryHandler<
   MaterialListDto
 > {
   constructor(
-    @InjectRepository(MaterialEntity)
-    private readonly repo: Repository<MaterialEntity>,
+    @Inject(MATERIAL_QUERY_REPOSITORY)
+    private readonly materialQueryRepository: IMaterialQueryRepository,
   ) {}
 
   async execute(query: ListMaterialsQuery): Promise<MaterialListDto> {
-    const { type, page, limit } = query;
-    const qb = this.repo.createQueryBuilder('m');
-
-    if (type) {
-      qb.andWhere('m.type = :type', { type });
-    }
-
-    qb.skip((page - 1) * limit);
-    qb.take(limit);
-    qb.orderBy('m.createdAt', 'DESC');
-
-    const [items, total] = await qb.getManyAndCount();
-
-    return { items, total };
+    return this.materialQueryRepository.findAll(
+      query.type,
+      query.page,
+      query.limit,
+    );
   }
 }
 
@@ -54,22 +47,16 @@ export class GetMaterialByIdHandler implements IQueryHandler<
   MaterialDto
 > {
   constructor(
-    @InjectRepository(MaterialEntity)
-    private readonly repo: Repository<MaterialEntity>,
+    @Inject(MATERIAL_QUERY_REPOSITORY)
+    private readonly materialQueryRepository: IMaterialQueryRepository,
   ) {}
 
   async execute(query: GetMaterialByIdQuery): Promise<MaterialDto> {
-    const material = await this.repo.findOne({
-      where: { id: query.id },
-      relations: { transcripts: true },
-    });
+    const material = await this.materialQueryRepository.findById(query.id);
 
     if (!material) {
-      throw new NotFoundException('Material not found');
+      throw new AppException(MaterialEx.MaterialNotFound);
     }
-
-    // Sort transcripts by sequenceNumber
-    material.transcripts.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
 
     return material;
   }

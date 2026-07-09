@@ -25,6 +25,8 @@ import { VocabularyWordRepository } from './infrastructure/typeorm/repositories/
 import { DeckRepository } from './infrastructure/typeorm/repositories/deck.repository';
 import { FlashcardRepository } from './infrastructure/typeorm/repositories/flashcard.repository';
 import { UserProgressRepository } from './infrastructure/typeorm/repositories/user-progress.repository';
+import { VOCABULARY_QUERY_REPOSITORY } from './application/ports/vocabulary-query.repository';
+import { VocabularyQueryRepository } from './infrastructure/typeorm/repositories/vocabulary-query.repository';
 
 @Module({
   imports: [
@@ -64,6 +66,10 @@ import { UserProgressRepository } from './infrastructure/typeorm/repositories/us
     {
       provide: USER_PROGRESS_REPOSITORY,
       useClass: UserProgressRepository,
+    },
+    {
+      provide: VOCABULARY_QUERY_REPOSITORY,
+      useClass: VocabularyQueryRepository,
     },
   ],
   exports: [VOCABULARY_WORD_REPOSITORY],

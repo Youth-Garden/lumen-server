@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ArticleEntity } from '../entities/article.entity';
 import { Article } from '../../../domain/entities/article';
-import { IArticleRepository } from '../../../domain/repositories/article.repository.interface';
+import {
+  IArticleRepository,
+  ArticleListResult,
+} from '../../../domain/repositories/article.repository.interface';
 
 @Injectable()
 export class ArticleRepository implements IArticleRepository {
@@ -27,7 +30,7 @@ export class ArticleRepository implements IArticleRepository {
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ items: Article[]; total: number }> {
+  ): Promise<ArticleListResult> {
     const [entities, total] = await this.articleRepo.findAndCount({
       where: { userId },
       order: { createdAt: 'DESC' },
