@@ -3,7 +3,7 @@ import { GetMeQuery } from './get-me.query';
 import { Inject } from '@nestjs/common';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../common/exceptions';
 import { AuthEx } from '../../domain/exceptions/auth.exception';
 import { UserResponseDto } from '../responses/user.response.dto';
 

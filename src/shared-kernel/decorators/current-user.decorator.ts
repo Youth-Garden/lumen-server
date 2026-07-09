@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { AppException, CommonEx } from '../exceptions';
+import { AppException, CommonEx } from '../../common/exceptions';
 
 export const CurrentUser = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): string => {

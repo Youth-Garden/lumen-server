@@ -3,9 +3,8 @@ import { LoginUserCommand } from './login-user.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { HashingService } from '../../../../common/crypto/hashing.service';
-import { TokenService } from '../../../../common/auth/token.service';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { HashingService, TokenService } from '../../../../common';
+import { AppException } from '../../../../common/exceptions';
 import { AuthEx } from '../../domain/exceptions/auth.exception';
 import { AuthTokensResponseDto } from '../responses/auth-tokens.response.dto';
 

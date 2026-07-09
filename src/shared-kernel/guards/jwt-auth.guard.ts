@@ -1,7 +1,7 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { AppException, CommonEx } from '../exceptions';
+import { AppException, CommonEx } from '../../common/exceptions';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

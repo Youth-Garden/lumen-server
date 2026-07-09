@@ -1,3 +1,5 @@
+import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+
 export const ReadingEx = {
   ArticleNotFound: {
     code: 'READING_ARTICLE_NOT_FOUND',
@@ -9,4 +11,4 @@ export const ReadingEx = {
     message: 'You do not have permission to access this article',
     httpStatus: 403,
   },
-};
+} satisfies ExceptionMap;

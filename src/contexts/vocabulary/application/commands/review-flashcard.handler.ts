@@ -6,7 +6,7 @@ import { USER_PROGRESS_REPOSITORY } from '../../domain/repositories/user-progres
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
 import { UserProgress } from '../../domain/aggregates/user-progress.aggregate';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../common/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 import { FlashcardReviewedEvent } from '../../../../shared-kernel/events/flashcard-reviewed.event';
 

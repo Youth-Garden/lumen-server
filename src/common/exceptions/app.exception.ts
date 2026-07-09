@@ -1,4 +1,5 @@
-import { ErrorItem } from '../response/error-item';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ErrorItem } from '../../shared-kernel/response/error-item';
 
 export interface ErrorDefinition {
   code: string;
@@ -6,6 +7,11 @@ export interface ErrorDefinition {
   httpStatus: number;
   errors?: ErrorItem[];
 }
+
+export type ExceptionMap = Record<
+  string,
+  ErrorDefinition | ((...args: any[]) => ErrorDefinition)
+>;
 
 export class AppException extends Error {
   public readonly code: string;

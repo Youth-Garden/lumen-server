@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { HttpClientService } from './http/http-client.service';
-import { HashingService } from './crypto/hashing.service';
+import { HttpClientService, HashingService } from './services';
 
 /**
  * CommonModule provides domain-agnostic, reusable technical utilities:

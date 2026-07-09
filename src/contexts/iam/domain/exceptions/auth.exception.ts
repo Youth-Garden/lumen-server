@@ -1,3 +1,5 @@
+import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+
 export const AuthEx = {
   UserNotFound: {
     code: 'AUTH_USER_NOT_FOUND',
@@ -14,4 +16,4 @@ export const AuthEx = {
     message: `Email ${email} already exists`,
     httpStatus: 400,
   }),
-};
+} satisfies ExceptionMap;

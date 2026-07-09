@@ -1,3 +1,5 @@
+import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+
 export const QuizEx = {
   NotEnoughWords: (limit: number) => ({
     code: 'QUIZ_NOT_ENOUGH_WORDS',
@@ -19,4 +21,4 @@ export const QuizEx = {
     message: 'You do not have permission to access this quiz',
     httpStatus: 403,
   }),
-};
+} satisfies ExceptionMap;

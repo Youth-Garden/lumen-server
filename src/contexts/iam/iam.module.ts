@@ -13,9 +13,7 @@ import { ListSessionsHandler } from './application/queries/list-sessions.handler
 import { UpdateProfileHandler } from './application/commands/update-profile.handler';
 import { UserRepository } from './infrastructure/typeorm/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
-import { HashingService } from '../../common/crypto/hashing.service';
-import { TokenService } from '../../common/auth/token.service';
-import { GoogleAuthService } from '../../common/auth/google-auth.service';
+import { HashingService, TokenService, GoogleAuthService } from '../../common';
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
 import { UserEntity } from './infrastructure/typeorm/entities/user.entity';
 import { SessionEntity } from './infrastructure/typeorm/entities/session.entity';

@@ -4,7 +4,7 @@ import { GetArticleByIdQuery } from './reading.queries';
 import { ARTICLE_REPOSITORY } from '../../domain/repositories/article.repository.interface';
 import type { IArticleRepository } from '../../domain/repositories/article.repository.interface';
 import { ArticleResponseDto } from '../responses/reading.response.dto';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../common/exceptions';
 import { ReadingEx } from '../../domain/exceptions/reading.exceptions';
 
 @QueryHandler(GetArticleByIdQuery)

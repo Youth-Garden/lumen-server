@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../common/exceptions';
 import { QuizEx } from '../../domain/exceptions/quiz.exception';
 import { SubmitAnswerCommand } from './submit-answer.command';
 import type { IQuizRepository } from '../../domain/repositories/quiz.repository.interface';

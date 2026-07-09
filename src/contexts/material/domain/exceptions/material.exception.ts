@@ -1,3 +1,5 @@
+import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+
 export const MaterialEx = {
   MaterialNotFound: {
     code: 'MATERIAL_NOT_FOUND',
@@ -9,4 +11,4 @@ export const MaterialEx = {
     message: 'Transcript not found',
     httpStatus: 404,
   },
-};
+} satisfies ExceptionMap;

@@ -3,7 +3,7 @@ import { VocabularyWord } from '../../../vocabulary/domain/aggregates/vocabulary
 import { Question } from '../entities/question.entity';
 import { QuestionType } from '../enums/quiz.enum';
 import { randomUUID } from 'crypto';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../common/exceptions';
 import { QuizEx } from '../exceptions/quiz.exception';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { AppException } from '../../../../shared-kernel/exceptions';
+import { AppException } from '../../../../common/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 import { GetDeckByIdQuery } from './get-deck-by-id.query';
 import { VOCABULARY_QUERY_REPOSITORY } from '../ports/vocabulary-query.repository';

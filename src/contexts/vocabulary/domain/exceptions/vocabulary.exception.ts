@@ -1,3 +1,5 @@
+import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+
 export const VocabEx = {
   WordNotFound: (id: string) => ({
     code: 'VOCAB_WORD_NOT_FOUND',
@@ -24,4 +26,4 @@ export const VocabEx = {
     message: 'Flashcard not found',
     httpStatus: 404,
   },
-};
+} satisfies ExceptionMap;

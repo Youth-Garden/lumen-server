@@ -1,5 +1,5 @@
 import { ValidationPipe, ValidationError } from '@nestjs/common';
-import { AppException, CommonEx } from '../exceptions';
+import { AppException, CommonEx } from '../../common/exceptions';
 import { ErrorItem } from '../response/error-item';
 
 export function createValidationPipe(): ValidationPipe {

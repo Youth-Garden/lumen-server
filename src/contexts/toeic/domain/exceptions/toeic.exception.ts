@@ -1,3 +1,5 @@
+import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+
 export const ToeicEx = {
   TestNotFound: {
     code: 'TOEIC_TEST_NOT_FOUND',
@@ -9,4 +11,4 @@ export const ToeicEx = {
     message: 'TOEIC test is not published',
     httpStatus: 403,
   },
-};
+} satisfies ExceptionMap;

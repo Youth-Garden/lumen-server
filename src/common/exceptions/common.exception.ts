@@ -1,3 +1,5 @@
+import type { ExceptionMap } from './app.exception';
+
 export const CommonEx = {
   Unauthorized: {
     code: 'UNAUTHORIZED',
@@ -16,4 +18,4 @@ export const CommonEx = {
     message: 'Internal server error',
     httpStatus: 500,
   },
-};
+} satisfies ExceptionMap;
