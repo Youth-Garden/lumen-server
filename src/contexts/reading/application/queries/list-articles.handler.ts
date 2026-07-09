@@ -28,7 +28,13 @@ export class ListArticlesHandler implements IQueryHandler<
 
     return {
       items: items.map(
-        (a) => new ArticleResponseDto(a.id, a.title, a.content, a.createdAt),
+        (article) =>
+          new ArticleResponseDto(
+            article.id,
+            article.title,
+            article.content,
+            article.createdAt,
+          ),
       ),
       total,
       page,

@@ -24,6 +24,9 @@ export class ToeicTestEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => ToeicQuestionEntity, (q) => q.test)
+  @OneToMany(
+    () => ToeicQuestionEntity,
+    (question: ToeicQuestionEntity) => question.test,
+  )
   questions: ToeicQuestionEntity[];
 }

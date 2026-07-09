@@ -92,12 +92,12 @@ export class UserRepository implements IUserRepository {
       order: { createdAt: 'DESC' },
     });
 
-    return sessions.map((s) => ({
-      id: s.id,
-      userAgent: s.userAgent,
-      ipAddress: s.ipAddress,
-      createdAt: s.createdAt,
-      expiresAt: s.expiresAt,
+    return sessions.map((session) => ({
+      id: session.id,
+      userAgent: session.userAgent,
+      ipAddress: session.ipAddress,
+      createdAt: session.createdAt,
+      expiresAt: session.expiresAt,
     }));
   }
 

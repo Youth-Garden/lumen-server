@@ -43,8 +43,8 @@ export class GenerateQuizHandler implements ICommandHandler<
       limit,
     );
 
-    for (const q of questions) {
-      quiz.addQuestion(q);
+    for (const question of questions) {
+      quiz.addQuestion(question);
     }
 
     await this.quizRepo.save(quiz);

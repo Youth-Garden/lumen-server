@@ -45,7 +45,9 @@ export class ToeicQuestionEntity {
   @Column('text', { nullable: true })
   explanation: string;
 
-  @ManyToOne(() => ToeicTestEntity, (t) => t.questions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => ToeicTestEntity, (test: ToeicTestEntity) => test.questions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'testId' })
   test: ToeicTestEntity;
 }
