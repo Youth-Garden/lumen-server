@@ -24,17 +24,17 @@ export class QuizRepository implements IQuizRepository {
 
     if (!entity) return null;
 
-    const questions = entity.questions.map((q) =>
+    const questions = entity.questions.map((questionItem) =>
       Question.create(
-        q.id,
-        q.quizId,
-        q.wordId,
-        q.type as QuestionType,
-        q.questionText,
-        q.options,
-        q.correctAnswer,
-        q.userAnswer,
-        q.isCorrect,
+        questionItem.id,
+        questionItem.quizId,
+        questionItem.wordId,
+        questionItem.type as QuestionType,
+        questionItem.questionText,
+        questionItem.options,
+        questionItem.correctAnswer,
+        questionItem.userAnswer,
+        questionItem.isCorrect,
       ),
     );
 
@@ -58,17 +58,17 @@ export class QuizRepository implements IQuizRepository {
     entity.createdAt = quiz.createdAt;
     entity.completedAt = quiz.completedAt;
 
-    entity.questions = quiz.questions.map((q) => {
+    entity.questions = quiz.questions.map((questionItem) => {
       const qe = new QuestionEntity();
-      qe.id = q.id;
-      qe.quizId = q.quizId;
-      qe.wordId = q.wordId;
-      qe.type = q.type;
-      qe.questionText = q.questionText;
-      qe.options = q.options;
-      qe.correctAnswer = q.correctAnswer;
-      qe.userAnswer = q.userAnswer;
-      qe.isCorrect = q.isCorrect;
+      qe.id = questionItem.id;
+      qe.quizId = questionItem.quizId;
+      qe.wordId = questionItem.wordId;
+      qe.type = questionItem.type;
+      qe.questionText = questionItem.questionText;
+      qe.options = questionItem.options;
+      qe.correctAnswer = questionItem.correctAnswer;
+      qe.userAnswer = questionItem.userAnswer;
+      qe.isCorrect = questionItem.isCorrect;
       return qe;
     });
 
@@ -89,17 +89,17 @@ export class QuizRepository implements IQuizRepository {
     });
 
     const items = entities.map((entity) => {
-      const questions = entity.questions.map((q) =>
+      const questions = entity.questions.map((questionItem) =>
         Question.create(
-          q.id,
-          q.quizId,
-          q.wordId,
-          q.type as QuestionType,
-          q.questionText,
-          q.options,
-          q.correctAnswer,
-          q.userAnswer,
-          q.isCorrect,
+          questionItem.id,
+          questionItem.quizId,
+          questionItem.wordId,
+          questionItem.type as QuestionType,
+          questionItem.questionText,
+          questionItem.options,
+          questionItem.correctAnswer,
+          questionItem.userAnswer,
+          questionItem.isCorrect,
         ),
       );
       return Quiz.restore(
@@ -124,17 +124,17 @@ export class QuizRepository implements IQuizRepository {
 
     if (!entity) return null;
 
-    const questions = entity.questions.map((q) =>
+    const questions = entity.questions.map((questionItem) =>
       Question.create(
-        q.id,
-        q.quizId,
-        q.wordId,
-        q.type as QuestionType,
-        q.questionText,
-        q.options,
-        q.correctAnswer,
-        q.userAnswer,
-        q.isCorrect,
+        questionItem.id,
+        questionItem.quizId,
+        questionItem.wordId,
+        questionItem.type as QuestionType,
+        questionItem.questionText,
+        questionItem.options,
+        questionItem.correctAnswer,
+        questionItem.userAnswer,
+        questionItem.isCorrect,
       ),
     );
 

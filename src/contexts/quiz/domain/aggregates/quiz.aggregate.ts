@@ -82,7 +82,7 @@ export class Quiz extends AggregateRoot {
       throw new Error('Quiz is already completed');
     }
 
-    const question = this._questions.find((q) => q.id === questionId);
+    const question = this._questions.find((quest) => quest.id === questionId);
     if (!question) {
       throw new Error('Question not found in this quiz');
     }
@@ -95,12 +95,16 @@ export class Quiz extends AggregateRoot {
       throw new Error('Quiz is already completed');
     }
 
-    const allAnswered = this._questions.every((q) => q.userAnswer !== null);
+    const allAnswered = this._questions.every(
+      (quest) => quest.userAnswer !== null,
+    );
     if (!allAnswered) {
       throw new Error('Cannot finish quiz with unanswered questions');
     }
 
-    const correctCount = this._questions.filter((q) => q.isCorrect).length;
+    const correctCount = this._questions.filter(
+      (quest) => quest.isCorrect,
+    ).length;
     // Score based on percentage
     this._score =
       this._questions.length > 0

@@ -36,7 +36,7 @@ export class QuestionEntity {
   @Column({ type: 'boolean', nullable: true })
   isCorrect: boolean | null;
 
-  @ManyToOne(() => QuizEntity, (quiz) => quiz.questions, {
+  @ManyToOne(() => QuizEntity, (quiz: QuizEntity) => quiz.questions, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'quizId' })

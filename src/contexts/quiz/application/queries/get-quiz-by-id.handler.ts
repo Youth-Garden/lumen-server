@@ -35,16 +35,18 @@ export class GetQuizByIdHandler implements IQueryHandler<
       id: quiz.id,
       status: quiz.status,
       score: quiz.score,
-      questions: quiz.questions.map((q) => ({
-        id: q.id,
-        type: q.type,
-        questionText: q.questionText,
-        options: q.options || undefined,
-        userAnswer: q.userAnswer || undefined,
-        correctAnswer: isCompleted ? q.correctAnswer || undefined : undefined,
+      questions: quiz.questions.map((question) => ({
+        id: question.id,
+        type: question.type,
+        questionText: question.questionText,
+        options: question.options || undefined,
+        userAnswer: question.userAnswer || undefined,
+        correctAnswer: isCompleted
+          ? question.correctAnswer || undefined
+          : undefined,
         isCorrect: isCompleted
-          ? q.isCorrect !== null
-            ? q.isCorrect
+          ? question.isCorrect !== null
+            ? question.isCorrect
             : undefined
           : undefined,
       })),

@@ -27,8 +27,12 @@ export class QuizEntity {
   @Column({ type: 'timestamp', nullable: true })
   completedAt: Date | null;
 
-  @OneToMany(() => QuestionEntity, (question) => question.quiz, {
-    cascade: true,
-  })
+  @OneToMany(
+    () => QuestionEntity,
+    (question: QuestionEntity) => question.quiz,
+    {
+      cascade: true,
+    },
+  )
   questions: QuestionEntity[];
 }

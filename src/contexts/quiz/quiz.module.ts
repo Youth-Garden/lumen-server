@@ -14,13 +14,31 @@ import { QuizRepository } from './infrastructure/repositories/quiz.repository';
 import { QuizQuestionFactory } from './domain/factories/quiz-question.factory';
 import { VocabularyModule } from '../vocabulary/vocabulary.module';
 
+import { AdminQuizController } from './presentation/http/admin-quiz.controller';
+import { TypeOrmPresetQuiz } from './infrastructure/entities/preset-quiz.orm-entity';
+import { TypeOrmPresetQuestion } from './infrastructure/entities/preset-question.orm-entity';
+import { TypeOrmPresetQuizRepository } from './infrastructure/repositories/preset-quiz.repository';
+import { PRESET_QUIZ_REPOSITORY } from './domain/repositories/preset-quiz.repository.interface';
+import { CreatePresetQuizHandler } from './application/commands/create-preset-quiz.handler';
+import {
+  UpdatePresetQuizHandler,
+  DeletePresetQuizHandler,
+} from './application/commands/preset-quiz-extra.handlers';
+import { ListPresetQuizzesHandler } from './application/queries/list-preset-quizzes.handler';
+import { GetPresetQuizByIdHandler } from './application/queries/get-preset-quiz-by-id.handler';
+
 @Module({
   imports: [
     CqrsModule,
-    TypeOrmModule.forFeature([QuizEntity, QuestionEntity]),
+    TypeOrmModule.forFeature([
+      QuizEntity,
+      QuestionEntity,
+      TypeOrmPresetQuiz,
+      TypeOrmPresetQuestion,
+    ]),
     VocabularyModule,
   ],
-  controllers: [QuizController],
+  controllers: [QuizController, AdminQuizController],
   providers: [
     QuizQuestionFactory,
     GenerateQuizHandler,
@@ -28,9 +46,18 @@ import { VocabularyModule } from '../vocabulary/vocabulary.module';
     FinishQuizHandler,
     ListQuizzesHandler,
     GetQuizByIdHandler,
+    CreatePresetQuizHandler,
+    UpdatePresetQuizHandler,
+    DeletePresetQuizHandler,
+    ListPresetQuizzesHandler,
+    GetPresetQuizByIdHandler,
     {
       provide: QUIZ_REPOSITORY,
       useClass: QuizRepository,
+    },
+    {
+      provide: PRESET_QUIZ_REPOSITORY,
+      useClass: TypeOrmPresetQuizRepository,
     },
   ],
 })
