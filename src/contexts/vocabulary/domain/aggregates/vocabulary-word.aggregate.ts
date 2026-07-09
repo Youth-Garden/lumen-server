@@ -5,7 +5,7 @@ import { VocabularyDefinition } from '../entities/vocabulary-definition.entity';
 export class VocabularyWord extends AggregateRoot {
   private constructor(
     private readonly _id: string,
-    private readonly _term: string,
+    private _term: string,
     private _phonetic: string | null,
     private _audioUrl: string | null,
     private _cefrLevel: string | null,
@@ -71,5 +71,19 @@ export class VocabularyWord extends AggregateRoot {
 
   get definitions(): VocabularyDefinition[] {
     return this._definitions;
+  }
+
+  update(
+    term?: string,
+    phonetic?: string | null,
+    audioUrl?: string | null,
+    cefrLevel?: string | null,
+    definitions?: VocabularyDefinition[],
+  ): void {
+    if (term !== undefined) this._term = term;
+    if (phonetic !== undefined) this._phonetic = phonetic;
+    if (audioUrl !== undefined) this._audioUrl = audioUrl;
+    if (cefrLevel !== undefined) this._cefrLevel = cefrLevel;
+    if (definitions !== undefined) this._definitions = definitions;
   }
 }

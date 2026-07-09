@@ -113,26 +113,45 @@ export class VocabularyWordRepository implements IVocabularyWordRepository {
 
   async findAll(filter: {
     search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
     cefrLevel?: string;
+    partOfSpeech?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<VocabularyWord>> {
     const query = this.wordRepo
       .createQueryBuilder('word')
       .leftJoinAndSelect('word.definitions', 'definition')
-      .leftJoinAndSelect('definition.examples', 'example')
-      .orderBy('word.createdAt', 'DESC');
+      .leftJoinAndSelect('definition.examples', 'example');
 
     if (filter.search) {
-      query.andWhere('word.term ILIKE :search', {
-        search: `%${filter.search}%`,
-      });
+      query.andWhere(
+        '(word.term ILIKE :search OR definition.definitionEn ILIKE :search OR definition.translationVi ILIKE :search)',
+        { search: `%${filter.search}%` },
+      );
     }
 
     if (filter.cefrLevel) {
       query.andWhere('word.cefrLevel = :cefrLevel', {
         cefrLevel: filter.cefrLevel,
       });
+    }
+
+    if (filter.partOfSpeech) {
+      query.andWhere('definition.partOfSpeech = :partOfSpeech', {
+        partOfSpeech: filter.partOfSpeech,
+      });
+    }
+
+    const sortBy = filter.sortBy || 'createdAt';
+    const sortOrder = filter.sortOrder || 'DESC';
+
+    // Support sorting by word fields
+    if (sortBy === 'term') {
+      query.orderBy('word.term', sortOrder);
+    } else {
+      query.orderBy(`word.${sortBy}`, sortOrder);
     }
 
     const [entities, total] = await query
@@ -142,5 +161,9 @@ export class VocabularyWordRepository implements IVocabularyWordRepository {
 
     const items = entities.map((entity) => this.toDomain(entity));
     return { items, total };
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.wordRepo.delete(id);
   }
 }

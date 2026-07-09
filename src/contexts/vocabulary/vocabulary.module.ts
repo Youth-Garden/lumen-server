@@ -17,6 +17,11 @@ import { ListWordsHandler } from './application/queries/list-words.handler';
 import { ListDecksHandler } from './application/queries/list-decks.handler';
 import { GetDeckByIdHandler } from './application/queries/get-deck-by-id.handler';
 import { ListDueFlashcardsHandler } from './application/queries/list-due-flashcards.handler';
+import { UpdateVocabularyWordHandler } from './application/commands/update-vocabulary-word.handler';
+import { DeleteVocabularyWordHandler } from './application/commands/delete-vocabulary-word.handler';
+import { UpdateDeckHandler } from './application/commands/update-deck.handler';
+import { DeleteDeckHandler } from './application/commands/delete-deck.handler';
+import { DeleteFlashcardHandler } from './application/commands/delete-flashcard.handler';
 import { VOCABULARY_WORD_REPOSITORY } from './domain/repositories/vocabulary-word.repository.interface';
 import { DECK_REPOSITORY } from './domain/repositories/deck.repository.interface';
 import { FLASHCARD_REPOSITORY } from './domain/repositories/flashcard.repository.interface';
@@ -51,6 +56,11 @@ import { VocabularyQueryRepository } from './infrastructure/typeorm/repositories
     ListDecksHandler,
     GetDeckByIdHandler,
     ListDueFlashcardsHandler,
+    UpdateVocabularyWordHandler,
+    DeleteVocabularyWordHandler,
+    UpdateDeckHandler,
+    DeleteDeckHandler,
+    DeleteFlashcardHandler,
     {
       provide: VOCABULARY_WORD_REPOSITORY,
       useClass: VocabularyWordRepository,

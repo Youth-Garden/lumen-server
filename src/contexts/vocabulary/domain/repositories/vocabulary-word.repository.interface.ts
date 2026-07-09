@@ -10,8 +10,12 @@ export interface IVocabularyWordRepository {
   findRandom(limit: number): Promise<VocabularyWord[]>;
   findAll(filter: {
     search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
     cefrLevel?: string;
+    partOfSpeech?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<VocabularyWord>>;
+  delete(id: string): Promise<void>;
 }

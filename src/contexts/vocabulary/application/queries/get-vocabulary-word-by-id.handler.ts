@@ -22,7 +22,7 @@ export class GetVocabularyWordByIdHandler implements IQueryHandler<
   ): Promise<VocabularyWordResponseDto> {
     const word = await this.repository.findById(query.id);
     if (!word) {
-      throw new AppException(VocabEx.WordNotFound(query.id));
+      throw new AppException(VocabEx.WordNotFound);
     }
 
     return new VocabularyWordResponseDto({

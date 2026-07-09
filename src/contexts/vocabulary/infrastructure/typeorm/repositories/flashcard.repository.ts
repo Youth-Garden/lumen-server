@@ -34,4 +34,8 @@ export class FlashcardRepository implements IFlashcardRepository {
     entity.wordId = flashcard.wordId;
     await this.repo.save(entity);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
+  }
 }

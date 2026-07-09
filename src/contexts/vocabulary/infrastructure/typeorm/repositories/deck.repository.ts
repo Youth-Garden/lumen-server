@@ -42,4 +42,8 @@ export class DeckRepository implements IDeckRepository {
       Deck.restore(entity.id, entity.name, entity.description, entity.authorId),
     );
   }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
+  }
 }

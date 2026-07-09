@@ -1,11 +1,11 @@
 import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
 
 export const VocabEx = {
-  WordNotFound: (id: string) => ({
+  WordNotFound: {
     code: 'VOCAB_WORD_NOT_FOUND',
-    message: `Word with ID ${id} not found`,
+    message: 'Word not found',
     httpStatus: 404,
-  }),
+  },
   WordAlreadyExists: {
     code: 'VOCAB_WORD_ALREADY_EXISTS',
     message: 'Word already exists',
@@ -25,5 +25,10 @@ export const VocabEx = {
     code: 'VOCAB_FLASHCARD_NOT_FOUND',
     message: 'Flashcard not found',
     httpStatus: 404,
+  },
+  NotDeckOwner: {
+    code: 'VOCAB_NOT_DECK_OWNER',
+    message: 'Not authorized to modify this deck',
+    httpStatus: 403,
   },
 } satisfies ExceptionMap;

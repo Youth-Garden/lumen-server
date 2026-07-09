@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -12,11 +20,18 @@ import {
   CreateDeckDto,
   CreateFlashcardDto,
 } from '../../application/dtos/deck-flashcard.dto';
+import { UpdateVocabularyWordDto } from '../../application/dtos/update-vocabulary-word.dto';
+import { UpdateDeckDto } from '../../application/dtos/update-deck.dto';
 import { ReviewFlashcardDto } from '../../application/dtos/review-flashcard.dto';
 import { CreateVocabularyWordCommand } from '../../application/commands/create-vocabulary-word.command';
 import { CreateDeckCommand } from '../../application/commands/create-deck.command';
 import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
 import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
+import { UpdateVocabularyWordCommand } from '../../application/commands/update-vocabulary-word.command';
+import { DeleteVocabularyWordCommand } from '../../application/commands/delete-vocabulary-word.command';
+import { UpdateDeckCommand } from '../../application/commands/update-deck.command';
+import { DeleteDeckCommand } from '../../application/commands/delete-deck.command';
+import { DeleteFlashcardCommand } from '../../application/commands/delete-flashcard.command';
 import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
 import { ListWordsQuery } from '../../application/queries/list-words.query';
 import { ListDecksQuery } from '../../application/queries/list-decks.query';
@@ -31,7 +46,8 @@ import {
 import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
-import { Query as QueryParam } from '@nestjs/common';
+import { Query } from '@nestjs/common';
+import { ListWordsFilterDto } from '../../application/dtos/list-words-filter.dto';
 
 @ApiTags('Vocabulary')
 @Controller('vocabulary/words')
@@ -79,18 +95,52 @@ export class VocabularyController {
     return { id };
   }
 
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a vocabulary word' })
+  @ApiParam({ name: 'id', description: 'The UUID of the word' })
+  @ApiBody({ type: UpdateVocabularyWordDto })
+  @ApiResponse({ status: 200, description: 'Word updated successfully.' })
+  async updateWord(
+    @Param('id') id: string,
+    @Body() dto: UpdateVocabularyWordDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UpdateVocabularyWordCommand(
+        id,
+        dto.term,
+        dto.phonetic,
+        dto.audioUrl,
+        dto.cefrLevel,
+        dto.definitions,
+      ),
+    );
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a vocabulary word' })
+  @ApiParam({ name: 'id', description: 'The UUID of the word' })
+  @ApiResponse({ status: 200, description: 'Word deleted successfully.' })
+  async deleteWord(@Param('id') id: string): Promise<void> {
+    await this.commandBus.execute(new DeleteVocabularyWordCommand(id));
+  }
+
   @Public()
   @Get()
   @ApiOperation({ summary: 'List vocabulary words' })
   @ApiResponse({ type: WordListResponseDto, status: 200 })
   async listWords(
-    @QueryParam('page') page: number = 1,
-    @QueryParam('limit') limit: number = 20,
-    @QueryParam('search') search?: string,
-    @QueryParam('cefrLevel') cefrLevel?: string,
+    @Query() filterDto: ListWordsFilterDto,
   ): Promise<WordListResponseDto> {
     return this.queryBus.execute<ListWordsQuery, WordListResponseDto>(
-      new ListWordsQuery(page, limit, search, cefrLevel),
+      new ListWordsQuery(
+        filterDto.page || 1,
+        filterDto.limit || 20,
+        filterDto.search,
+        filterDto.sortBy,
+        filterDto.sortOrder,
+        filterDto.cefrLevel,
+        filterDto.partOfSpeech,
+      ),
     );
   }
 
@@ -139,6 +189,32 @@ export class VocabularyController {
     return { id };
   }
 
+  @Put('decks/:id')
+  @ApiOperation({ summary: 'Update a deck' })
+  @ApiParam({ name: 'id', description: 'The UUID of the deck' })
+  @ApiBody({ type: UpdateDeckDto })
+  @ApiResponse({ status: 200, description: 'Deck updated successfully.' })
+  async updateDeck(
+    @Param('id') id: string,
+    @Body() dto: UpdateDeckDto,
+    @CurrentUser() userId: string,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UpdateDeckCommand(id, userId, dto.name, dto.description),
+    );
+  }
+
+  @Delete('decks/:id')
+  @ApiOperation({ summary: 'Delete a deck' })
+  @ApiParam({ name: 'id', description: 'The UUID of the deck' })
+  @ApiResponse({ status: 200, description: 'Deck deleted successfully.' })
+  async deleteDeck(
+    @Param('id') id: string,
+    @CurrentUser() userId: string,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteDeckCommand(id, userId));
+  }
+
   @Post('flashcards')
   @ApiOperation({
     summary: 'Add a flashcard to a deck',
@@ -161,6 +237,17 @@ export class VocabularyController {
       new CreateFlashcardCommand(dto.deckId, dto.wordId),
     );
     return { id };
+  }
+
+  @Delete('flashcards/:id')
+  @ApiOperation({ summary: 'Delete a flashcard' })
+  @ApiParam({ name: 'id', description: 'The UUID of the flashcard' })
+  @ApiResponse({ status: 200, description: 'Flashcard deleted successfully.' })
+  async deleteFlashcard(
+    @Param('id') id: string,
+    @CurrentUser() userId: string,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteFlashcardCommand(id, userId));
   }
 
   @Get('flashcards/due')

@@ -19,7 +19,10 @@ export class ListWordsHandler implements IQueryHandler<
   async execute(query: ListWordsQuery): Promise<WordListResponseDto> {
     const { items, total } = await this.repository.findAll({
       search: query.search,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
       cefrLevel: query.cefrLevel,
+      partOfSpeech: query.partOfSpeech,
       page: query.page,
       limit: query.limit,
     });

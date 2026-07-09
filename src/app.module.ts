@@ -19,6 +19,7 @@ import { ProgressModule } from './contexts/progress/progress.module';
 import { ReadingModule } from './contexts/reading/reading.module';
 import { ToeicModule } from './contexts/toeic/toeic.module';
 import { MaterialModule } from './contexts/material/material.module';
+import { GrammarModule } from './contexts/grammar/grammar.module';
 import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
 
 @Module({
@@ -39,6 +40,7 @@ import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
     ReadingModule,
     ToeicModule,
     MaterialModule,
+    GrammarModule,
   ],
   controllers: [AppController],
   providers: [

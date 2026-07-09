@@ -30,12 +30,12 @@ export class CreateFlashcardHandler implements ICommandHandler<
 
     const deck = await this.deckRepo.findById(deckId);
     if (!deck) {
-      throw new AppException(VocabEx.DeckNotFound);
+      throw new AppException(VocabEx.FlashcardNotFound);
     }
 
     const word = await this.wordRepo.findById(wordId);
     if (!word) {
-      throw new AppException(VocabEx.WordNotFound(wordId));
+      throw new AppException(VocabEx.WordNotFound);
     }
 
     const existing = await this.flashcardRepo.findByDeckAndWord(deckId, wordId);

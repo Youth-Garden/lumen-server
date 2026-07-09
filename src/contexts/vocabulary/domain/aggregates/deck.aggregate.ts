@@ -43,4 +43,9 @@ export class Deck extends AggregateRoot {
   get authorId(): string {
     return this._authorId;
   }
+
+  update(name?: string, description?: string | null): void {
+    if (name !== undefined) this._name = name;
+    if (description !== undefined) this._description = description;
+  }
 }

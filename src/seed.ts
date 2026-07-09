@@ -143,15 +143,15 @@ async function bootstrap() {
 
       const definition = new DefinitionEntity();
       definition.wordId = savedWord.id;
-      definition.partOfSpeech = 'noun/verb';
+      definition.partOfSpeech = wordData.partOfSpeech;
       definition.definitionEn = wordData.definition;
-      definition.translationVi = wordData.definition; // reusing for seed
+      definition.translationVi = wordData.translationVi;
       const savedDef = await definitionRepo.save(definition);
 
       const example = new ExampleEntity();
       example.definitionId = savedDef.id;
       example.sentenceEn = wordData.example;
-      example.translationVi = wordData.example;
+      example.translationVi = wordData.exampleTranslation;
       await exampleRepo.save(example);
 
       const flashcard = new FlashcardEntity();
