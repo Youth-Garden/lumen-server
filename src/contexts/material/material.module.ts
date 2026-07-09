@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MaterialEntity } from './infrastructure/typeorm/entities/material.entity';
-import { TranscriptEntity } from './infrastructure/typeorm/entities/transcript.entity';
-import { ActivityLogEntity } from './infrastructure/typeorm/entities/activity-log.entity';
+import { MaterialEntity } from './infrastructure/entities/material.entity';
+import { TranscriptEntity } from './infrastructure/entities/transcript.entity';
+import { ActivityLogEntity } from './infrastructure/entities/activity-log.entity';
 
 import { MaterialController } from './presentation/http/material.controller';
 import {
@@ -12,7 +12,7 @@ import {
 import { SubmitDictationHandler } from './application/commands/submit-dictation.command';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MATERIAL_QUERY_REPOSITORY } from './application/ports/material-query.repository';
-import { MaterialQueryRepository } from './infrastructure/typeorm/repositories/material-query.repository';
+import { MaterialQueryRepository } from './infrastructure/repositories/material-query.repository';
 
 const QueryHandlers = [ListMaterialsHandler, GetMaterialByIdHandler];
 const CommandHandlers = [SubmitDictationHandler];

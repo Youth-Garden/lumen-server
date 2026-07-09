@@ -20,6 +20,7 @@ import { ReadingModule } from './contexts/reading/reading.module';
 import { ToeicModule } from './contexts/toeic/toeic.module';
 import { MaterialModule } from './contexts/material/material.module';
 import { GrammarModule } from './contexts/grammar/grammar.module';
+import { ListeningSpeakingModule } from './contexts/listening-speaking/listening-speaking.module';
 import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
 
 @Module({
@@ -41,6 +42,7 @@ import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
     ToeicModule,
     MaterialModule,
     GrammarModule,
+    ListeningSpeakingModule,
   ],
   controllers: [AppController],
   providers: [

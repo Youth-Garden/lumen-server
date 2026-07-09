@@ -188,8 +188,9 @@ src/modules/{module-name}/
 │   ├── dtos/                   # Request DTOs (class-validator)
 │   └── responses/               # Response DTOs (class-transformer)
 ├── infrastructure/              # Technical implementations
-│   ├── typeorm/                 # TypeORM entities + repository implementations
-│   ├── adapters/                 # External service adapters
+│   ├── entities/                # TypeORM entities
+│   ├── repositories/            # Repository implementations
+│   ├── adapters/                # External service adapters
 │   ├── jobs/                      # Outbox workers, cron jobs
 │   └── kafka/                      # Kafka producers/consumers
 ├── presentation/                  # Interface layer
@@ -368,7 +369,7 @@ export interface AuthUserRepository {
   findByEmail(email: string): Promise<AuthUser | null>;
 }
 
-// infrastructure/typeorm/auth-user.repository.ts
+// infrastructure/repositories/auth-user.repository.ts
 @Injectable()
 export class AuthUserRepositoryImpl implements AuthUserRepository {
   constructor(
@@ -415,7 +416,7 @@ export class AuthUserRepositoryImpl implements AuthUserRepository {
 | Repo Impl      | `{EntityName}Repository`             | `UserRepository`          |
 
 **Naming Rules for Infrastructure Files & Classes:**
-Do not use technology-specific prefixes like `typeorm-` or `TypeOrm` for repository implementations. Since the file is already located inside the `infrastructure/typeorm/` directory, its context is clear. Use generic names to keep the code clean.
+Do not use technology-specific prefixes like `typeorm-` or `TypeOrm` for repository implementations. Since the file is already located inside the `infrastructure/` directory, its context is clear. Use generic names to keep the code clean.
 - ❌ **Forbidden**: `typeorm-user.repository.ts`, `class TypeOrmUserRepository`
 - ✅ **Correct**: `user.repository.ts`, `class UserRepository implements IUserRepository`
 

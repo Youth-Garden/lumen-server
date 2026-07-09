@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CqrsModule } from '@nestjs/cqrs';
-import { WordEntity } from './infrastructure/typeorm/entities/word.entity';
-import { DefinitionEntity } from './infrastructure/typeorm/entities/definition.entity';
-import { ExampleEntity } from './infrastructure/typeorm/entities/example.entity';
-import { DeckEntity } from './infrastructure/typeorm/entities/deck.entity';
-import { FlashcardEntity } from './infrastructure/typeorm/entities/flashcard.entity';
-import { UserProgressEntity } from './infrastructure/typeorm/entities/user-progress.entity';
+import { WordEntity } from './infrastructure/entities/word.entity';
+import { DefinitionEntity } from './infrastructure/entities/definition.entity';
+import { ExampleEntity } from './infrastructure/entities/example.entity';
+import { DeckEntity } from './infrastructure/entities/deck.entity';
+import { FlashcardEntity } from './infrastructure/entities/flashcard.entity';
+import { UserProgressEntity } from './infrastructure/entities/user-progress.entity';
 import { VocabularyController } from './presentation/http/vocabulary.controller';
 import { CreateVocabularyWordHandler } from './application/commands/create-vocabulary-word.handler';
 import { CreateDeckHandler } from './application/commands/create-deck.handler';
@@ -26,12 +26,12 @@ import { VOCABULARY_WORD_REPOSITORY } from './domain/repositories/vocabulary-wor
 import { DECK_REPOSITORY } from './domain/repositories/deck.repository.interface';
 import { FLASHCARD_REPOSITORY } from './domain/repositories/flashcard.repository.interface';
 import { USER_PROGRESS_REPOSITORY } from './domain/repositories/user-progress.repository.interface';
-import { VocabularyWordRepository } from './infrastructure/typeorm/repositories/vocabulary-word.repository';
-import { DeckRepository } from './infrastructure/typeorm/repositories/deck.repository';
-import { FlashcardRepository } from './infrastructure/typeorm/repositories/flashcard.repository';
-import { UserProgressRepository } from './infrastructure/typeorm/repositories/user-progress.repository';
+import { VocabularyWordRepository } from './infrastructure/repositories/vocabulary-word.repository';
+import { DeckRepository } from './infrastructure/repositories/deck.repository';
+import { FlashcardRepository } from './infrastructure/repositories/flashcard.repository';
+import { UserProgressRepository } from './infrastructure/repositories/user-progress.repository';
 import { VOCABULARY_QUERY_REPOSITORY } from './application/ports/vocabulary-query.repository';
-import { VocabularyQueryRepository } from './infrastructure/typeorm/repositories/vocabulary-query.repository';
+import { VocabularyQueryRepository } from './infrastructure/repositories/vocabulary-query.repository';
 
 @Module({
   imports: [

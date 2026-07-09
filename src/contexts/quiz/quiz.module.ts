@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CqrsModule } from '@nestjs/cqrs';
-import { QuizEntity } from './infrastructure/typeorm/entities/quiz.entity';
-import { QuestionEntity } from './infrastructure/typeorm/entities/question.entity';
+import { QuizEntity } from './infrastructure/entities/quiz.entity';
+import { QuestionEntity } from './infrastructure/entities/question.entity';
 import { QuizController } from './presentation/http/quiz.controller';
 import { GenerateQuizHandler } from './application/commands/generate-quiz.handler';
 import { SubmitAnswerHandler } from './application/commands/submit-answer.handler';
@@ -10,7 +10,7 @@ import { FinishQuizHandler } from './application/commands/finish-quiz.handler';
 import { ListQuizzesHandler } from './application/queries/list-quizzes.handler';
 import { GetQuizByIdHandler } from './application/queries/get-quiz-by-id.handler';
 import { QUIZ_REPOSITORY } from './domain/repositories/quiz.repository.interface';
-import { QuizRepository } from './infrastructure/typeorm/repositories/quiz.repository';
+import { QuizRepository } from './infrastructure/repositories/quiz.repository';
 import { QuizQuestionFactory } from './domain/factories/quiz-question.factory';
 import { VocabularyModule } from '../vocabulary/vocabulary.module';
 

@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GrammarTopicEntity } from './infrastructure/typeorm/entities/grammar-topic.entity';
-import { GrammarLessonEntity } from './infrastructure/typeorm/entities/grammar-lesson.entity';
-import { GrammarExerciseEntity } from './infrastructure/typeorm/entities/grammar-exercise.entity';
-import { GrammarTopicRepository } from './infrastructure/typeorm/repositories/grammar-topic.repository';
-import { GrammarExerciseRepository } from './infrastructure/typeorm/repositories/grammar-exercise.repository';
+import { GrammarTopicEntity } from './infrastructure/entities/grammar-topic.entity';
+import { GrammarLessonEntity } from './infrastructure/entities/grammar-lesson.entity';
+import { GrammarExerciseEntity } from './infrastructure/entities/grammar-exercise.entity';
+import { GrammarTopicRepository } from './infrastructure/repositories/grammar-topic.repository';
+import { GrammarExerciseRepository } from './infrastructure/repositories/grammar-exercise.repository';
 import { GRAMMAR_TOPIC_REPOSITORY } from './domain/repositories/grammar-topic.repository.interface';
 import { GRAMMAR_EXERCISE_REPOSITORY } from './domain/repositories/grammar-exercise.repository.interface';
 import { CreateGrammarTopicHandler } from './application/commands/create-grammar-topic.handler';

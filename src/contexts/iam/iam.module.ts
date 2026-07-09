@@ -11,12 +11,12 @@ import { LogoutHandler } from './application/commands/logout.handler';
 import { GetMeHandler } from './application/queries/get-me.handler';
 import { ListSessionsHandler } from './application/queries/list-sessions.handler';
 import { UpdateProfileHandler } from './application/commands/update-profile.handler';
-import { UserRepository } from './infrastructure/typeorm/user.repository';
+import { UserRepository } from './infrastructure/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
 import { HashingService, TokenService, GoogleAuthService } from '../../common';
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
-import { UserEntity } from './infrastructure/typeorm/entities/user.entity';
-import { SessionEntity } from './infrastructure/typeorm/entities/session.entity';
+import { UserEntity } from './infrastructure/entities/user.entity';
+import { SessionEntity } from './infrastructure/entities/session.entity';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
