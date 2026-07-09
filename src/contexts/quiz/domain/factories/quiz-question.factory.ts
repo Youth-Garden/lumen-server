@@ -7,7 +7,7 @@ import { AppException } from '../../../../shared-kernel/exceptions';
 import { QuizEx } from '../exceptions/quiz.exception';
 
 @Injectable()
-export class QuizQuestionGeneratorService {
+export class QuizQuestionFactory {
   generateQuestions(
     quizId: string,
     words: VocabularyWord[],

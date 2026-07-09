@@ -11,7 +11,7 @@ import { ListQuizzesHandler } from './application/queries/list-quizzes.handler';
 import { GetQuizByIdHandler } from './application/queries/get-quiz-by-id.handler';
 import { QUIZ_REPOSITORY } from './domain/repositories/quiz.repository.interface';
 import { QuizRepository } from './infrastructure/typeorm/repositories/quiz.repository';
-import { QuizQuestionGeneratorService } from './domain/services/quiz-question-generator.service';
+import { QuizQuestionFactory } from './domain/factories/quiz-question.factory';
 import { VocabularyModule } from '../vocabulary/vocabulary.module';
 
 @Module({
@@ -22,7 +22,7 @@ import { VocabularyModule } from '../vocabulary/vocabulary.module';
   ],
   controllers: [QuizController],
   providers: [
-    QuizQuestionGeneratorService,
+    QuizQuestionFactory,
     GenerateQuizHandler,
     SubmitAnswerHandler,
     FinishQuizHandler,

@@ -9,7 +9,7 @@ import type { IVocabularyWordRepository } from '../../../vocabulary/domain/repos
 import { VOCABULARY_WORD_REPOSITORY } from '../../../vocabulary/domain/repositories/vocabulary-word.repository.interface';
 import { AppException } from '../../../../shared-kernel/exceptions';
 import { QuizEx } from '../../domain/exceptions/quiz.exception';
-import { QuizQuestionGeneratorService } from '../../domain/services/quiz-question-generator.service';
+import { QuizQuestionFactory } from '../../domain/factories/quiz-question.factory';
 
 @CommandHandler(GenerateQuizCommand)
 export class GenerateQuizHandler implements ICommandHandler<
@@ -21,7 +21,7 @@ export class GenerateQuizHandler implements ICommandHandler<
     private readonly quizRepo: IQuizRepository,
     @Inject(VOCABULARY_WORD_REPOSITORY)
     private readonly wordRepo: IVocabularyWordRepository,
-    private readonly questionGenerator: QuizQuestionGeneratorService,
+    private readonly questionGenerator: QuizQuestionFactory,
   ) {}
 
   async execute(command: GenerateQuizCommand): Promise<string> {

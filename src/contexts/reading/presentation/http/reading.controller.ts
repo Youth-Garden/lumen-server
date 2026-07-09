@@ -12,18 +12,17 @@ import { CreateArticleDto } from '../../application/dtos/reading.dto';
 import {
   ArticleResponseDto,
   ArticleListResponseDto,
+  CreateArticleResponseDto,
+  TranslationResponseDto,
 } from '../../application/responses/reading.response.dto';
 import { CreateArticleCommand } from '../../application/commands/create-article.command';
 import {
   ListArticlesQuery,
   GetArticleByIdQuery,
 } from '../../application/queries/reading.queries';
-import {
-  CreateArticleResponseDto,
-  TranslationResponseDto,
-} from '../../application/responses/translation.response.dto';
+
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import axios from 'axios';
+import { TranslateTextQuery } from '../../application/queries/translate-text.query';
 
 @ApiTags('Reading')
 @Controller('reading')
@@ -88,22 +87,9 @@ export class ReadingController {
   ): Promise<TranslationResponseDto> {
     if (!text) return new TranslationResponseDto('');
 
-    try {
-      // Using MyMemory free API for translation (en to vi)
-      const res = await axios.get<{ responseData: { translatedText: string } }>(
-        `https://api.mymemory.translated.net/get`,
-        {
-          params: {
-            q: text,
-            langpair: 'en|vi',
-          },
-        },
-      );
-      return new TranslationResponseDto(
-        res.data?.responseData?.translatedText || 'N/A',
-      );
-    } catch {
-      return new TranslationResponseDto('Translation error');
-    }
+    const result = await this.queryBus.execute<TranslateTextQuery, string>(
+      new TranslateTextQuery(text),
+    );
+    return new TranslationResponseDto(result);
   }
 }

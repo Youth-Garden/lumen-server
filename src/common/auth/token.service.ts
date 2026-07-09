@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { TokenType } from '../../domain/enums/token-type.enum';
 
-interface TokenPayload {
-  sub: string;
-  role: string;
-  type: TokenType;
-}
+import { TokenType } from './enums/token-type.enum';
+import type { TokenPayload } from './interfaces/token-payload.interface';
 
 @Injectable()
 export class TokenService {

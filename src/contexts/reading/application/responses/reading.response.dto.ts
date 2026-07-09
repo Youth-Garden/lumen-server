@@ -1,33 +1,25 @@
-import { ApiProperty } from '@nestjs/swagger';
-
 export class ArticleResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  title: string;
-
-  @ApiProperty()
-  content: string;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  constructor(partial: Partial<ArticleResponseDto>) {
-    Object.assign(this, partial);
-  }
+  constructor(
+    public readonly id: string,
+    public readonly title: string,
+    public readonly content: string,
+    public readonly createdAt: Date,
+  ) {}
 }
 
 export class ArticleListResponseDto {
-  @ApiProperty({ type: [ArticleResponseDto] })
-  items: ArticleResponseDto[];
+  constructor(
+    public readonly items: ArticleResponseDto[],
+    public readonly total: number,
+    public readonly page: number,
+    public readonly limit: number,
+  ) {}
+}
 
-  @ApiProperty()
-  total: number;
+export class CreateArticleResponseDto {
+  constructor(public readonly id: string) {}
+}
 
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  limit: number;
+export class TranslationResponseDto {
+  constructor(public readonly translatedText: string) {}
 }

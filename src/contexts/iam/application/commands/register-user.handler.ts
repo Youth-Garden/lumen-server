@@ -3,7 +3,7 @@ import { RegisterUserCommand } from './register-user.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { HashingService } from '../../infrastructure/services/hashing.service';
+import { HashingService } from '../../../../common/crypto/hashing.service';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
 import { AppException } from '../../../../shared-kernel/exceptions';
