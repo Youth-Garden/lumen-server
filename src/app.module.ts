@@ -22,6 +22,7 @@ import { MaterialModule } from './contexts/material/material.module';
 import { GrammarModule } from './contexts/grammar/grammar.module';
 import { ListeningSpeakingModule } from './contexts/listening-speaking/listening-speaking.module';
 import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
+import { ExamPracticeModule } from './contexts/exam-practice/exam-practice.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
     MaterialModule,
     GrammarModule,
     ListeningSpeakingModule,
+    ExamPracticeModule,
   ],
   controllers: [AppController],
   providers: [
