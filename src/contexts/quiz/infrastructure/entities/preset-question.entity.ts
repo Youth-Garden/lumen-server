@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { TypeOrmPresetQuiz } from './preset-quiz.orm-entity';
+import { PresetQuizEntity } from './preset-quiz.entity';
 import { QuestionType } from '../../domain/enums/quiz.enum';
 
 @Entity('preset_questions')
-export class TypeOrmPresetQuestion {
+export class PresetQuestionEntity {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -24,13 +23,13 @@ export class TypeOrmPresetQuestion {
   correctAnswer: string;
 
   @ManyToOne(
-    () => TypeOrmPresetQuiz,
+    () => PresetQuizEntity,
 
-    (quiz: TypeOrmPresetQuiz) => quiz.questions,
+    (quiz: PresetQuizEntity) => quiz.questions,
     {
       onDelete: 'CASCADE',
     },
   )
   @JoinColumn({ name: 'quizId' })
-  quiz: TypeOrmPresetQuiz;
+  quiz: PresetQuizEntity;
 }

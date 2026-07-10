@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LearningProfileEntity } from './infrastructure/entities/learning-profile.entity';
 import { LearningProfileRepository } from './infrastructure/repositories/learning-profile.repository';
 import { LEARNING_PROFILE_REPOSITORY } from './domain/repositories/learning-profile.repository.interface';
-import { ActivityEntity } from './infrastructure/entities/activity.orm-entity';
+import { ActivityEntity } from './infrastructure/entities/activity.entity';
 import { ActivityRepository } from './infrastructure/repositories/activity.repository';
 import { ACTIVITY_REPOSITORY } from './domain/repositories/activity.repository.interface';
 import { FlashcardReviewedListener } from './application/event-handlers/flashcard-reviewed.listener';

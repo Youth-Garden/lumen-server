@@ -4,89 +4,93 @@ import { Repository } from 'typeorm';
 import type { IPresetQuizRepository } from '../../domain/repositories/preset-quiz.repository.interface';
 import { PresetQuiz } from '../../domain/aggregates/preset-quiz.aggregate';
 import { PresetQuestion } from '../../domain/entities/preset-question.entity';
-import { TypeOrmPresetQuiz } from '../entities/preset-quiz.orm-entity';
-import { TypeOrmPresetQuestion } from '../entities/preset-question.orm-entity';
+import { PresetQuizEntity } from '../entities/preset-quiz.entity';
+import { PresetQuestionEntity } from '../entities/preset-question.entity';
 
 @Injectable()
-export class TypeOrmPresetQuizRepository implements IPresetQuizRepository {
+export class PresetQuizRepository implements IPresetQuizRepository {
   constructor(
-    @InjectRepository(TypeOrmPresetQuiz)
-    private readonly ormRepo: Repository<TypeOrmPresetQuiz>,
+    @InjectRepository(PresetQuizEntity)
+    private readonly repository: Repository<PresetQuizEntity>,
   ) {}
 
-  async save(quiz: PresetQuiz): Promise<void> {
-    const ormQuiz = new TypeOrmPresetQuiz();
-    ormQuiz.id = quiz.id;
-    ormQuiz.title = quiz.title;
-    ormQuiz.description = quiz.description;
-    ormQuiz.isPublished = quiz.isPublished;
-    ormQuiz.createdAt = quiz.createdAt;
-    ormQuiz.updatedAt = quiz.updatedAt;
+  private toPersistence(quiz: PresetQuiz): PresetQuizEntity {
+    const entity = new PresetQuizEntity();
+    entity.id = quiz.id;
+    entity.title = quiz.title;
+    entity.description = quiz.description;
+    entity.isPublished = quiz.isPublished;
+    entity.createdAt = quiz.createdAt;
+    entity.updatedAt = quiz.updatedAt;
 
-    ormQuiz.questions = quiz.questions.map((question) => {
-      const ormQ = new TypeOrmPresetQuestion();
-      ormQ.id = question.id;
-      ormQ.quizId = question.quizId;
-      ormQ.type = question.type;
-      ormQ.questionText = question.questionText;
-      ormQ.options = question.options;
-      ormQ.correctAnswer = question.correctAnswer;
-      return ormQ;
+    entity.questions = quiz.questions.map((question) => {
+      const qEntity = new PresetQuestionEntity();
+      qEntity.id = question.id;
+      qEntity.quizId = question.quizId;
+      qEntity.type = question.type;
+      qEntity.questionText = question.questionText;
+      qEntity.options = question.options;
+      qEntity.correctAnswer = question.correctAnswer;
+      return qEntity;
     });
 
-    await this.ormRepo.save(ormQuiz);
+    return entity;
+  }
+
+  async save(quiz: PresetQuiz): Promise<void> {
+    const entity = this.toPersistence(quiz);
+    await this.repository.save(entity);
   }
 
   async findById(id: string): Promise<PresetQuiz | null> {
-    const ormQuiz = await this.ormRepo.findOne({
+    const entity = await this.repository.findOne({
       where: { id },
       relations: { questions: true },
     });
 
-    if (!ormQuiz) return null;
+    if (!entity) return null;
 
-    return this.mapToDomain(ormQuiz);
+    return this.toDomain(entity);
   }
 
   async findAll(
     page: number,
     limit: number,
   ): Promise<{ items: PresetQuiz[]; total: number }> {
-    const [ormQuizzes, total] = await this.ormRepo.findAndCount({
+    const [entities, total] = await this.repository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
     });
 
     return {
-      items: ormQuizzes.map((ormQuizItem) => this.mapToDomain(ormQuizItem)),
+      items: entities.map((entity) => this.toDomain(entity)),
       total,
     };
   }
 
   async delete(id: string): Promise<void> {
-    await this.ormRepo.delete(id);
+    await this.repository.delete(id);
   }
 
-  private mapToDomain(ormQuiz: TypeOrmPresetQuiz): PresetQuiz {
-    // Accessing private constructor via a generic approach or static create method
+  private toDomain(entity: PresetQuizEntity): PresetQuiz {
     const quiz = PresetQuiz.create(
-      ormQuiz.id,
-      ormQuiz.title,
-      ormQuiz.description,
-      ormQuiz.isPublished,
+      entity.id,
+      entity.title,
+      entity.description,
+      entity.isPublished,
     );
     // Since create overrides createdAt/updatedAt, we should ideally use reflection or a full constructor
     // For simplicity, we just use the public methods to map questions
-    ormQuiz.questions?.forEach((ormQ: TypeOrmPresetQuestion) => {
+    entity.questions?.forEach((qEntity: PresetQuestionEntity) => {
       quiz.addQuestion(
         PresetQuestion.create(
-          ormQ.id,
-          ormQ.quizId,
-          ormQ.type,
-          ormQ.questionText,
-          ormQ.options,
-          ormQ.correctAnswer,
+          qEntity.id,
+          qEntity.quizId,
+          qEntity.type,
+          qEntity.questionText,
+          qEntity.options,
+          qEntity.correctAnswer,
         ),
       );
     });

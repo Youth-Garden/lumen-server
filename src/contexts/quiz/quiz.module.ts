@@ -15,9 +15,9 @@ import { QuizQuestionFactory } from './domain/factories/quiz-question.factory';
 import { VocabularyModule } from '../vocabulary/vocabulary.module';
 
 import { AdminQuizController } from './presentation/http/admin-quiz.controller';
-import { TypeOrmPresetQuiz } from './infrastructure/entities/preset-quiz.orm-entity';
-import { TypeOrmPresetQuestion } from './infrastructure/entities/preset-question.orm-entity';
-import { TypeOrmPresetQuizRepository } from './infrastructure/repositories/preset-quiz.repository';
+import { PresetQuizEntity } from './infrastructure/entities/preset-quiz.entity';
+import { PresetQuestionEntity } from './infrastructure/entities/preset-question.entity';
+import { PresetQuizRepository } from './infrastructure/repositories/preset-quiz.repository';
 import { PRESET_QUIZ_REPOSITORY } from './domain/repositories/preset-quiz.repository.interface';
 import { CreatePresetQuizHandler } from './application/commands/create-preset-quiz.handler';
 import {
@@ -33,8 +33,8 @@ import { GetPresetQuizByIdHandler } from './application/queries/get-preset-quiz-
     TypeOrmModule.forFeature([
       QuizEntity,
       QuestionEntity,
-      TypeOrmPresetQuiz,
-      TypeOrmPresetQuestion,
+      PresetQuizEntity,
+      PresetQuestionEntity,
     ]),
     VocabularyModule,
   ],
@@ -57,7 +57,7 @@ import { GetPresetQuizByIdHandler } from './application/queries/get-preset-quiz-
     },
     {
       provide: PRESET_QUIZ_REPOSITORY,
-      useClass: TypeOrmPresetQuizRepository,
+      useClass: PresetQuizRepository,
     },
   ],
 })

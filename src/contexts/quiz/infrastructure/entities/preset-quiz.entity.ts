@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Entity,
   PrimaryColumn,
@@ -8,10 +6,10 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { TypeOrmPresetQuestion } from './preset-question.orm-entity';
+import { PresetQuestionEntity } from './preset-question.entity';
 
 @Entity('preset_quizzes')
-export class TypeOrmPresetQuiz {
+export class PresetQuizEntity {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -25,14 +23,14 @@ export class TypeOrmPresetQuiz {
   isPublished: boolean;
 
   @OneToMany(
-    () => TypeOrmPresetQuestion,
+    () => PresetQuestionEntity,
 
-    (question: TypeOrmPresetQuestion) => question.quiz,
+    (question: PresetQuestionEntity) => question.quiz,
     {
       cascade: true,
     },
   )
-  questions: TypeOrmPresetQuestion[];
+  questions: PresetQuestionEntity[];
 
   @CreateDateColumn()
   createdAt: Date;
