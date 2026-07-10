@@ -1,5 +1,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
+import { AppException } from '../../../../common/exceptions/app.exception';
+import { VocabEx } from '../exceptions/vocabulary.exception';
 
 export class UserProgress extends AggregateRoot {
   private constructor(
@@ -70,7 +72,7 @@ export class UserProgress extends AggregateRoot {
 
   review(grade: number): void {
     if (grade < 0 || grade > 5) {
-      throw new Error('Grade must be between 0 and 5');
+      throw new AppException(VocabEx.InvalidGrade);
     }
 
     if (grade >= 3) {

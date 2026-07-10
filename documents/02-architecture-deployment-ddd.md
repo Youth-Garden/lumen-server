@@ -78,8 +78,6 @@ src/
 │   │   │   │   └── review-interval.vo.ts
 │   │   │   ├── repositories/            # interface (port), NO implementation here
 │   │   │   │   └── word.repository.interface.ts
-│   │   │   ├── services/                # Domain Services (pure business logic)
-│   │   │   │   └── spaced-repetition.domain-service.ts
 │   │   │   └── events/
 │   │   │       └── word-mastered.event.ts
 │   │   │
@@ -184,28 +182,12 @@ export class Word {
   static create(props: CreateWordProps): Word { /* ... factory + validate invariants */ }
 
   markAsReviewed(quality: ReviewQuality): DomainEvent[] {
-    // Business logic: update memorization state based on SM-2 algorithm
-    this.masteryStatus = this.masteryStatus.advance(quality);
+    // Apply SM-2 (SuperMemo) algorithm internally here
+    // this.masteryStatus = this.masteryStatus.advance(quality);
     if (this.masteryStatus.isMastered()) {
       return [new WordMasteredEvent(this.id)];
     }
     return [];
-  }
-}
-```
-
-### Domain Service: Spaced Repetition Algorithm
-```typescript
-// domain/services/spaced-repetition.domain-service.ts
-// Pure business logic, NO imports from NestJS/database
-export class SpacedRepetitionDomainService {
-  calculateNextReviewDate(
-    previousInterval: number,
-    easeFactor: number,
-    quality: ReviewQuality,
-  ): ReviewSchedule {
-    // Apply SM-2 (SuperMemo) algorithm
-    // ...
   }
 }
 ```
@@ -347,4 +329,4 @@ Because the Domain layer does not depend on a framework, it is the easiest part 
 
 ---
 
-*Related Documents: see `01-y-tuong-san-pham.md` for product context and overall Lumen roadmap.*
+*Related Documents: see `01-product-idea.md` for product context and overall Lumen roadmap.*

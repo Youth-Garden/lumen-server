@@ -31,4 +31,9 @@ export const VocabEx = {
     message: 'Not authorized to modify this deck',
     httpStatus: 403,
   },
+  InvalidGrade: {
+    code: 'VOCAB_INVALID_GRADE',
+    message: 'Grade must be between 0 and 5',
+    httpStatus: 400,
+  },
 } satisfies ExceptionMap;

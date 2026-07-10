@@ -104,4 +104,4 @@ Prioritize easy-to-implement features with quick value and low operational costs
 
 ---
 
-*Related Documents: see `02-kien-truc-trien-khai-ddd.md` for detailed technical architecture of Lumen.*
+*Related Documents: see `02-architecture-deployment-ddd.md` for detailed technical architecture of Lumen.*

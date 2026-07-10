@@ -473,7 +473,7 @@ Do not use technology-specific prefixes like `typeorm-` or `TypeOrm` for reposit
    ```
 2. **Transactions**: one TypeORM transaction per command execution; aggregate state and outbox events saved together.
 3. **Validation layering**: value objects validate in constructor; DTOs validate via `class-validator`; aggregates validate business invariants in methods.
-4. **Error handling**: domain exceptions extend a common `DomainException` base class; let NestJS exception filters translate them to HTTP responses — do not catch-and-rethrow as generic `Error`.
+4. **Error handling**: domain exceptions use `AppException` combined with an `ErrorDefinition` Object defined in `{module}.exception.ts`; let NestJS exception filters translate them to HTTP responses — do not catch-and-rethrow as generic `Error`.
 5. **No `any`, ever** — see Section 2. This is the single most enforced rule in this codebase; treat any PR introducing `any` as incomplete work, not a valid shortcut.
 6. **No bare interfaces for I/O boundaries** — always classes, always validated, always explicit response shape.
 7. **Fastify only** — do not add Express-specific packages or types to `package.json`.
