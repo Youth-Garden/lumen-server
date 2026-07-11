@@ -15,6 +15,12 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
   app.useGlobalFilters(new ExceptionsFilter());
   app.useGlobalPipes(createValidationPipe());
@@ -29,7 +35,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(parseInt(process.env.PORT || '8080', 10), '0.0.0.0');
 }
 bootstrap().catch((err) => {
   console.error(err);

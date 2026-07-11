@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -37,13 +39,25 @@ export class VocabularyWordRepository implements IVocabularyWordRepository {
   }
 
   async findRandom(limit: number): Promise<VocabularyWord[]> {
+    const rawResult = await this.wordRepo
+      .createQueryBuilder('word')
+      .select('word.id', 'id')
+      .orderBy('RANDOM()')
+      .limit(limit)
+      .getRawMany();
+
+    if (rawResult.length === 0) return [];
+
+    const ids = rawResult.map((row) => row.id);
+
     const entities = await this.wordRepo
       .createQueryBuilder('word')
       .leftJoinAndSelect('word.definitions', 'definition')
       .leftJoinAndSelect('definition.examples', 'example')
-      .orderBy('RANDOM()')
-      .take(limit)
+      .where('word.id IN (:...ids)', { ids })
       .getMany();
+
+    entities.sort(() => Math.random() - 0.5);
 
     return entities.map((entity) => this.toDomain(entity));
   }
