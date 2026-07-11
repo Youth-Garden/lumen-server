@@ -51,6 +51,26 @@ export class ArticleRepository implements IArticleRepository {
     return { items, total };
   }
 
+  async findLatest(page: number, limit: number): Promise<ArticleListResult> {
+    const [entities, total] = await this.articleRepo.findAndCount({
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const items = entities.map((entity) =>
+      Article.create(
+        entity.id,
+        entity.title,
+        entity.content,
+        entity.userId,
+        entity.createdAt,
+      ),
+    );
+
+    return { items, total };
+  }
+
   async findByIdAndUserId(id: string, userId: string): Promise<Article | null> {
     const entity = await this.articleRepo.findOne({
       where: { id, userId },

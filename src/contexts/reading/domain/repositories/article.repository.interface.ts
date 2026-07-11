@@ -14,6 +14,7 @@ export interface IArticleRepository {
     page: number,
     limit: number,
   ): Promise<ArticleListResult>;
+  findLatest(page: number, limit: number): Promise<ArticleListResult>;
   findByIdAndUserId(id: string, userId: string): Promise<Article | null>;
   delete(id: string, userId: string): Promise<void>;
 }

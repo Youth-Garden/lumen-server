@@ -7,6 +7,7 @@ import {
   TRANSLATION_PORT,
 } from './application/handlers/translate-text.handler';
 import { ListArticlesHandler } from './application/queries/list-articles.handler';
+import { ListPublicArticlesHandler } from './application/queries/list-public-articles.handler';
 import { GetArticleByIdHandler } from './application/queries/get-article-by-id.handler';
 import { MyMemoryTranslationAdapter } from './infrastructure/adapters/mymemory-translation.adapter';
 import { ArticleEntity } from './infrastructure/entities/article.entity';
@@ -19,6 +20,7 @@ import { ArticleRepository } from './infrastructure/repositories/article.reposit
   providers: [
     TranslateTextHandler,
     ListArticlesHandler,
+    ListPublicArticlesHandler,
     GetArticleByIdHandler,
     {
       provide: TRANSLATION_PORT,

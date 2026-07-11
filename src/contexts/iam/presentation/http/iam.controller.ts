@@ -3,7 +3,6 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { FastifyRequest } from 'fastify';
 
-type RequestWithUser = FastifyRequest & { user: { sub: string } };
 import { GetMeQuery } from '../../application/queries/get-me.query';
 import { RegisterUserDto } from '../../application/dtos/register-user.dto';
 import { RegisterUserCommand } from '../../application/commands/register-user.command';
@@ -23,6 +22,7 @@ import { SessionResponseDto } from '../../application/responses/session.response
 import { LogoutCommand } from '../../application/commands/logout.command';
 import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
 import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
 import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
 
@@ -154,10 +154,9 @@ export class IamController {
     status: 401,
     description: 'Unauthorized. Missing or invalid access token.',
   })
-  async getMe(@Req() req: RequestWithUser): Promise<UserResponseDto> {
-    const user = req.user;
+  async getMe(@CurrentUser() userId: string): Promise<UserResponseDto> {
     const result = await this.queryBus.execute<GetMeQuery, UserResponseDto>(
-      new GetMeQuery(user.sub),
+      new GetMeQuery(userId),
     );
     return result;
   }
@@ -188,13 +187,12 @@ export class IamController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async getSessions(
-    @Req() req: RequestWithUser,
+    @CurrentUser() userId: string,
   ): Promise<SessionResponseDto[]> {
-    const user = req.user;
     const result = await this.queryBus.execute<
       ListSessionsQuery,
       SessionResponseDto[]
-    >(new ListSessionsQuery(user.sub));
+    >(new ListSessionsQuery(userId));
     return result;
   }
 
@@ -211,17 +209,11 @@ export class IamController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async updateProfile(
-    @Req() req: RequestWithUser,
+    @CurrentUser() userId: string,
     @Body() dto: UpdateProfileDto,
   ): Promise<UserResponseDto> {
-    const user = req.user;
     return this.commandBus.execute<UpdateProfileCommand, UserResponseDto>(
-      new UpdateProfileCommand(
-        user.sub,
-        dto.fullName,
-        dto.avatarUrl,
-        dto.phone,
-      ),
+      new UpdateProfileCommand(userId, dto.fullName, dto.avatarUrl, dto.phone),
     );
   }
 }

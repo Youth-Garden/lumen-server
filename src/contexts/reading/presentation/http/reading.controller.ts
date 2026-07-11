@@ -19,9 +19,11 @@ import { CreateArticleCommand } from '../../application/commands/create-article.
 import {
   ListArticlesQuery,
   GetArticleByIdQuery,
+  ListPublicArticlesQuery,
 } from '../../application/queries/reading.queries';
 
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { Public } from '../../../../shared-kernel/decorators/public.decorator';
 import { TranslateTextQuery } from '../../application/queries/translate-text.query';
 
 @ApiTags('Reading')
@@ -61,6 +63,20 @@ export class ReadingController {
     return this.queryBus.execute<ListArticlesQuery, ArticleListResponseDto>(
       new ListArticlesQuery(userId, page, limit),
     );
+  }
+
+  @Get('articles/public')
+  @Public()
+  @ApiOperation({ summary: 'List latest public articles (no auth)' })
+  @ApiResponse({ status: 200, type: ArticleListResponseDto })
+  async listPublicArticles(
+    @QueryParam('page') page: number = 1,
+    @QueryParam('limit') limit: number = 6,
+  ): Promise<ArticleListResponseDto> {
+    return this.queryBus.execute<
+      ListPublicArticlesQuery,
+      ArticleListResponseDto
+    >(new ListPublicArticlesQuery(page, limit));
   }
 
   @Get('articles/:id')
