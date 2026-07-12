@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { ToeicTestEntity } from './contexts/toeic/infrastructure/entities/toeic-test.entity';
 import { ToeicQuestionEntity } from './contexts/toeic/infrastructure/entities/toeic-question.entity';
@@ -47,20 +48,25 @@ async function bootstrap() {
   await materialRepo.createQueryBuilder().delete().execute();
   await questionRepo.createQueryBuilder().delete().execute();
   await testRepo.createQueryBuilder().delete().execute();
+  await dataSource.query('DELETE FROM "iam_sessions"');
   await userRepo.createQueryBuilder().delete().execute();
   console.log('Cleared existing data.');
 
   console.log('--- Starting User Database Seeding ---');
-  let firstUserId: string = '';
+  let targetUserId: string = '';
   for (const userDataItem of userData) {
     const user = new UserEntity();
     user.email = userDataItem.email;
-    user.password = userDataItem.password; // Note: In a real app, this should be hashed. Seed is for testing.
+    user.password = await bcrypt.hash(userDataItem.password, 10);
     user.fullName = userDataItem.fullName;
     user.role =
       userDataItem.role as unknown as import('./contexts/iam/domain/enums/role.enum').Role;
     const savedUser = await userRepo.save(user);
-    if (!firstUserId) firstUserId = savedUser.id;
+    if (user.email === 'student@lumen.com') {
+      targetUserId = savedUser.id;
+    } else if (!targetUserId && user.email === 'user@lumen.com') {
+      targetUserId = savedUser.id; // fallback
+    }
     console.log(`Created User: ${savedUser.email}`);
   }
 
@@ -129,7 +135,7 @@ async function bootstrap() {
     const deck = new DeckEntity();
     deck.name = deckDataItem.name;
     deck.description = deckDataItem.description;
-    deck.authorId = firstUserId;
+    deck.authorId = targetUserId;
 
     const savedDeck = await deckRepo.save(deck);
     console.log(`Created Deck: ${savedDeck.name}`);
@@ -169,7 +175,7 @@ async function bootstrap() {
     const article = new ArticleEntity();
     article.title = articleDataItem.title;
     article.content = articleDataItem.content;
-    article.userId = firstUserId;
+    article.userId = targetUserId;
 
     const savedArticle = await articleRepo.save(article);
     console.log(`Created Article: ${savedArticle.title}`);

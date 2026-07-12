@@ -6,6 +6,18 @@ export const userData = [
     role: 'ADMIN',
   },
   {
+    email: 'student@lumen.com',
+    password: 'Password123!',
+    fullName: 'Student Test',
+    role: 'USER',
+  },
+  {
+    email: 'teacher@lumen.com',
+    password: 'Password123!',
+    fullName: 'Teacher Test',
+    role: 'USER',
+  },
+  {
     email: 'user@lumen.com',
     password: 'Password123!',
     fullName: 'John Doe',

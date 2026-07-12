@@ -1,4 +1,5 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -21,7 +22,10 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.useGlobalInterceptors(new ResponseWrapperInterceptor());
+  app.useGlobalInterceptors(
+    new ResponseWrapperInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  );
   app.useGlobalFilters(new ExceptionsFilter());
   app.useGlobalPipes(createValidationPipe());
 
