@@ -6,6 +6,7 @@ export class Activity {
     public readonly title: string,
     public readonly description: string,
     public readonly xpEarned: number,
+    public readonly durationMinutes: number,
     public readonly timestamp: Date,
   ) {}
 
@@ -16,6 +17,7 @@ export class Activity {
     title: string,
     description: string,
     xpEarned: number,
+    durationMinutes: number = 0,
   ): Activity {
     return new Activity(
       id,
@@ -24,6 +26,7 @@ export class Activity {
       title,
       description,
       xpEarned,
+      durationMinutes,
       new Date(),
     );
   }
@@ -35,6 +38,7 @@ export class Activity {
     title: string,
     description: string,
     xpEarned: number,
+    durationMinutes: number,
     timestamp: Date,
   ): Activity {
     return new Activity(
@@ -44,6 +48,7 @@ export class Activity {
       title,
       description,
       xpEarned,
+      durationMinutes,
       timestamp,
     );
   }

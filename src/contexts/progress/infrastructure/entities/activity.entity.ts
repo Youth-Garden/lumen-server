@@ -20,6 +20,9 @@ export class ActivityEntity {
   @Column('int')
   xpEarned: number;
 
+  @Column('int', { default: 0 })
+  durationMinutes: number;
+
   @CreateDateColumn()
   timestamp: Date;
 }

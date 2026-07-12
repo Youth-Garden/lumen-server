@@ -22,6 +22,20 @@ export class ActivityRepository implements IActivityRepository {
     return entities.map((entity) => this.toDomain(entity));
   }
 
+  async findTodayActivities(userId: string): Promise<Activity[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const entities = await this.repository
+      .createQueryBuilder('activity')
+      .where('activity.userId = :userId', { userId })
+      .andWhere('activity.timestamp >= :today', { today })
+      .orderBy('activity.timestamp', 'DESC')
+      .getMany();
+
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
   async save(activity: Activity): Promise<void> {
     const entity = this.toPersistence(activity);
     await this.repository.save(entity);
@@ -35,6 +49,7 @@ export class ActivityRepository implements IActivityRepository {
       entity.title,
       entity.description,
       entity.xpEarned,
+      entity.durationMinutes,
       entity.timestamp,
     );
   }
@@ -47,6 +62,7 @@ export class ActivityRepository implements IActivityRepository {
     entity.title = domain.title;
     entity.description = domain.description;
     entity.xpEarned = domain.xpEarned;
+    entity.durationMinutes = domain.durationMinutes;
     entity.timestamp = domain.timestamp;
     return entity;
   }
