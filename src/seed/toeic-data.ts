@@ -128,9 +128,62 @@ function generateFullMockTest() {
 export const toeicMockData = [
   {
     title: 'TOEIC Practice Test 1 (Full 200 Qs)',
-    description:
-      'A complete TOEIC listening and reading practice test with 200 questions.',
+    description: 'A complete TOEIC listening and reading practice test.',
     isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 2 (Listening Focus)',
+    description: 'A TOEIC mock test focusing on listening skills.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 3 (Reading Focus)',
+    description: 'A TOEIC mock test focusing on reading comprehension.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 4 (Advanced Level)',
+    description: 'An advanced TOEIC practice test.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 5',
+    description: 'Standard TOEIC practice test.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 6',
+    description: 'Standard TOEIC practice test.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 7',
+    description: 'Standard TOEIC practice test.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 8',
+    description: 'Standard TOEIC practice test.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 9',
+    description: 'Standard TOEIC practice test.',
+    isPublished: true,
+    questions: generateFullMockTest(),
+  },
+  {
+    title: 'TOEIC Practice Test 10',
+    description: 'Standard TOEIC practice test.',
+    isPublished: false,
     questions: generateFullMockTest(),
   },
 ];

@@ -477,7 +477,62 @@ export const materialMockData = [
         translation:
           'Mặt khác, thiếu ngủ mãn tính có liên quan đến các tình trạng sức khỏe nghiêm trọng.',
         startTime: 17.1,
-        endTime: 23.0,
+        endTime: 40.0,
+      },
+    ],
+  },
+  {
+    title: 'Technology News - Cybersecurity Update',
+    description: 'Listen to an update on the latest cybersecurity measures.',
+    type: MaterialType.AUDIO,
+    level: MaterialLevel.C1,
+    mediaUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=400&q=80',
+    tags: ['technology', 'news', 'security'],
+    duration: 50,
+    transcripts: [
+      {
+        sequenceNumber: 1,
+        text: 'Welcome to the daily tech update.',
+        translation: 'Chào mừng đến với bản tin công nghệ hàng ngày.',
+        startTime: 0,
+        endTime: 5.0,
+      },
+      {
+        sequenceNumber: 2,
+        text: 'Today we discuss the new cybersecurity protocols.',
+        translation:
+          'Hôm nay chúng ta thảo luận về các giao thức an ninh mạng mới.',
+        startTime: 5.1,
+        endTime: 10.0,
+      },
+    ],
+  },
+  {
+    title: 'Health Advice - Nutrition Basics',
+    description: 'Basic advice on maintaining a healthy diet.',
+    type: MaterialType.AUDIO,
+    level: MaterialLevel.A2,
+    mediaUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=400&q=80',
+    tags: ['health', 'advice', 'nutrition'],
+    duration: 45,
+    transcripts: [
+      {
+        sequenceNumber: 1,
+        text: 'Eating a balanced diet is very important.',
+        translation: 'Ăn một chế độ ăn uống cân bằng là rất quan trọng.',
+        startTime: 0,
+        endTime: 5.0,
+      },
+      {
+        sequenceNumber: 2,
+        text: 'Make sure to include plenty of vegetables.',
+        translation: 'Hãy chắc chắn bao gồm nhiều rau củ.',
+        startTime: 5.1,
+        endTime: 10.0,
       },
     ],
   },

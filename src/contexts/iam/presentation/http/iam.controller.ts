@@ -25,7 +25,10 @@ import { Public } from '../../../../shared-kernel/decorators/public.decorator';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
 import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
-
+import { ForgotPasswordDto } from '../../application/dtos/forgot-password.dto';
+import { ForgotPasswordCommand } from '../../application/commands/forgot-password.command';
+import { ResetPasswordDto } from '../../application/dtos/reset-password.dto';
+import { ResetPasswordCommand } from '../../application/commands/reset-password.command';
 @ApiTags('IAM')
 @Controller('iam')
 export class IamController {
@@ -49,6 +52,35 @@ export class IamController {
   async register(@Body() dto: RegisterUserDto): Promise<void> {
     await this.commandBus.execute<RegisterUserCommand, void>(
       new RegisterUserCommand(dto.email, dto.password),
+    );
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Request a password reset',
+    description: 'Generates a reset token and logs the reset link.',
+  })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({ status: 201, description: 'Reset request processed.' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
+    await this.commandBus.execute<ForgotPasswordCommand, void>(
+      new ForgotPasswordCommand(dto.email),
+    );
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Reset password using token',
+    description: 'Resets the password using the token sent to the email.',
+  })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 201, description: 'Password successfully reset.' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token.' })
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    await this.commandBus.execute<ResetPasswordCommand, void>(
+      new ResetPasswordCommand(dto.token, dto.newPassword),
     );
   }
 

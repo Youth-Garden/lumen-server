@@ -18,6 +18,9 @@ import { materialMockData } from './seed/material-data';
 import { userData } from './seed/user-data';
 import { deckData } from './seed/vocabulary-data';
 import { articleData } from './seed/reading-data';
+import { quizMockData } from './seed/quiz-data';
+import { QuizEntity } from './contexts/quiz/infrastructure/entities/quiz.entity';
+import { QuestionEntity as QuizQuestionEntity } from './contexts/quiz/infrastructure/entities/question.entity';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -34,6 +37,8 @@ async function bootstrap() {
   const exampleRepo = dataSource.getRepository(ExampleEntity);
   const flashcardRepo = dataSource.getRepository(FlashcardEntity);
   const articleRepo = dataSource.getRepository(ArticleEntity);
+  const quizRepo = dataSource.getRepository(QuizEntity);
+  const quizQuestionRepo = dataSource.getRepository(QuizQuestionEntity);
 
   console.log('--- Starting TOEIC Database Seeding ---');
 
@@ -43,6 +48,8 @@ async function bootstrap() {
   await definitionRepo.createQueryBuilder().delete().execute();
   await wordRepo.createQueryBuilder().delete().execute();
   await deckRepo.createQueryBuilder().delete().execute();
+  await quizQuestionRepo.createQueryBuilder().delete().execute();
+  await quizRepo.createQueryBuilder().delete().execute();
   await articleRepo.createQueryBuilder().delete().execute();
   await transcriptRepo.createQueryBuilder().delete().execute();
   await materialRepo.createQueryBuilder().delete().execute();
@@ -179,6 +186,52 @@ async function bootstrap() {
 
     const savedArticle = await articleRepo.save(article);
     console.log(`Created Article: ${savedArticle.title}`);
+  }
+
+  console.log('--- Starting Quiz Database Seeding ---');
+  const savedWords = await wordRepo.find({ take: 100 }); // fetch more words to use
+  if (savedWords.length >= 20) {
+    let wordIndex = 0;
+
+    for (const quizData of quizMockData) {
+      const quiz = new QuizEntity();
+      quiz.userId = targetUserId;
+      quiz.status = quizData.status;
+      quiz.score = quizData.score;
+
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - quizData.daysAgo);
+      quiz.createdAt = pastDate;
+      if (quizData.status === 'COMPLETED') {
+        quiz.completedAt = pastDate;
+      }
+      const savedQuiz = await quizRepo.save(quiz);
+
+      for (let i = 0; i < quizData.questionsCount; i++) {
+        // Wrap around wordIndex if we run out of words
+        const word = savedWords[wordIndex % savedWords.length];
+        wordIndex++;
+
+        const q = new QuizQuestionEntity();
+        q.quizId = savedQuiz.id;
+        q.wordId = word.id;
+        q.type = 'MULTIPLE_CHOICE';
+        q.questionText = `What is the correct definition for "${word.term}"?`;
+        q.options = ['Option A', 'Option B', 'Option C', 'Option D'];
+        q.correctAnswer = 'Option A';
+
+        if (quizData.status === 'COMPLETED') {
+          // Fill user answers to match correctCount
+          const isCorrect = i < quizData.correctCount;
+          q.userAnswer = isCorrect ? 'Option A' : 'Option B';
+          q.isCorrect = isCorrect;
+        }
+        await quizQuestionRepo.save(q);
+      }
+      console.log(
+        `Created Quiz (Status: ${quizData.status}, Score: ${quizData.score}): ${savedQuiz.id}`,
+      );
+    }
   }
 
   console.log('--- Seeding Completed Successfully ---');

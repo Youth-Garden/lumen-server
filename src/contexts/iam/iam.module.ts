@@ -17,11 +17,18 @@ import { HashingService, TokenService, GoogleAuthService } from '../../common';
 import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
 import { UserEntity } from './infrastructure/entities/user.entity';
 import { SessionEntity } from './infrastructure/entities/session.entity';
+import { PasswordResetTokenEntity } from './infrastructure/entities/password-reset-token.entity';
 import { ConfigService } from '@nestjs/config';
+import { ForgotPasswordHandler } from './application/commands/forgot-password.handler';
+import { ResetPasswordHandler } from './application/commands/reset-password.handler';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, SessionEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      SessionEntity,
+      PasswordResetTokenEntity,
+    ]),
     CqrsModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -43,6 +50,8 @@ import { ConfigService } from '@nestjs/config';
     GetMeHandler,
     ListSessionsHandler,
     UpdateProfileHandler,
+    ForgotPasswordHandler,
+    ResetPasswordHandler,
     HashingService,
     TokenService,
     GoogleAuthService,

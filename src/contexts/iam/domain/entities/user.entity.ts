@@ -7,7 +7,7 @@ export class User extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _email: string,
-    private readonly _password: string | null,
+    private _password: string | null,
     private readonly _authProvider: AuthProvider,
     private readonly _providerId: string | null,
     private readonly _role: Role,
@@ -115,5 +115,9 @@ export class User extends AggregateRoot {
     if (fullName !== undefined) this._fullName = fullName;
     if (avatarUrl !== undefined) this._avatarUrl = avatarUrl;
     if (phone !== undefined) this._phone = phone;
+  }
+
+  changePassword(hashedPassword: string): void {
+    this._password = hashedPassword;
   }
 }
