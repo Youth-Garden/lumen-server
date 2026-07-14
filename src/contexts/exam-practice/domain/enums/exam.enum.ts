@@ -7,3 +7,10 @@ export enum ExamType {
   TOEIC = 'TOEIC',
   IELTS = 'IELTS',
 }
+
+export enum ExamAttemptMode {
+  FULL = 'FULL',
+  PART = 'PART',
+  PRACTICE = 'PRACTICE',
+}
+

@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { ExamAttemptStatus, ExamType } from '../enums/exam.enum';
+import { ExamAttemptStatus, ExamType, ExamAttemptMode } from '../enums/exam.enum';
 import { ExamAnswer } from '../entities/exam-answer.entity';
 import { ExamAttemptCompletedEvent } from '../events/exam-attempt-completed.event';
 import { AppException } from '../../../../common/exceptions/app.exception';
@@ -18,6 +18,9 @@ export class ExamAttempt extends AggregateRoot {
     private readonly _startedAt: Date,
     private _completedAt: Date | null,
     private readonly _answers: ExamAnswer[],
+    private _mode: ExamAttemptMode,
+    private _partsAttempted: number[],
+    private _customTimeLimit: number | null,
   ) {
     super();
   }
@@ -27,6 +30,9 @@ export class ExamAttempt extends AggregateRoot {
     userId: string,
     testId: string,
     testType: ExamType,
+    mode: ExamAttemptMode = ExamAttemptMode.FULL,
+    partsAttempted: number[] = [],
+    customTimeLimit: number | null = null,
   ): ExamAttempt {
     return new ExamAttempt(
       id,
@@ -40,6 +46,9 @@ export class ExamAttempt extends AggregateRoot {
       new Date(),
       null,
       [],
+      mode,
+      partsAttempted,
+      customTimeLimit,
     );
   }
 
@@ -55,6 +64,9 @@ export class ExamAttempt extends AggregateRoot {
     startedAt: Date,
     completedAt: Date | null,
     answers: ExamAnswer[],
+    mode: ExamAttemptMode,
+    partsAttempted: number[],
+    customTimeLimit: number | null,
   ): ExamAttempt {
     return new ExamAttempt(
       id,
@@ -68,6 +80,9 @@ export class ExamAttempt extends AggregateRoot {
       startedAt,
       completedAt,
       answers,
+      mode,
+      partsAttempted,
+      customTimeLimit,
     );
   }
 
@@ -104,8 +119,22 @@ export class ExamAttempt extends AggregateRoot {
   get answers(): ExamAnswer[] {
     return this._answers;
   }
+  get mode(): ExamAttemptMode {
+    return this._mode;
+  }
+  get partsAttempted(): number[] {
+    return this._partsAttempted;
+  }
+  get customTimeLimit(): number | null {
+    return this._customTimeLimit;
+  }
 
-  submitAnswer(questionId: string, userAnswer: string): void {
+  submitAnswer(
+    questionId: string,
+    userAnswer: string,
+    timeSpent?: number,
+    flaggedHard?: boolean,
+  ): void {
     if (this._status === ExamAttemptStatus.COMPLETED) {
       throw new AppException(ExamPracticeEx.AttemptAlreadyCompleted);
     }
@@ -114,9 +143,11 @@ export class ExamAttempt extends AggregateRoot {
       (a) => a.questionId === questionId,
     );
     if (existingAnswer) {
-      existingAnswer.updateAnswer(userAnswer);
+      existingAnswer.updateAnswer(userAnswer, timeSpent, flaggedHard);
     } else {
-      this._answers.push(new ExamAnswer(questionId, userAnswer, null));
+      this._answers.push(
+        new ExamAnswer(questionId, userAnswer, null, timeSpent || 0, flaggedHard || false),
+      );
     }
   }
 

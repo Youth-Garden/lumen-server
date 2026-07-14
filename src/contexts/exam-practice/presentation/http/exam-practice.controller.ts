@@ -46,7 +46,14 @@ export class ExamPracticeController {
     @Body() dto: StartExamAttemptDto,
   ): Promise<{ id: string }> {
     const id = await this.commandBus.execute<StartExamAttemptCommand, string>(
-      new StartExamAttemptCommand(userId, dto.testId, dto.testType),
+      new StartExamAttemptCommand(
+        userId,
+        dto.testId,
+        dto.testType,
+        dto.mode,
+        dto.partsAttempted,
+        dto.customTimeLimit,
+      ),
     );
     return { id };
   }
@@ -66,6 +73,8 @@ export class ExamPracticeController {
         attemptId,
         dto.questionId,
         dto.userAnswer,
+        dto.timeSpent,
+        dto.flaggedHard,
       ),
     );
   }

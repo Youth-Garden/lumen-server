@@ -11,6 +11,8 @@ export class SubmitExamAnswerCommand {
     public readonly attemptId: string,
     public readonly questionId: string,
     public readonly userAnswer: string,
+    public readonly timeSpent?: number,
+    public readonly flaggedHard?: boolean,
   ) {}
 }
 
@@ -31,8 +33,14 @@ export class SubmitExamAnswerHandler implements ICommandHandler<
       throw new AppException(ExamPracticeEx.AttemptNotFound);
     }
 
-    attempt.submitAnswer(command.questionId, command.userAnswer);
+    attempt.submitAnswer(
+      command.questionId,
+      command.userAnswer,
+      command.timeSpent,
+      command.flaggedHard,
+    );
 
     await this.attemptRepo.save(attempt);
   }
 }
+

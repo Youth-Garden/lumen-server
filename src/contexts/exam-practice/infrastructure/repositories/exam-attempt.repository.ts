@@ -39,6 +39,9 @@ export class ExamAttemptRepository implements IExamAttemptRepository {
     entity.testId = attempt.testId;
     entity.testType = attempt.testType;
     entity.status = attempt.status;
+    entity.mode = attempt.mode;
+    entity.partsAttempted = attempt.partsAttempted;
+    entity.customTimeLimit = attempt.customTimeLimit;
     entity.listeningScore = attempt.listeningScore;
     entity.readingScore = attempt.readingScore;
     entity.totalScore = attempt.totalScore;
@@ -48,13 +51,15 @@ export class ExamAttemptRepository implements IExamAttemptRepository {
       questionId: a.questionId,
       userAnswer: a.userAnswer,
       isCorrect: a.isCorrect,
+      timeSpent: a.timeSpent,
+      flaggedHard: a.flaggedHard,
     }));
     return entity;
   }
 
   private toDomain(entity: ExamAttemptEntity): ExamAttempt {
     const answers = (entity.answers || []).map(
-      (a) => new ExamAnswer(a.questionId, a.userAnswer, a.isCorrect),
+      (a) => new ExamAnswer(a.questionId, a.userAnswer, a.isCorrect, a.timeSpent || 0, a.flaggedHard || false),
     );
 
     return ExamAttempt.restore(
@@ -69,6 +74,9 @@ export class ExamAttemptRepository implements IExamAttemptRepository {
       entity.startedAt,
       entity.completedAt,
       answers,
+      entity.mode,
+      entity.partsAttempted || [],
+      entity.customTimeLimit,
     );
   }
 }

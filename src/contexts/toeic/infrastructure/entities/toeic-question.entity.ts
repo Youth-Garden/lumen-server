@@ -45,6 +45,9 @@ export class ToeicQuestionEntity {
   @Column('text', { nullable: true })
   explanation: string;
 
+  @Column({ type: 'jsonb', nullable: true })
+  mediaUrls?: string[];
+
   @ManyToOne(() => ToeicTestEntity, (test: ToeicTestEntity) => test.questions, {
     onDelete: 'CASCADE',
   })

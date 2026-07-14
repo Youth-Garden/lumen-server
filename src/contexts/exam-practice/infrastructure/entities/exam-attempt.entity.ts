@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
-import { ExamAttemptStatus, ExamType } from '../../domain/enums/exam.enum';
+import { ExamAttemptStatus, ExamType, ExamAttemptMode } from '../../domain/enums/exam.enum';
 
 @Entity('exam_attempts')
 export class ExamAttemptEntity {
@@ -17,6 +17,15 @@ export class ExamAttemptEntity {
 
   @Column({ type: 'varchar', length: 50 })
   status: ExamAttemptStatus;
+
+  @Column({ type: 'varchar', length: 50, default: ExamAttemptMode.FULL })
+  mode: ExamAttemptMode;
+
+  @Column({ type: 'jsonb', default: [] })
+  partsAttempted: number[];
+
+  @Column({ type: 'int', nullable: true })
+  customTimeLimit: number | null;
 
   @Column({ type: 'int', default: 0 })
   listeningScore: number;
@@ -38,5 +47,8 @@ export class ExamAttemptEntity {
     questionId: string;
     userAnswer: string;
     isCorrect: boolean | null;
+    timeSpent?: number;
+    flaggedHard?: boolean;
   }[];
 }
+
