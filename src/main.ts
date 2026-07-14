@@ -1,14 +1,16 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import fastifyCookie from '@fastify/cookie';
 import { ClassSerializerInterceptor } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ResponseWrapperInterceptor } from './shared-kernel/interceptors/response-wrapper.interceptor';
 import { ExceptionsFilter } from './shared-kernel/filters/exception.filter';
+import { ResponseWrapperInterceptor } from './shared-kernel/interceptors/response-wrapper.interceptor';
 import { createValidationPipe } from './shared-kernel/pipes/validation.pipe';
+import { TypedConfigService } from './config/typed-config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -17,6 +19,15 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix('api');
+
+  const configService = app.get(TypedConfigService);
+  const cookieSecret = configService.app.cookieSecret;
+  const port = configService.app.port;
+
+  await app.register(fastifyCookie, {
+    secret: cookieSecret,
+  });
+
   app.enableCors({
     origin: true,
     credentials: true,
@@ -39,7 +50,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(parseInt(process.env.PORT || '8080', 10), '0.0.0.0');
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap().catch((err) => {
   console.error(err);

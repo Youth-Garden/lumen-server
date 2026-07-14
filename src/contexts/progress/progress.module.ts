@@ -5,6 +5,7 @@ import { LearningProfileEntity } from './infrastructure/entities/learning-profil
 import { LearningProfileRepository } from './infrastructure/repositories/learning-profile.repository';
 import { LEARNING_PROFILE_REPOSITORY } from './domain/repositories/learning-profile.repository.interface';
 import { ActivityEntity } from './infrastructure/entities/activity.entity';
+import { BadgeEntity } from './infrastructure/entities/badge.entity';
 import { ActivityRepository } from './infrastructure/repositories/activity.repository';
 import { ACTIVITY_REPOSITORY } from './domain/repositories/activity.repository.interface';
 import { FlashcardReviewedListener } from './application/event-handlers/flashcard-reviewed.listener';
@@ -13,6 +14,8 @@ import { GrammarExerciseCompletedListener } from './application/event-handlers/g
 import { SpeakingTaskCompletedListener } from './application/event-handlers/speaking-task-completed.listener';
 import { GetDashboardHandler } from './application/queries/get-dashboard.handler';
 import { GetRecentActivitiesHandler } from './application/queries/get-recent-activities.handler';
+import { GetLeaderboardHandler } from './application/queries/get-leaderboard.handler';
+import { GetAllBadgesHandler } from './application/queries/get-all-badges.handler';
 import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
@@ -22,13 +25,22 @@ const EventHandlers = [
   GrammarExerciseCompletedListener,
   SpeakingTaskCompletedListener,
 ];
-const QueryHandlers = [GetDashboardHandler, GetRecentActivitiesHandler];
+const QueryHandlers = [
+  GetDashboardHandler,
+  GetRecentActivitiesHandler,
+  GetLeaderboardHandler,
+  GetAllBadgesHandler,
+];
 const CommandHandlers = [UpdateProgressSettingsHandler];
 
 @Module({
   imports: [
     CqrsModule,
-    TypeOrmModule.forFeature([LearningProfileEntity, ActivityEntity]),
+    TypeOrmModule.forFeature([
+      LearningProfileEntity,
+      ActivityEntity,
+      BadgeEntity,
+    ]),
   ],
   controllers: [ProgressController],
   providers: [

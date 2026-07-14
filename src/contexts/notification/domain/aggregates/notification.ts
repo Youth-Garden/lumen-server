@@ -13,10 +13,14 @@ export class Notification extends AggregateRoot {
     super();
   }
 
-  static create(userId: string, title: string, description: string): Notification {
-    // We would use a UUID generator, but the repository/DB will assign it if we don't, 
+  static create(
+    userId: string,
+    title: string,
+    description: string,
+  ): Notification {
+    // We would use a UUID generator, but the repository/DB will assign it if we don't,
     // or we can just pass an empty string and let DB handle it, but for DDD it's better to pass generated ID.
-    // However, looking at the user aggregates, they often generate UUIDs in the aggregate. 
+    // However, looking at the user aggregates, they often generate UUIDs in the aggregate.
     // I will use a simple string for now and it will be replaced by the DB or standard UUID generator.
     const id = randomUUID();
     return new Notification(id, userId, title, description, false, new Date());

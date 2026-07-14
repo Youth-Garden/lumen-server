@@ -14,6 +14,10 @@ import { UpdateProgressSettingsDto } from '../../application/dtos/update-progres
 import { UpdateProgressSettingsCommand } from '../../application/commands/update-progress-settings.command';
 import { GetRecentActivitiesQuery } from '../../application/queries/get-recent-activities.query';
 import { ActivityResponseDto } from '../../application/responses/activity.response.dto';
+import { GetLeaderboardQuery } from '../../application/queries/get-leaderboard.query';
+import { LeaderboardResponseDto } from '../../application/responses/leaderboard.response.dto';
+import { GetAllBadgesQuery } from '../../application/queries/get-all-badges.query';
+import { BadgeResponseDto } from '../../application/responses/badge.response.dto';
 
 @ApiTags('Progress')
 @ApiBearerAuth()
@@ -36,6 +40,32 @@ export class ProgressController {
   ): Promise<DashboardResponseDto> {
     return this.queryBus.execute<GetDashboardQuery, DashboardResponseDto>(
       new GetDashboardQuery(userId),
+    );
+  }
+
+  @Get('leaderboard')
+  @ApiOperation({ summary: 'Get global leaderboard' })
+  @ApiResponse({
+    status: 200,
+    description: 'Leaderboard retrieved successfully.',
+    type: LeaderboardResponseDto,
+  })
+  async getLeaderboard(): Promise<LeaderboardResponseDto> {
+    return this.queryBus.execute<GetLeaderboardQuery, LeaderboardResponseDto>(
+      new GetLeaderboardQuery(50),
+    );
+  }
+
+  @Get('badges')
+  @ApiOperation({ summary: 'Get all available badges' })
+  @ApiResponse({
+    status: 200,
+    description: 'Badges retrieved successfully.',
+    type: [BadgeResponseDto],
+  })
+  async getAllBadges(): Promise<BadgeResponseDto[]> {
+    return this.queryBus.execute<GetAllBadgesQuery, BadgeResponseDto[]>(
+      new GetAllBadgesQuery(),
     );
   }
 

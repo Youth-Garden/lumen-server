@@ -1,40 +1,41 @@
-import { Body, Controller, Post, Req, Get, Put } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import type { FastifyRequest } from 'fastify';
-
-import { GetMeQuery } from '../../application/queries/get-me.query';
-import { RegisterUserDto } from '../../application/dtos/register-user.dto';
-import { RegisterUserCommand } from '../../application/commands/register-user.command';
-import { LoginUserDto } from '../../application/dtos/login-user.dto';
-import { LoginUserCommand } from '../../application/commands/login-user.command';
-import { RefreshTokenDto } from '../../application/dtos/refresh-token.dto';
-import { RefreshTokenCommand } from '../../application/commands/refresh-token.command';
-import { GoogleLoginDto } from '../../application/dtos/google-login.dto';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { RefreshToken } from '../../../../shared-kernel/decorators/refresh-token.decorator';
+import { ForgotPasswordCommand } from '../../application/commands/forgot-password.command';
 import { GoogleLoginCommand } from '../../application/commands/google-login.command';
+import { LoginUserCommand } from '../../application/commands/login-user.command';
+import { LogoutCommand } from '../../application/commands/logout.command';
+import { RefreshTokenCommand } from '../../application/commands/refresh-token.command';
+import { RegisterUserCommand } from '../../application/commands/register-user.command';
+import { ResetPasswordCommand } from '../../application/commands/reset-password.command';
+import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
+import { ForgotPasswordDto } from '../../application/dtos/forgot-password.dto';
+import { GoogleLoginDto } from '../../application/dtos/google-login.dto';
+import { LoginUserDto } from '../../application/dtos/login-user.dto';
+import { RegisterUserDto } from '../../application/dtos/register-user.dto';
+import { ResetPasswordDto } from '../../application/dtos/reset-password.dto';
+import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
+import { TypedConfigService } from '../../../../config/typed-config.service';
+import { GetMeQuery } from '../../application/queries/get-me.query';
+import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
 import {
   AuthTokensResponseDto,
   GoogleLoginResponseDto,
 } from '../../application/responses/auth-tokens.response.dto';
-import { UserResponseDto } from '../../application/responses/user.response.dto';
-import { LogoutDto } from '../../application/dtos/logout.dto';
 import { SessionResponseDto } from '../../application/responses/session.response.dto';
-import { LogoutCommand } from '../../application/commands/logout.command';
-import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
-import { Public } from '../../../../shared-kernel/decorators/public.decorator';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
-import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
-import { ForgotPasswordDto } from '../../application/dtos/forgot-password.dto';
-import { ForgotPasswordCommand } from '../../application/commands/forgot-password.command';
-import { ResetPasswordDto } from '../../application/dtos/reset-password.dto';
-import { ResetPasswordCommand } from '../../application/commands/reset-password.command';
+import { UserResponseDto } from '../../application/responses/user.response.dto';
+
 @ApiTags('IAM')
 @Controller('iam')
 export class IamController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly configService: TypedConfigService,
   ) {}
 
   @Public()
@@ -101,6 +102,7 @@ export class IamController {
   async login(
     @Body() dto: LoginUserDto,
     @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthTokensResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
@@ -108,6 +110,8 @@ export class IamController {
       LoginUserCommand,
       AuthTokensResponseDto
     >(new LoginUserCommand(dto.email, dto.password, userAgent, ipAddress));
+
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
     return result;
   }
 
@@ -118,7 +122,6 @@ export class IamController {
     description:
       'Exchange a valid refresh token for a new access token and refresh token pair (token rotation).',
   })
-  @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
     status: 201,
     description: 'Tokens refreshed successfully.',
@@ -129,15 +132,19 @@ export class IamController {
     description: 'Refresh token is invalid or expired.',
   })
   async refresh(
-    @Body() dto: RefreshTokenDto,
+    @RefreshToken() token: string,
     @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthTokensResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
+
     const result = await this.commandBus.execute<
       RefreshTokenCommand,
       AuthTokensResponseDto
-    >(new RefreshTokenCommand(dto.refreshToken, userAgent, ipAddress));
+    >(new RefreshTokenCommand(token, userAgent, ipAddress));
+
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
     return result;
   }
 
@@ -161,6 +168,7 @@ export class IamController {
   async googleLogin(
     @Body() dto: GoogleLoginDto,
     @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<GoogleLoginResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
@@ -168,6 +176,8 @@ export class IamController {
       GoogleLoginCommand,
       GoogleLoginResponseDto
     >(new GoogleLoginCommand(dto.idToken, userAgent, ipAddress));
+
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
     return result;
   }
 
@@ -198,13 +208,46 @@ export class IamController {
     summary: 'Logout user',
     description: 'Revoke the specified refresh token, ending the session.',
   })
-  @ApiBody({ type: LogoutDto })
   @ApiResponse({ status: 201, description: 'Logged out successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async logout(@Body() dto: LogoutDto): Promise<void> {
-    await this.commandBus.execute<LogoutCommand, void>(
-      new LogoutCommand(dto.refreshToken),
-    );
+  async logout(
+    @RefreshToken() token: string,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<void> {
+    if (token) {
+      await this.commandBus.execute<LogoutCommand, void>(
+        new LogoutCommand(token),
+      );
+    }
+
+    res.cookie('jwta', '', { maxAge: 0, path: '/' });
+    res.cookie('jwtr', '', { maxAge: 0, path: '/' });
+  }
+
+  private setAuthCookies(
+    res: FastifyReply,
+    accessToken: string,
+    refreshToken: string,
+  ) {
+    const isProd = this.configService.app.nodeEnv === 'production';
+
+    // 15 minutes
+    res.cookie('jwta', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 900,
+    });
+    // 30 days
+    res.cookie('jwtr', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 2592000,
+    });
   }
 
   @Get('sessions')

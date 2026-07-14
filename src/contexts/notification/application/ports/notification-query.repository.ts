@@ -1,4 +1,6 @@
-export const NOTIFICATION_QUERY_REPOSITORY = Symbol('NOTIFICATION_QUERY_REPOSITORY');
+export const NOTIFICATION_QUERY_REPOSITORY = Symbol(
+  'NOTIFICATION_QUERY_REPOSITORY',
+);
 
 export class NotificationResponseDto {
   id: string;

@@ -21,6 +21,8 @@ import { articleData } from './seed/reading-data';
 import { quizMockData } from './seed/quiz-data';
 import { QuizEntity } from './contexts/quiz/infrastructure/entities/quiz.entity';
 import { QuestionEntity as QuizQuestionEntity } from './contexts/quiz/infrastructure/entities/question.entity';
+import { BadgeEntity } from './contexts/progress/infrastructure/entities/badge.entity';
+import { badgeData } from './seed/badge-data';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -39,6 +41,20 @@ async function bootstrap() {
   const articleRepo = dataSource.getRepository(ArticleEntity);
   const quizRepo = dataSource.getRepository(QuizEntity);
   const quizQuestionRepo = dataSource.getRepository(QuizQuestionEntity);
+  const badgeRepo = dataSource.getRepository(BadgeEntity);
+
+  console.log('--- Starting System Database Seeding ---');
+  await badgeRepo.createQueryBuilder().delete().execute();
+  const badgesToSave = badgeData.map((def) => {
+    const b = new BadgeEntity();
+    b.code = def.code;
+    b.name = def.name;
+    b.description = def.description;
+    b.icon = def.icon;
+    return b;
+  });
+  await badgeRepo.save(badgesToSave);
+  console.log(`Seeded ${badgesToSave.length} Badges.`);
 
   console.log('--- Starting TOEIC Database Seeding ---');
 

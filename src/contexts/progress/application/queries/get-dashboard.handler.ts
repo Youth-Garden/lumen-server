@@ -21,11 +21,16 @@ export class GetDashboardHandler implements IQueryHandler<
 
   async execute(query: GetDashboardQuery): Promise<DashboardResponseDto> {
     const profile = await this.profileRepo.findByUserId(query.userId);
-    const todayActivities = await this.activityRepo.findTodayActivities(query.userId);
-    const todayStudyMinutes = todayActivities.reduce((sum, activity) => sum + (activity.durationMinutes || 0), 0);
+    const todayActivities = await this.activityRepo.findTodayActivities(
+      query.userId,
+    );
+    const todayStudyMinutes = todayActivities.reduce(
+      (sum, activity) => sum + (activity.durationMinutes || 0),
+      0,
+    );
 
     if (!profile) {
-      return new DashboardResponseDto(0, null, 0, 15, todayStudyMinutes);
+      return new DashboardResponseDto(0, null, 0, 15, todayStudyMinutes, []);
     }
 
     return new DashboardResponseDto(
@@ -34,6 +39,7 @@ export class GetDashboardHandler implements IQueryHandler<
       profile.points,
       profile.dailyGoalMinutes,
       todayStudyMinutes,
+      profile.unlockedBadges,
     );
   }
 }

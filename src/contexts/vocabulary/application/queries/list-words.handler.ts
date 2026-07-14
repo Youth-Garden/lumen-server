@@ -3,10 +3,10 @@ import { Inject } from '@nestjs/common';
 import { ListWordsQuery } from './list-words.query';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
-import { 
-  VocabularyWordResponseDto, 
-  VocabularyDefinitionResponseDto, 
-  VocabularyExampleResponseDto 
+import {
+  VocabularyWordResponseDto,
+  VocabularyDefinitionResponseDto,
+  VocabularyExampleResponseDto,
 } from '../responses/vocabulary-word.response.dto';
 import { WordListResponseDto } from '../responses/word-list.response.dto';
 

@@ -1,10 +1,10 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { SubmitDictationDto, DictationResultDto } from '../dtos/dictation.dto';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AppException } from '../../../../common/exceptions';
 import { MaterialEx } from '../../domain/exceptions/material.exception';
-import { MATERIAL_QUERY_REPOSITORY } from '../ports/material-query.repository';
+import { DictationResultDto, SubmitDictationDto } from '../dtos/dictation.dto';
 import type { IMaterialQueryRepository } from '../ports/material-query.repository';
+import { MATERIAL_QUERY_REPOSITORY } from '../ports/material-query.repository';
 
 export class SubmitDictationCommand {
   constructor(
@@ -30,7 +30,7 @@ export class SubmitDictationHandler implements ICommandHandler<
     );
 
     if (!result) {
-      throw new AppException(MaterialEx.TranscriptNotFound);
+      throw new AppException(MaterialEx.MaterialNotFound);
     }
 
     return result;

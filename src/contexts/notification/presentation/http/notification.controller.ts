@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Param,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
@@ -30,9 +23,10 @@ export class NotificationController {
   async getNotifications(
     @CurrentUser() userId: string,
   ): Promise<NotificationResponseDto[]> {
-    return this.queryBus.execute<GetNotificationsQuery, NotificationResponseDto[]>(
-      new GetNotificationsQuery(userId),
-    );
+    return this.queryBus.execute<
+      GetNotificationsQuery,
+      NotificationResponseDto[]
+    >(new GetNotificationsQuery(userId));
   }
 
   @Patch(':id/read')
@@ -50,7 +44,10 @@ export class NotificationController {
 
   @Patch('read-all')
   @ApiOperation({ summary: 'Mark all notifications as read' })
-  @ApiResponse({ status: 200, description: 'All notifications marked as read.' })
+  @ApiResponse({
+    status: 200,
+    description: 'All notifications marked as read.',
+  })
   async markAllAsRead(@CurrentUser() userId: string): Promise<void> {
     await this.commandBus.execute<MarkAllNotificationsReadCommand, void>(
       new MarkAllNotificationsReadCommand(userId),

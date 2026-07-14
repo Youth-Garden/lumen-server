@@ -8,9 +8,10 @@ import type {
 } from '../ports/notification-query.repository';
 
 @QueryHandler(GetNotificationsQuery)
-export class GetNotificationsHandler
-  implements IQueryHandler<GetNotificationsQuery, NotificationResponseDto[]>
-{
+export class GetNotificationsHandler implements IQueryHandler<
+  GetNotificationsQuery,
+  NotificationResponseDto[]
+> {
   constructor(
     @Inject(NOTIFICATION_QUERY_REPOSITORY)
     private readonly notificationQueryRepository: INotificationQueryRepository,

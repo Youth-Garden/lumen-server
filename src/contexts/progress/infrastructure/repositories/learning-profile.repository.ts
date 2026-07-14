@@ -16,13 +16,17 @@ export class LearningProfileRepository implements ILearningProfileRepository {
     const entity = await this.repo.findOne({ where: { userId } });
     if (!entity) return null;
 
-    return LearningProfile.reconstitute(
+    const profile = LearningProfile.reconstitute(
       entity.userId,
       entity.streak,
       entity.lastActivityDate,
       entity.totalPoints,
       entity.dailyGoalMinutes,
     );
+    if (entity.unlockedBadges) {
+      profile.restoreBadges(entity.unlockedBadges);
+    }
+    return profile;
   }
 
   async save(profile: LearningProfile): Promise<LearningProfile> {
@@ -32,6 +36,7 @@ export class LearningProfileRepository implements ILearningProfileRepository {
       lastActivityDate: profile.lastActivity,
       totalPoints: profile.points,
       dailyGoalMinutes: profile.dailyGoalMinutes,
+      unlockedBadges: profile.unlockedBadges,
     });
 
     await this.repo.save(entity);

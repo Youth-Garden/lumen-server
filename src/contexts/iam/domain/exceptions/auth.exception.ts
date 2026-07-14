@@ -16,4 +16,9 @@ export const AuthEx = {
     message: `Email ${email} already exists`,
     httpStatus: 400,
   }),
+  MissingRefreshToken: {
+    code: 'AUTH_MISSING_REFRESH_TOKEN',
+    message: 'Refresh token is missing',
+    httpStatus: 401,
+  },
 } satisfies ExceptionMap;

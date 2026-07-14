@@ -5,6 +5,7 @@ export class LearningProfile {
     private lastActivityDate: Date | null,
     private totalPoints: number,
     private _dailyGoalMinutes: number,
+    private _unlockedBadges: string[] = [],
   ) {}
 
   static create(userId: string): LearningProfile {
@@ -24,6 +25,7 @@ export class LearningProfile {
       lastActivityDate,
       totalPoints,
       dailyGoalMinutes,
+      [],
     );
   }
 
@@ -45,6 +47,22 @@ export class LearningProfile {
 
   get dailyGoalMinutes(): number {
     return this._dailyGoalMinutes;
+  }
+
+  get unlockedBadges(): string[] {
+    return [...this._unlockedBadges];
+  }
+
+  public restoreBadges(badges: string[]) {
+    this._unlockedBadges = [...badges];
+  }
+
+  private unlockBadge(badge: string): boolean {
+    if (!this._unlockedBadges.includes(badge)) {
+      this._unlockedBadges.push(badge);
+      return true;
+    }
+    return false;
   }
 
   public updateSettings(dailyGoalMinutes: number) {
@@ -89,5 +107,21 @@ export class LearningProfile {
     else {
       this.lastActivityDate = activityDate;
     }
+
+    this.checkAndUnlockBadges();
+  }
+
+  private checkAndUnlockBadges() {
+    // Check points badges
+    if (this.totalPoints >= 1000) this.unlockBadge('XP_1000');
+    if (this.totalPoints >= 5000) this.unlockBadge('XP_5000');
+
+    // Check streak badges
+    if (this.streak >= 3) this.unlockBadge('STREAK_3_DAYS');
+    if (this.streak >= 7) this.unlockBadge('STREAK_7_DAYS');
+    if (this.streak >= 30) this.unlockBadge('STREAK_30_DAYS');
+
+    // FIRST_BLOOD
+    if (this.totalPoints > 0) this.unlockBadge('FIRST_BLOOD');
   }
 }

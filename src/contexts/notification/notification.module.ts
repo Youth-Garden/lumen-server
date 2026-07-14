@@ -13,10 +13,7 @@ import { NotificationRepository } from './infrastructure/repositories/notificati
 import { NotificationQueryRepository } from './infrastructure/repositories/notification-query.repository';
 
 @Module({
-  imports: [
-    CqrsModule,
-    TypeOrmModule.forFeature([NotificationEntity]),
-  ],
+  imports: [CqrsModule, TypeOrmModule.forFeature([NotificationEntity])],
   controllers: [NotificationController],
   providers: [
     GetNotificationsHandler,

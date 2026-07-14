@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { IMaterialQueryRepository } from '../../application/ports/material-query.repository';
 import {
   DictationResultDto,
   SubmitDictationDto,
 } from '../../application/dtos/dictation.dto';
+import type { IMaterialQueryRepository } from '../../application/ports/material-query.repository';
 import {
   MaterialDto,
   MaterialListDto,
@@ -65,32 +65,54 @@ export class MaterialQueryRepository implements IMaterialQueryRepository {
     dto: SubmitDictationDto,
     userId: string,
   ): Promise<DictationResultDto | null> {
-    const transcript = await this.transcriptRepo.findOne({
-      where: { id: dto.transcriptId },
-      relations: { material: true },
+    const material = await this.materialRepo.findOne({
+      where: { id: dto.materialId },
+      relations: { transcripts: true },
     });
 
-    if (!transcript) return null;
+    if (!material) return null;
 
-    const originalText = transcript.text.trim();
-    const userInput = dto.userInput.trim();
-    const isCorrect = originalText === userInput;
-    const score = isCorrect
-      ? 100
-      : this.calculateSimilarity(originalText, userInput);
+    let totalScore = 0;
+    const results = [];
+
+    for (const answer of dto.answers) {
+      const transcript = material.transcripts.find(
+        (t) => t.id === answer.transcriptId,
+      );
+      if (!transcript) continue;
+
+      const originalText = transcript.text.trim();
+      const userInput = answer.userInput.trim();
+      const isCorrect = originalText === userInput;
+      const score = isCorrect
+        ? 100
+        : this.calculateSimilarity(originalText, userInput);
+
+      totalScore += score;
+
+      results.push({
+        transcriptId: answer.transcriptId,
+        userInput: answer.userInput,
+        correctAnswer: originalText,
+        isCorrect,
+      });
+    }
+
+    const averageScore =
+      results.length > 0 ? Math.round(totalScore / results.length) : 0;
 
     const log = this.activityRepo.create({
       userId,
-      materialId: transcript.materialId,
+      materialId: dto.materialId,
       activityType: ActivityType.DICTATION,
-      score,
+      score: averageScore,
     });
     await this.activityRepo.save(log);
 
     return {
-      isCorrect,
-      originalText,
-      score,
+      materialId: dto.materialId,
+      score: averageScore,
+      results,
     };
   }
 

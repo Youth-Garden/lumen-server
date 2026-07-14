@@ -1,12 +1,12 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { ListArticlesQuery } from './reading.queries';
-import { ARTICLE_REPOSITORY } from '../../domain/repositories/article.repository.interface';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import type { IArticleRepository } from '../../domain/repositories/article.repository.interface';
+import { ARTICLE_REPOSITORY } from '../../domain/repositories/article.repository.interface';
 import {
   ArticleListResponseDto,
   ArticleResponseDto,
 } from '../responses/reading.response.dto';
+import { ListArticlesQuery } from './reading.queries';
 
 @QueryHandler(ListArticlesQuery)
 export class ListArticlesHandler implements IQueryHandler<

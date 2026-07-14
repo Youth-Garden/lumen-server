@@ -16,17 +16,22 @@ export class DashboardResponseDto {
   @ApiProperty()
   todayStudyMinutes: number;
 
+  @ApiProperty()
+  unlockedBadges: string[];
+
   constructor(
     streak: number,
     lastActivityDate: Date | null,
     totalPoints: number,
     dailyGoalMinutes: number,
     todayStudyMinutes: number,
+    unlockedBadges: string[],
   ) {
     this.streak = streak;
     this.lastActivityDate = lastActivityDate;
     this.totalPoints = totalPoints;
     this.dailyGoalMinutes = dailyGoalMinutes;
     this.todayStudyMinutes = todayStudyMinutes;
+    this.unlockedBadges = unlockedBadges;
   }
 }

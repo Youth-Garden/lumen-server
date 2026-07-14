@@ -1,16 +1,15 @@
 import { ICommandHandler, CommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { CreateNotificationCommand } from './create-notification.command';
-import {
-  NOTIFICATION_REPOSITORY,
-} from '../../domain/repositories/notification.repository.interface';
+import { NOTIFICATION_REPOSITORY } from '../../domain/repositories/notification.repository.interface';
 import type { INotificationRepository } from '../../domain/repositories/notification.repository.interface';
 import { Notification } from '../../domain/aggregates/notification';
 
 @CommandHandler(CreateNotificationCommand)
-export class CreateNotificationHandler
-  implements ICommandHandler<CreateNotificationCommand, void>
-{
+export class CreateNotificationHandler implements ICommandHandler<
+  CreateNotificationCommand,
+  void
+> {
   constructor(
     @Inject(NOTIFICATION_REPOSITORY)
     private readonly notificationRepository: INotificationRepository,

@@ -23,6 +23,9 @@ export class LearningProfileEntity {
   @Column({ type: 'int', default: 15 })
   dailyGoalMinutes: number;
 
+  @Column({ type: 'simple-array', nullable: true })
+  unlockedBadges: string[] | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
