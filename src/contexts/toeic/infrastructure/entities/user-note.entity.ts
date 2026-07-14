@@ -1,19 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, Index } from 'typeorm';
 import { UserNoteCategory } from '../../domain/entities/user-note';
 
 @Entity('toeic_user_notes')
 @Index(['userId', 'questionId'], { unique: true })
-export class UserNoteEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class UserNoteEntity extends BaseEntity {
   @Column('uuid')
   userId: string;
 
@@ -26,6 +17,9 @@ export class UserNoteEntity {
   @Column('text')
   content: string;
 
+  @Column({ type: 'text', nullable: true })
+  quote?: string;
+
   @Column({
     type: 'enum',
     enum: UserNoteCategory,
@@ -35,10 +29,4 @@ export class UserNoteEntity {
 
   @Column({ type: 'jsonb', default: [] })
   tags: string[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

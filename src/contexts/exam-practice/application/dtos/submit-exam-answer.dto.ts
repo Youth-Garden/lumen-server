@@ -1,4 +1,10 @@
-import { IsString, IsUUID, IsNumber, IsBoolean, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SubmitExamAnswerDto {
@@ -20,4 +26,3 @@ export class SubmitExamAnswerDto {
   @IsOptional()
   flaggedHard?: boolean;
 }
-

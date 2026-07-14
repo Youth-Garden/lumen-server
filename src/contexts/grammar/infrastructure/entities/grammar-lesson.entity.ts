@@ -1,19 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { GrammarTopicEntity } from './grammar-topic.entity';
 
 @Entity('grammar_lessons')
-export class GrammarLessonEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class GrammarLessonEntity extends BaseEntity {
   @Column('uuid')
   topicId: string;
 
@@ -31,10 +21,4 @@ export class GrammarLessonEntity {
   })
   @JoinColumn({ name: 'topicId' })
   topic: GrammarTopicEntity;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

@@ -1,19 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { DefinitionEntity } from './definition.entity';
 
 @Entity('vocab_examples')
-export class ExampleEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ExampleEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   definitionId: string;
 
@@ -22,12 +12,6 @@ export class ExampleEntity {
 
   @Column()
   translationVi: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @ManyToOne(() => DefinitionEntity, (definition) => definition.examples, {
     onDelete: 'CASCADE',

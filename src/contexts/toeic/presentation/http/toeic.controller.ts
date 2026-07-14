@@ -1,16 +1,36 @@
-import { Controller, Get, Param, Post, Body, Query, UseGuards, Put } from '@nestjs/common';
-import { QueryBus, CommandBus } from '@nestjs/cqrs';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { ToeicTestResponseDto } from '../../application/responses/toeic-test.response.dto';
-import { ListToeicTestsQuery } from '../../application/queries/list-toeic-tests.query';
-import { GetToeicTestByIdQuery } from '../../application/queries/get-toeic-test-by-id.query';
-import { SaveUserNoteDto } from './dto/save-user-note.dto';
-import { SaveUserNoteCommand } from '../../application/commands/save-user-note.handler';
-import { GetUserNotesQuery } from '../../application/queries/get-user-notes.handler';
-import { UpdateExplanationDto } from './dto/update-explanation.dto';
-import { UpdateExplanationCommand } from '../../application/commands/update-explanation.handler';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { Roles } from '../../../../shared-kernel/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../shared-kernel/guards/roles.guard';
+import { Role } from '../../../iam/domain/enums/role.enum';
+import { SaveUserNoteCommand } from '../../application/commands/save-user-note.handler';
+import { UpdateExplanationCommand } from '../../application/commands/update-explanation.handler';
+import { GetQuestionsWithoutExplanationQuery } from '../../application/queries/get-questions-without-explanation.handler';
+import { GetToeicTestByIdQuery } from '../../application/queries/get-toeic-test-by-id.query';
+import { GetUserNotesQuery } from '../../application/queries/get-user-notes.handler';
+import { ListToeicTestsQuery } from '../../application/queries/list-toeic-tests.query';
+import { MissingExplanationResponseDto } from '../../application/responses/missing-explanation.response.dto';
+import { ToeicTestResponseDto } from '../../application/responses/toeic-test.response.dto';
+import { UserNoteEntity } from '../../infrastructure/entities/user-note.entity';
+import { SaveUserNoteDto } from './dto/save-user-note.dto';
+import { UpdateExplanationDto } from './dto/update-explanation.dto';
 
 @ApiTags('TOEIC')
 @Controller('toeic')
@@ -54,7 +74,7 @@ export class ToeicController {
     @CurrentUser() userId: string,
     @Query('testId') testId?: string,
   ) {
-    return this.queryBus.execute<GetUserNotesQuery, any>(
+    return this.queryBus.execute<GetUserNotesQuery, UserNoteEntity[]>(
       new GetUserNotesQuery(userId, testId),
     );
   }
@@ -80,7 +100,8 @@ export class ToeicController {
   }
 
   @Put('questions/:id/explanation')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update explanation for a question (Admin)' })
   async updateExplanation(
@@ -88,12 +109,20 @@ export class ToeicController {
     @Body() dto: UpdateExplanationDto,
   ): Promise<void> {
     await this.commandBus.execute<UpdateExplanationCommand, void>(
-      new UpdateExplanationCommand(
-        questionId,
-        dto.explanation,
-        dto.mediaUrls,
-      ),
+      new UpdateExplanationCommand(questionId, dto.explanation, dto.mediaUrls),
     );
   }
-}
 
+  @Get('admin/missing-explanations')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get questions that lack an explanation (Admin)' })
+  @ApiResponse({ type: [MissingExplanationResponseDto] })
+  async getMissingExplanations(): Promise<MissingExplanationResponseDto[]> {
+    return this.queryBus.execute<
+      GetQuestionsWithoutExplanationQuery,
+      MissingExplanationResponseDto[]
+    >(new GetQuestionsWithoutExplanationQuery());
+  }
+}

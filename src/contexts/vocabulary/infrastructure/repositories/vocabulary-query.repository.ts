@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, Repository } from 'typeorm';
@@ -11,13 +12,18 @@ import { DeckEntity } from '../entities/deck.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
 @Injectable()
-export class VocabularyQueryRepository implements IVocabularyQueryRepository {
+export class VocabularyQueryRepository
+  extends BaseRepository<DeckEntity>
+  implements IVocabularyQueryRepository
+{
   constructor(
     @InjectRepository(DeckEntity)
     private readonly deckRepo: Repository<DeckEntity>,
     @InjectRepository(UserProgressEntity)
     private readonly progressRepo: Repository<UserProgressEntity>,
-  ) {}
+  ) {
+    super(deckRepo);
+  }
 
   async findDecksByUserId(userId: string): Promise<DeckResponseDto[]> {
     const { entities, raw } = await this.deckRepo

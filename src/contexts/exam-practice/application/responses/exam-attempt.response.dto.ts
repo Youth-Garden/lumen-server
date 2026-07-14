@@ -1,6 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { ExamAttemptStatus, ExamType } from '../../domain/enums/exam.enum';
+import {
+  ExamAttemptMode,
+  ExamAttemptStatus,
+  ExamType,
+} from '../../domain/enums/exam.enum';
 
 export class ExamAnswerResponseDto {
   @Expose()
@@ -60,6 +64,14 @@ export class ExamAttemptResponseDto {
   @Expose()
   @ApiProperty({ nullable: true })
   completedAt: Date | null;
+
+  @Expose()
+  @ApiProperty({ enum: ExamAttemptMode })
+  mode: ExamAttemptMode;
+
+  @Expose()
+  @ApiProperty({ type: [String], nullable: true })
+  questionIds: string[] | null;
 
   @Expose()
   @Type(() => ExamAnswerResponseDto)

@@ -1,19 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { GrammarTopicEntity } from '../entities/grammar-topic.entity';
-import { IGrammarTopicRepository } from '../../domain/repositories/grammar-topic.repository.interface';
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
+import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
 import { GrammarTopic } from '../../domain/aggregates/grammar-topic.aggregate';
 import { GrammarLesson } from '../../domain/entities/grammar-lesson.entity';
+import { IGrammarTopicRepository } from '../../domain/repositories/grammar-topic.repository.interface';
 import { GrammarLessonEntity } from '../entities/grammar-lesson.entity';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { GrammarTopicEntity } from '../entities/grammar-topic.entity';
 
 @Injectable()
-export class GrammarTopicRepository implements IGrammarTopicRepository {
+export class GrammarTopicRepository
+  extends BaseRepository<GrammarTopicEntity>
+  implements IGrammarTopicRepository
+{
   constructor(
     @InjectRepository(GrammarTopicEntity)
-    private readonly repository: Repository<GrammarTopicEntity>,
-  ) {}
+    protected readonly repository: Repository<GrammarTopicEntity>,
+  ) {
+    super(repository);
+  }
 
   async findById(id: string): Promise<GrammarTopic | null> {
     const entity = await this.repository.findOne({

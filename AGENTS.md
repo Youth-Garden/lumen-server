@@ -401,22 +401,23 @@ export class AuthUserRepositoryImpl implements AuthUserRepository {
 
 ## 6. Naming Conventions
 
-| Concept        | Convention                           | Example                   |
-| -------------- | ------------------------------------ | ------------------------- |
-| Command        | `{Action}{Entity}Command`            | `RegisterUserCommand`     |
-| Query          | `{Action}{Entity}Query`              | `GetUserByIdQuery`        |
-| Event          | `{Entity}{Action}Event` (past tense) | `UserRegisteredEvent`     |
-| Handler        | `{CommandOrEventName}Handler`        | `RegisterUserHandler`     |
-| Request DTO    | `{Action}{Entity}Dto`                | `ChangeUserStatusDto`     |
-| Response DTO   | `{Entity}ResponseDto`                | `UserResponseDto`         |
-| Aggregate      | `{EntityName}`                       | `AuthUser`                |
+| Concept        | Convention                           | Example                  |
+| -------------- | ------------------------------------ | ------------------------ |
+| Command        | `{Action}{Entity}Command`            | `RegisterUserCommand`    |
+| Query          | `{Action}{Entity}Query`              | `GetUserByIdQuery`       |
+| Event          | `{Entity}{Action}Event` (past tense) | `UserRegisteredEvent`    |
+| Handler        | `{CommandOrEventName}Handler`        | `RegisterUserHandler`    |
+| Request DTO    | `{Action}{Entity}Dto`                | `ChangeUserStatusDto`    |
+| Response DTO   | `{Entity}ResponseDto`                | `UserResponseDto`        |
+| Aggregate      | `{EntityName}`                       | `AuthUser`               |
 | Value Object   | `{Concept}`                          | `Email`, `HपुरमPassword` |
-| TypeORM Entity | `{EntityName}Entity`                 | `UserEntity`              |
-| Repo Interface | `I{EntityName}Repository`            | `IUserRepository`         |
-| Repo Impl      | `{EntityName}Repository`             | `UserRepository`          |
+| TypeORM Entity | `{EntityName}Entity`                 | `UserEntity`             |
+| Repo Interface | `I{EntityName}Repository`            | `IUserRepository`        |
+| Repo Impl      | `{EntityName}Repository`             | `UserRepository`         |
 
 **Naming Rules for Infrastructure Files & Classes:**
 Do not use technology-specific prefixes like `typeorm-` or `TypeOrm` for repository implementations. Since the file is already located inside the `infrastructure/` directory, its context is clear. Use generic names to keep the code clean.
+
 - ❌ **Forbidden**: `typeorm-user.repository.ts`, `class TypeOrmUserRepository`
 - ✅ **Correct**: `user.repository.ts`, `class UserRepository implements IUserRepository`
 
@@ -507,19 +508,21 @@ Do not use technology-specific prefixes like `typeorm-` or `TypeOrm` for reposit
 
 - Check for implicit `any` from an untyped third-party library — add a local `.d.ts` declaration instead of casting to `any`.
 - Check for `JSON.parse()` results used without narrowing — wrap in a type guard or a `class-transformer` `plainToInstance()` call against a DTO class.
-  
+
 ## 11. Custom System Rules & Patterns
 
 ### 11.1 API Response & Error Handling Standards
+
 See details at https://github.com/Youth-Garden/lumen-server/wiki
 
 - **Exceptions**: The current architecture uses `AppException` combined with an `ErrorDefinition` Object (instead of multiple scattered Exception classes) following DDD patterns.
 - **Controller Returns**: Do not return inline promise types (e.g., `Promise<{ id: string }>`) from Controllers manually wrapped in explicit classes. Instead, **return the direct payload** (e.g., `{ id }` or `void`). The global `ResponseWrapperInterceptor` will automatically map and wrap the data into the `data` field of a `BaseResponse`, correctly handling both standard data and `PagedData`. Do NOT use redundant DTOs like `SuccessResponseDto` or `IdResponseDto`.
 
 ### 11.2 Environment Variables
+
 - **Rule of Three**: Whenever a new environment variable is added, you MUST update it in three places:
   1. `validation.schema.ts` (Joi validation)
   2. The corresponding `*.config.ts` file (Typed ConfigService setup)
   3. `.env.example`
-  
-9. **Naming Convention**: Do not use single-letter variables (e.g., q, m, n). Always use descriptive variable names (e.g., question, user, index, item). 
+
+9. **Naming Convention**: Do not use single-letter variables (e.g., q, m, n). Always use descriptive variable names (e.g., question, user, index, item).

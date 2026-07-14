@@ -1,18 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { GrammarLessonEntity } from './grammar-lesson.entity';
 
 @Entity('grammar_topics')
-export class GrammarTopicEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class GrammarTopicEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
@@ -26,10 +17,4 @@ export class GrammarTopicEntity {
     cascade: true,
   })
   lessons: GrammarLessonEntity[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

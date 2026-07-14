@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,11 +9,16 @@ import type {
 import { NotificationEntity } from '../entities/notification.entity';
 
 @Injectable()
-export class NotificationQueryRepository implements INotificationQueryRepository {
+export class NotificationQueryRepository
+  extends BaseRepository<NotificationEntity>
+  implements INotificationQueryRepository
+{
   constructor(
     @InjectRepository(NotificationEntity)
     private readonly repo: Repository<NotificationEntity>,
-  ) {}
+  ) {
+    super(repo);
+  }
 
   async findByUserId(userId: string): Promise<NotificationResponseDto[]> {
     const entities = await this.repo.find({

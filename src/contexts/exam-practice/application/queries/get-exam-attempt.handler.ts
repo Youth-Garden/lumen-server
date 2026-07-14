@@ -53,6 +53,8 @@ export class GetExamAttemptHandler implements IQueryHandler<
       totalScore: attempt.totalScore,
       startedAt: attempt.startedAt,
       completedAt: attempt.completedAt,
+      mode: attempt.mode,
+      questionIds: attempt.questionIds,
       answers: answersDto,
     });
   }

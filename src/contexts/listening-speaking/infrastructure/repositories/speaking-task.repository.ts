@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,11 +8,16 @@ import { SpeakingTask } from '../../domain/aggregates/speaking-task.aggregate';
 import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
 
 @Injectable()
-export class SpeakingTaskRepository implements ISpeakingTaskRepository {
+export class SpeakingTaskRepository
+  extends BaseRepository<SpeakingTaskEntity>
+  implements ISpeakingTaskRepository
+{
   constructor(
     @InjectRepository(SpeakingTaskEntity)
-    private readonly repository: Repository<SpeakingTaskEntity>,
-  ) {}
+    protected readonly repository: Repository<SpeakingTaskEntity>,
+  ) {
+    super(repository);
+  }
 
   async findById(id: string): Promise<SpeakingTask | null> {
     const entity = await this.repository.findOne({ where: { id } });

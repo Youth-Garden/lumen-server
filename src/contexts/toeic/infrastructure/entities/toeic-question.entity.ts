@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { ToeicTestEntity } from './toeic-test.entity';
 
 @Entity('toeic_questions')
-export class ToeicQuestionEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ToeicQuestionEntity extends BaseEntity {
   @Column('uuid')
   testId: string;
 

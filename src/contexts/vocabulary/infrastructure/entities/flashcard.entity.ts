@@ -1,33 +1,16 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { DeckEntity } from './deck.entity';
 import { WordEntity } from './word.entity';
 import { UserProgressEntity } from './user-progress.entity';
 
 @Entity('vocab_flashcards')
-export class FlashcardEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class FlashcardEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   deckId: string;
 
   @Column({ type: 'uuid' })
   wordId: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @ManyToOne(() => DeckEntity, (deck) => deck.flashcards, {
     onDelete: 'CASCADE',

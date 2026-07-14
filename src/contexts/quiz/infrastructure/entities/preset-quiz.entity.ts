@@ -1,18 +1,9 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { PresetQuestionEntity } from './preset-question.entity';
 
 @Entity('preset_quizzes')
-export class PresetQuizEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class PresetQuizEntity extends BaseEntity {
   @Column()
   title: string;
 
@@ -31,10 +22,4 @@ export class PresetQuizEntity {
     },
   )
   questions: PresetQuestionEntity[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

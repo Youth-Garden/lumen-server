@@ -1,10 +1,8 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('activities')
-export class ActivityEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class ActivityEntity extends BaseEntity {
   @Column('uuid')
   userId: string;
 

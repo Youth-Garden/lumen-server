@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,11 +11,16 @@ import { ToeicQuestionEntity } from '../entities/toeic-question.entity';
 import { ToeicTestEntity } from '../entities/toeic-test.entity';
 
 @Injectable()
-export class ToeicQueryRepository implements IToeicQueryRepository {
+export class ToeicQueryRepository
+  extends BaseRepository<ToeicTestEntity>
+  implements IToeicQueryRepository
+{
   constructor(
     @InjectRepository(ToeicTestEntity)
     private readonly testRepo: Repository<ToeicTestEntity>,
-  ) {}
+  ) {
+    super(testRepo);
+  }
 
   async findPublishedTests(): Promise<ToeicTestResponseDto[]> {
     const tests = await this.testRepo.find({

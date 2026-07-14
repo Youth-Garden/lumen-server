@@ -12,6 +12,7 @@ export class SaveUserNoteCommand {
     public readonly content: string,
     public readonly category: UserNoteCategory,
     public readonly tags: string[],
+    public readonly quote?: string,
   ) {}
 }
 
@@ -38,6 +39,9 @@ export class SaveUserNoteHandler implements ICommandHandler<
       note.category = command.category;
       note.tags = command.tags;
       note.testId = command.testId;
+      if (command.quote !== undefined) {
+        note.quote = command.quote;
+      }
     } else {
       note = this.noteRepo.create({
         userId: command.userId,
@@ -46,6 +50,7 @@ export class SaveUserNoteHandler implements ICommandHandler<
         content: command.content,
         category: command.category,
         tags: command.tags,
+        quote: command.quote,
       });
     }
 

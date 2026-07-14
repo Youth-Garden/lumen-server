@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,11 +9,16 @@ import { PresetQuizEntity } from '../entities/preset-quiz.entity';
 import { PresetQuestionEntity } from '../entities/preset-question.entity';
 
 @Injectable()
-export class PresetQuizRepository implements IPresetQuizRepository {
+export class PresetQuizRepository
+  extends BaseRepository<PresetQuizEntity>
+  implements IPresetQuizRepository
+{
   constructor(
     @InjectRepository(PresetQuizEntity)
-    private readonly repository: Repository<PresetQuizEntity>,
-  ) {}
+    protected readonly repository: Repository<PresetQuizEntity>,
+  ) {
+    super(repository);
+  }
 
   private toPersistence(quiz: PresetQuiz): PresetQuizEntity {
     const entity = new PresetQuizEntity();

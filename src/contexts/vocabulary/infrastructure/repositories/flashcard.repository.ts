@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,11 +7,16 @@ import { Flashcard } from '../../domain/aggregates/flashcard.aggregate';
 import { FlashcardEntity } from '../entities/flashcard.entity';
 
 @Injectable()
-export class FlashcardRepository implements IFlashcardRepository {
+export class FlashcardRepository
+  extends BaseRepository<FlashcardEntity>
+  implements IFlashcardRepository
+{
   constructor(
     @InjectRepository(FlashcardEntity)
     private readonly repo: Repository<FlashcardEntity>,
-  ) {}
+  ) {
+    super(repo);
+  }
 
   async findById(id: string): Promise<Flashcard | null> {
     const entity = await this.repo.findOne({ where: { id } });

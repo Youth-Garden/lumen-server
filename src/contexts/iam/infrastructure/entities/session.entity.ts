@@ -1,19 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity('iam_sessions')
-export class SessionEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class SessionEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;
 
@@ -28,12 +18,6 @@ export class SessionEntity {
 
   @Column()
   expiresAt: Date;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })

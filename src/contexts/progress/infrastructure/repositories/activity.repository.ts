@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,11 +7,16 @@ import { IActivityRepository } from '../../domain/repositories/activity.reposito
 import { Activity } from '../../domain/entities/activity.entity';
 
 @Injectable()
-export class ActivityRepository implements IActivityRepository {
+export class ActivityRepository
+  extends BaseRepository<ActivityEntity>
+  implements IActivityRepository
+{
   constructor(
     @InjectRepository(ActivityEntity)
-    private readonly repository: Repository<ActivityEntity>,
-  ) {}
+    protected readonly repository: Repository<ActivityEntity>,
+  ) {
+    super(repository);
+  }
 
   async findByUserId(userId: string, limit: number): Promise<Activity[]> {
     const entities = await this.repository.find({

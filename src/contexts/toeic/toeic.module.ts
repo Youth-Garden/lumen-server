@@ -8,6 +8,7 @@ import { ToeicController } from './presentation/http/toeic.controller';
 import { ListToeicTestsHandler } from './application/queries/list-toeic-tests.query';
 import { GetToeicTestByIdHandler } from './application/queries/get-toeic-test-by-id.query';
 import { GetUserNotesHandler } from './application/queries/get-user-notes.handler';
+import { GetQuestionsWithoutExplanationHandler } from './application/queries/get-questions-without-explanation.handler';
 import { SaveUserNoteHandler } from './application/commands/save-user-note.handler';
 import { UpdateExplanationHandler } from './application/commands/update-explanation.handler';
 import { TOEIC_QUERY_REPOSITORY } from './application/ports/toeic-query.repository';
@@ -17,6 +18,7 @@ const queryHandlers = [
   ListToeicTestsHandler,
   GetToeicTestByIdHandler,
   GetUserNotesHandler,
+  GetQuestionsWithoutExplanationHandler,
 ];
 
 @Module({
@@ -40,4 +42,3 @@ const queryHandlers = [
   ],
 })
 export class ToeicModule {}
-

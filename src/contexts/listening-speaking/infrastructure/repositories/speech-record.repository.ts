@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,11 +7,16 @@ import { ISpeechRecordRepository } from '../../domain/repositories/speech-record
 import { SpeechRecord } from '../../domain/entities/speech-record.entity';
 
 @Injectable()
-export class SpeechRecordRepository implements ISpeechRecordRepository {
+export class SpeechRecordRepository
+  extends BaseRepository<SpeechRecordEntity>
+  implements ISpeechRecordRepository
+{
   constructor(
     @InjectRepository(SpeechRecordEntity)
-    private readonly repository: Repository<SpeechRecordEntity>,
-  ) {}
+    protected readonly repository: Repository<SpeechRecordEntity>,
+  ) {
+    super(repository);
+  }
 
   async findById(id: string): Promise<SpeechRecord | null> {
     const entity = await this.repository.findOne({ where: { id } });

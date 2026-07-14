@@ -1,5 +1,9 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { ExamAttemptStatus, ExamType, ExamAttemptMode } from '../enums/exam.enum';
+import {
+  ExamAttemptStatus,
+  ExamType,
+  ExamAttemptMode,
+} from '../enums/exam.enum';
 import { ExamAnswer } from '../entities/exam-answer.entity';
 import { ExamAttemptCompletedEvent } from '../events/exam-attempt-completed.event';
 import { AppException } from '../../../../common/exceptions/app.exception';
@@ -21,6 +25,7 @@ export class ExamAttempt extends AggregateRoot {
     private _mode: ExamAttemptMode,
     private _partsAttempted: number[],
     private _customTimeLimit: number | null,
+    private readonly _questionIds: string[] | null = null,
   ) {
     super();
   }
@@ -49,6 +54,33 @@ export class ExamAttempt extends AggregateRoot {
       mode,
       partsAttempted,
       customTimeLimit,
+      null,
+    );
+  }
+
+  static startRetest(
+    id: string,
+    userId: string,
+    testId: string,
+    testType: ExamType,
+    questionIds: string[],
+  ): ExamAttempt {
+    return new ExamAttempt(
+      id,
+      userId,
+      testId,
+      testType,
+      ExamAttemptStatus.IN_PROGRESS,
+      0,
+      0,
+      0,
+      new Date(),
+      null,
+      [],
+      ExamAttemptMode.RETEST,
+      [],
+      null,
+      questionIds,
     );
   }
 
@@ -67,6 +99,7 @@ export class ExamAttempt extends AggregateRoot {
     mode: ExamAttemptMode,
     partsAttempted: number[],
     customTimeLimit: number | null,
+    questionIds: string[] | null = null,
   ): ExamAttempt {
     return new ExamAttempt(
       id,
@@ -83,6 +116,7 @@ export class ExamAttempt extends AggregateRoot {
       mode,
       partsAttempted,
       customTimeLimit,
+      questionIds,
     );
   }
 
@@ -128,6 +162,9 @@ export class ExamAttempt extends AggregateRoot {
   get customTimeLimit(): number | null {
     return this._customTimeLimit;
   }
+  get questionIds(): string[] | null {
+    return this._questionIds;
+  }
 
   submitAnswer(
     questionId: string,
@@ -146,7 +183,13 @@ export class ExamAttempt extends AggregateRoot {
       existingAnswer.updateAnswer(userAnswer, timeSpent, flaggedHard);
     } else {
       this._answers.push(
-        new ExamAnswer(questionId, userAnswer, null, timeSpent || 0, flaggedHard || false),
+        new ExamAnswer(
+          questionId,
+          userAnswer,
+          null,
+          timeSpent || 0,
+          flaggedHard || false,
+        ),
       );
     }
   }

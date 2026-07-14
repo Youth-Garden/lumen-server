@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,13 +12,18 @@ import { UserEntity } from './entities/user.entity';
 import { SessionEntity } from './entities/session.entity';
 
 @Injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepository
+  extends BaseRepository<UserEntity>
+  implements IUserRepository
+{
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(SessionEntity)
     private readonly sessionRepository: Repository<SessionEntity>,
-  ) {}
+  ) {
+    super(userRepository);
+  }
 
   private mapToDomain(ormEntity: UserEntity): User {
     return User.restore(

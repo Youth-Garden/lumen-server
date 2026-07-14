@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -24,6 +24,7 @@ import { ListeningSpeakingModule } from './contexts/listening-speaking/listening
 import { JwtAuthGuard } from './shared-kernel/guards/jwt-auth.guard';
 import { ExamPracticeModule } from './contexts/exam-practice/exam-practice.module';
 import { NotificationModule } from './contexts/notification/notification.module';
+import { RequestContextMiddleware } from './shared-kernel/infrastructure/database/request-context.middleware';
 
 @Module({
   imports: [
@@ -59,4 +60,8 @@ import { NotificationModule } from './contexts/notification/notification.module'
   ],
   exports: [TypedConfigService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestContextMiddleware).forRoutes('*');
+  }
+}

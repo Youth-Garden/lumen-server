@@ -1,16 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, CreateDateColumn } from 'typeorm';
 import { ActivityType } from '../../domain/enums/material.enum';
 
 @Entity('activity_logs')
-export class ActivityLogEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ActivityLogEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;
 

@@ -1,11 +1,13 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
-import { ExamAttemptStatus, ExamType, ExamAttemptMode } from '../../domain/enums/exam.enum';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, CreateDateColumn } from 'typeorm';
+import {
+  ExamAttemptStatus,
+  ExamType,
+  ExamAttemptMode,
+} from '../../domain/enums/exam.enum';
 
 @Entity('exam_attempts')
-export class ExamAttemptEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class ExamAttemptEntity extends BaseEntity {
   @Column('uuid')
   userId: string;
 
@@ -23,6 +25,9 @@ export class ExamAttemptEntity {
 
   @Column({ type: 'jsonb', default: [] })
   partsAttempted: number[];
+
+  @Column({ type: 'jsonb', nullable: true })
+  questionIds: string[] | null;
 
   @Column({ type: 'int', nullable: true })
   customTimeLimit: number | null;
@@ -51,4 +56,3 @@ export class ExamAttemptEntity {
     flaggedHard?: boolean;
   }[];
 }
-

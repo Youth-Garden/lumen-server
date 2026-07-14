@@ -12,5 +12,5 @@ export enum ExamAttemptMode {
   FULL = 'FULL',
   PART = 'PART',
   PRACTICE = 'PRACTICE',
+  RETEST = 'RETEST',
 }
-

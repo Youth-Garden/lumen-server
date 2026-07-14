@@ -24,4 +24,9 @@ export class SaveUserNoteDto {
   @IsString({ each: true })
   @IsOptional()
   tags: string[];
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  quote?: string;
 }

@@ -1,12 +1,10 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { PresetQuizEntity } from './preset-quiz.entity';
 import { QuestionType } from '../../domain/enums/quiz.enum';
 
 @Entity('preset_questions')
-export class PresetQuestionEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class PresetQuestionEntity extends BaseEntity {
   @Column('uuid')
   quizId: string;
 

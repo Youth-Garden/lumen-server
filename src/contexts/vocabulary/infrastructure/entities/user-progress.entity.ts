@@ -1,19 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { FlashcardEntity } from './flashcard.entity';
 
 @Entity('vocab_user_progress')
-export class UserProgressEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class UserProgressEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;
 
@@ -34,12 +24,6 @@ export class UserProgressEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   nextReviewDate: Date;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @ManyToOne(() => FlashcardEntity, (flashcard) => flashcard.progresses, {
     onDelete: 'CASCADE',

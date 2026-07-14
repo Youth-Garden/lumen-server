@@ -7,7 +7,11 @@ export class ExamAnswer {
     public flaggedHard: boolean = false,
   ) {}
 
-  updateAnswer(newAnswer: string, timeSpent?: number, flaggedHard?: boolean): void {
+  updateAnswer(
+    newAnswer: string,
+    timeSpent?: number,
+    flaggedHard?: boolean,
+  ): void {
     this.userAnswer = newAnswer;
     if (timeSpent !== undefined) {
       this.timeSpent = timeSpent;

@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
@@ -13,12 +14,17 @@ import { DefinitionEntity } from '../entities/definition.entity';
 import { ExampleEntity } from '../entities/example.entity';
 
 @Injectable()
-export class VocabularyWordRepository implements IVocabularyWordRepository {
+export class VocabularyWordRepository
+  extends BaseRepository<WordEntity>
+  implements IVocabularyWordRepository
+{
   constructor(
     @InjectRepository(WordEntity)
     private readonly wordRepo: Repository<WordEntity>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) {
+    super(wordRepo);
+  }
 
   async findById(id: string): Promise<VocabularyWord | null> {
     const entity = await this.wordRepo.findOne({

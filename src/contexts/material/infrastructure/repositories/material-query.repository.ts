@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,7 +17,10 @@ import { MaterialEntity } from '../entities/material.entity';
 import { TranscriptEntity } from '../entities/transcript.entity';
 
 @Injectable()
-export class MaterialQueryRepository implements IMaterialQueryRepository {
+export class MaterialQueryRepository
+  extends BaseRepository<MaterialEntity>
+  implements IMaterialQueryRepository
+{
   constructor(
     @InjectRepository(MaterialEntity)
     private readonly materialRepo: Repository<MaterialEntity>,
@@ -24,7 +28,9 @@ export class MaterialQueryRepository implements IMaterialQueryRepository {
     private readonly transcriptRepo: Repository<TranscriptEntity>,
     @InjectRepository(ActivityLogEntity)
     private readonly activityRepo: Repository<ActivityLogEntity>,
-  ) {}
+  ) {
+    super(materialRepo);
+  }
 
   async findAll(
     type: MaterialType | undefined,

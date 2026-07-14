@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { ExamAttemptStatus, ExamType, ExamAttemptMode } from '../../domain/enums/exam.enum';
+import { ExamType, ExamAttemptMode } from '../../domain/enums/exam.enum';
 import { ExamAttempt } from '../../domain/aggregates/exam-attempt.aggregate';
 import { EXAM_ATTEMPT_REPOSITORY } from '../../domain/repositories/exam-attempt.repository.interface';
 import type { IExamAttemptRepository } from '../../domain/repositories/exam-attempt.repository.interface';
@@ -43,4 +43,3 @@ export class StartExamAttemptHandler implements ICommandHandler<
     return attempt.id;
   }
 }
-

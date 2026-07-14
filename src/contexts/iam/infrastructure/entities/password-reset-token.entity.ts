@@ -1,18 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity('iam_password_reset_tokens')
-export class PasswordResetTokenEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class PasswordResetTokenEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;
 
@@ -21,9 +12,6 @@ export class PasswordResetTokenEntity {
 
   @Column({ type: 'timestamp' })
   expiresAt: Date;
-
-  @CreateDateColumn()
-  createdAt: Date;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })

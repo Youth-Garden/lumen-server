@@ -16,6 +16,7 @@ export class UserNote {
     public readonly tags: string[],
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
+    public readonly quote?: string,
   ) {}
 
   static restore(
@@ -28,6 +29,7 @@ export class UserNote {
     tags: string[],
     createdAt: Date,
     updatedAt: Date,
+    quote?: string,
   ): UserNote {
     return new UserNote(
       id,
@@ -39,6 +41,7 @@ export class UserNote {
       tags,
       createdAt,
       updatedAt,
+      quote,
     );
   }
 }

@@ -1,6 +1,8 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { BaseEntityListener } from './base.listener';
+import { RequestContextMiddleware } from './request-context.middleware';
 
 @Global()
 @Module({
@@ -12,9 +14,11 @@ import { ConfigService } from '@nestjs/config';
         url: config.get<string>('database.url'),
         autoLoadEntities: true,
         synchronize: true, // Only for dev mode
+        subscribers: [BaseEntityListener],
       }),
     }),
   ],
-  exports: [TypeOrmModule],
+  providers: [BaseEntityListener, RequestContextMiddleware],
+  exports: [TypeOrmModule, RequestContextMiddleware],
 })
 export class DatabaseModule {}

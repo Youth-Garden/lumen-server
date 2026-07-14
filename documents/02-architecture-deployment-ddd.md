@@ -1,4 +1,5 @@
 # Architecture and Deployment Document — Lumen
+
 ### Modular Monolith with DDD (NestJS + Next.js)
 
 ## 1. Overall Architecture Principles
@@ -47,17 +48,18 @@
 
 A Bounded Context is a business boundary — each context has its own data model and ubiquitous language, preventing a single "Entity" from being used for multiple different meanings.
 
-| Bounded Context | Responsibility | Ubiquitous Language (key terms) |
-|---|---|---|
-| **IAM** (Identity & Access) | Registration, login, authorization, subscription tiers | User, Role, Session, Plan |
-| **Vocabulary** | Vocabulary, flashcards, spaced repetition | Word, WordSet, ReviewSchedule, Deck |
-| **Grammar** | Grammar lessons, exercises | Lesson, Exercise, Rule |
-| **ExamPractice** | Mock tests, multiple-choice grading, band scores | MockTest, Question, Attempt, Score |
-| **ListeningSpeaking** | Audio lessons, speaking practice, pronunciation grading | AudioLesson, SpeakingTask, PronunciationScore |
-| **Progress** | Overall progress tracking, dashboards, path suggestions | LearningPath, Milestone, StreakRecord |
-| **Billing** | Payments, subscription plans, invoices | Subscription, Invoice, Payment |
+| Bounded Context             | Responsibility                                          | Ubiquitous Language (key terms)               |
+| --------------------------- | ------------------------------------------------------- | --------------------------------------------- |
+| **IAM** (Identity & Access) | Registration, login, authorization, subscription tiers  | User, Role, Session, Plan                     |
+| **Vocabulary**              | Vocabulary, flashcards, spaced repetition               | Word, WordSet, ReviewSchedule, Deck           |
+| **Grammar**                 | Grammar lessons, exercises                              | Lesson, Exercise, Rule                        |
+| **ExamPractice**            | Mock tests, multiple-choice grading, band scores        | MockTest, Question, Attempt, Score            |
+| **ListeningSpeaking**       | Audio lessons, speaking practice, pronunciation grading | AudioLesson, SpeakingTask, PronunciationScore |
+| **Progress**                | Overall progress tracking, dashboards, path suggestions | LearningPath, Milestone, StreakRecord         |
+| **Billing**                 | Payments, subscription plans, invoices                  | Subscription, Invoice, Payment                |
 
 **Communication Principles between Contexts:**
+
 - Within the monolith: communicate via internal **Domain Events** (e.g., `ExamAttemptCompletedEvent` emitted by `ExamPractice`, listened to by `Progress` to update the dashboard) — avoid directly calling other context's services to maintain loose coupling.
 - No context is allowed to query another context's database tables directly — communication must happen through the public interface/service of that context.
 
@@ -144,10 +146,11 @@ src/
 To illustrate how to apply DDD in practice, here is a complete example for the Vocabulary module:
 
 ### Value Object: `CefrLevel`
+
 ```typescript
 // domain/value-objects/cefr-level.vo.ts
 export class CefrLevel {
-  private static readonly VALID_LEVELS = ['A1','A2','B1','B2','C1','C2'];
+  private static readonly VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   private constructor(private readonly value: string) {}
 
@@ -158,16 +161,21 @@ export class CefrLevel {
     return new CefrLevel(value);
   }
 
-  toString(): string { return this.value; }
+  toString(): string {
+    return this.value;
+  }
 
   isHigherThan(other: CefrLevel): boolean {
-    return this.VALID_LEVELS.indexOf(this.value)
-         > this.VALID_LEVELS.indexOf(other.value);
+    return (
+      this.VALID_LEVELS.indexOf(this.value) >
+      this.VALID_LEVELS.indexOf(other.value)
+    );
   }
 }
 ```
 
 ### Entity: `Word` (Aggregate Root)
+
 ```typescript
 // domain/entities/word.entity.ts
 export class Word {
@@ -179,7 +187,9 @@ export class Word {
     private masteryStatus: MasteryStatus,
   ) {}
 
-  static create(props: CreateWordProps): Word { /* ... factory + validate invariants */ }
+  static create(props: CreateWordProps): Word {
+    /* ... factory + validate invariants */
+  }
 
   markAsReviewed(quality: ReviewQuality): DomainEvent[] {
     // Apply SM-2 (SuperMemo) algorithm internally here
@@ -193,14 +203,14 @@ export class Word {
 ```
 
 ### Application layer — Command Handler (CQRS)
+
 ```typescript
 // application/commands/review-flashcard.handler.ts
 @CommandHandler(ReviewFlashcardCommand)
-export class ReviewFlashcardHandler
-  implements ICommandHandler<ReviewFlashcardCommand> {
-
+export class ReviewFlashcardHandler implements ICommandHandler<ReviewFlashcardCommand> {
   constructor(
-    @Inject('WordRepository') private readonly wordRepo: WordRepositoryInterface,
+    @Inject('WordRepository')
+    private readonly wordRepo: WordRepositoryInterface,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -208,7 +218,7 @@ export class ReviewFlashcardHandler
     const word = await this.wordRepo.findById(command.wordId);
     const events = word.markAsReviewed(command.quality);
     await this.wordRepo.save(word);
-    events.forEach(e => this.eventBus.publish(e));
+    events.forEach((e) => this.eventBus.publish(e));
   }
 }
 ```
@@ -269,23 +279,24 @@ GET /speaking/result/:id  <── FE polling or WebSocket when job is done
 
 ## 8. Specific Technologies — Summary
 
-| Component | Technology | Notes |
-|---|---|---|
-| Backend framework | NestJS | Modular Monolith, CQRS module |
-| Frontend | Next.js (App Router) | SSR for lesson pages (SEO), CSR for interactive practice parts |
-| Database | PostgreSQL | Schema-per-context |
-| ORM | Prisma or TypeORM | Depending on team familiarity |
-| Cache/Session | Redis | Session, rate-limit, cache flashcard due list |
-| Queue | BullMQ (on Redis) | AI grading jobs, email sending, heavy tasks |
-| AI Worker | Separate Node.js or Python service | Calls LLM API, Speech-to-Text API |
-| Object Storage | S3 or Cloudflare R2 | Stores recorded audio files, illustrations |
-| Auth | Passport.js + JWT (NestJS) | Access token + refresh token |
-| API docs | Swagger (`@nestjs/swagger`) | Auto-generated from decorators |
-| Realtime (optional) | Socket.IO (NestJS Gateway) | AI grading result notifications |
+| Component           | Technology                         | Notes                                                          |
+| ------------------- | ---------------------------------- | -------------------------------------------------------------- |
+| Backend framework   | NestJS                             | Modular Monolith, CQRS module                                  |
+| Frontend            | Next.js (App Router)               | SSR for lesson pages (SEO), CSR for interactive practice parts |
+| Database            | PostgreSQL                         | Schema-per-context                                             |
+| ORM                 | Prisma or TypeORM                  | Depending on team familiarity                                  |
+| Cache/Session       | Redis                              | Session, rate-limit, cache flashcard due list                  |
+| Queue               | BullMQ (on Redis)                  | AI grading jobs, email sending, heavy tasks                    |
+| AI Worker           | Separate Node.js or Python service | Calls LLM API, Speech-to-Text API                              |
+| Object Storage      | S3 or Cloudflare R2                | Stores recorded audio files, illustrations                     |
+| Auth                | Passport.js + JWT (NestJS)         | Access token + refresh token                                   |
+| API docs            | Swagger (`@nestjs/swagger`)        | Auto-generated from decorators                                 |
+| Realtime (optional) | Socket.IO (NestJS Gateway)         | AI grading result notifications                                |
 
 ## 9. Deployment Strategy
 
 ### MVP Phase
+
 ```text
 ┌─────────────────────────────────────────────┐
 │              Cloud Provider (e.g., AWS/GCP)   │
@@ -312,21 +323,22 @@ GET /speaking/result/:id  <── FE polling or WebSocket when job is done
 - **CI/CD**: GitHub Actions — automated build, test, deploy when merging to `main`.
 
 ### When scaling up (higher traffic)
+
 - Separate AI Worker into an independent service that can auto-scale based on queue length.
 - Add a load balancer in front of NestJS, scale horizontally across multiple instances (since it is already stateless thanks to sessions stored in Redis).
 - Consider separating the `exam-practice` or `vocabulary` schema into a distinct database if one becomes a noticeable bottleneck — by this time, the Bounded Context boundaries are already prepared for separation with minimal risk.
 
 ## 10. Testing Strategy by Layer
 
-| Layer | Test Type | Tool |
-|---|---|---|
-| Domain | Pure unit tests (no DB mock) | Jest |
-| Application | Unit tests with mock Repository interfaces | Jest |
-| Infrastructure | Integration tests with real DB (test containers) | Jest + Testcontainers |
-| Presentation | E2E tests via HTTP | Supertest (built-in with NestJS) |
+| Layer          | Test Type                                        | Tool                             |
+| -------------- | ------------------------------------------------ | -------------------------------- |
+| Domain         | Pure unit tests (no DB mock)                     | Jest                             |
+| Application    | Unit tests with mock Repository interfaces       | Jest                             |
+| Infrastructure | Integration tests with real DB (test containers) | Jest + Testcontainers            |
+| Presentation   | E2E tests via HTTP                               | Supertest (built-in with NestJS) |
 
 Because the Domain layer does not depend on a framework, it is the easiest part to achieve high coverage for and requires the least amount of change when refactoring infrastructure.
 
 ---
 
-*Related Documents: see `01-product-idea.md` for product context and overall Lumen roadmap.*
+_Related Documents: see `01-product-idea.md` for product context and overall Lumen roadmap._

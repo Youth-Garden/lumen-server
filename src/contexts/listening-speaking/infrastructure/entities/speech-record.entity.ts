@@ -1,16 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column } from 'typeorm';
 
 @Entity('speech_records')
-export class SpeechRecordEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class SpeechRecordEntity extends BaseEntity {
   @Column('uuid')
   userId: string;
 
@@ -25,10 +17,4 @@ export class SpeechRecordEntity {
 
   @Column({ type: 'text' })
   feedback: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

@@ -43,4 +43,3 @@ export class SubmitExamAnswerHandler implements ICommandHandler<
     await this.attemptRepo.save(attempt);
   }
 }
-

@@ -10,15 +10,18 @@ import { EXAM_ATTEMPT_REPOSITORY } from './domain/repositories/exam-attempt.repo
 import { StartExamAttemptHandler } from './application/commands/start-exam-attempt.handler';
 import { SubmitExamAnswerHandler } from './application/commands/submit-exam-answer.handler';
 import { FinishExamAttemptHandler } from './application/commands/finish-exam-attempt.handler';
+import { StartRetestAttemptHandler } from './application/commands/start-retest-attempt.handler';
 import { GetExamAttemptHandler } from './application/queries/get-exam-attempt.handler';
+import { GetMyAttemptsHandler } from './application/queries/get-my-attempts.handler';
 
 const CommandHandlers = [
   StartExamAttemptHandler,
   SubmitExamAnswerHandler,
   FinishExamAttemptHandler,
+  StartRetestAttemptHandler,
 ];
 
-const QueryHandlers = [GetExamAttemptHandler];
+const QueryHandlers = [GetExamAttemptHandler, GetMyAttemptsHandler];
 
 const Repositories = [
   {

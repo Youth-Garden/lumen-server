@@ -1,15 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column } from 'typeorm';
 
 @Entity('articles')
-export class ArticleEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ArticleEntity extends BaseEntity {
   @Column()
   title: string;
 
@@ -18,7 +11,4 @@ export class ArticleEntity {
 
   @Column('uuid')
   userId: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

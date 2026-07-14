@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { MaterialEntity } from './material.entity';
 
 @Entity('transcripts')
-export class TranscriptEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class TranscriptEntity extends BaseEntity {
   @Column()
   materialId: string;
 

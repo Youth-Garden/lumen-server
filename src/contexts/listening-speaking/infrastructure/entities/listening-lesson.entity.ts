@@ -1,17 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column } from 'typeorm';
 import { TranscriptLine } from '../../domain/aggregates/listening-lesson.aggregate';
 
 @Entity('listening_lessons')
-export class ListeningLessonEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class ListeningLessonEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
@@ -23,10 +15,4 @@ export class ListeningLessonEntity {
 
   @Column({ type: 'jsonb' })
   transcript: TranscriptLine[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

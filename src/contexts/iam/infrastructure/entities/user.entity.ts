@@ -1,18 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column } from 'typeorm';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
 
 @Entity('iam_users')
-export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class UserEntity extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
@@ -39,10 +31,4 @@ export class UserEntity {
 
   @Column({ type: 'uuid', nullable: true })
   planId: string | null;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

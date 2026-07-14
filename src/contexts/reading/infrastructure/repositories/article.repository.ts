@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,11 +10,16 @@ import {
 } from '../../domain/repositories/article.repository.interface';
 
 @Injectable()
-export class ArticleRepository implements IArticleRepository {
+export class ArticleRepository
+  extends BaseRepository<ArticleEntity>
+  implements IArticleRepository
+{
   constructor(
     @InjectRepository(ArticleEntity)
     private readonly articleRepo: Repository<ArticleEntity>,
-  ) {}
+  ) {
+    super(articleRepo);
+  }
 
   async save(article: Article): Promise<void> {
     const entity = new ArticleEntity();

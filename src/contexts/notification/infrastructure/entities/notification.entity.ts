@@ -1,16 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column } from 'typeorm';
 
 @Entity('notifications')
-export class NotificationEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class NotificationEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;
 
@@ -22,10 +14,4 @@ export class NotificationEntity {
 
   @Column({ type: 'boolean', default: false })
   isRead: boolean;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

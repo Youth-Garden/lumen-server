@@ -21,7 +21,7 @@ export class GetUserNotesHandler implements IQueryHandler<
   ) {}
 
   async execute(query: GetUserNotesQuery): Promise<UserNoteEntity[]> {
-    const where: any = { userId: query.userId };
+    const where: Record<string, string> = { userId: query.userId };
     if (query.testId) {
       where.testId = query.testId;
     }

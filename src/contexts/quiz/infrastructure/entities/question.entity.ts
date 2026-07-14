@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { QuizEntity } from './quiz.entity';
 
 @Entity('quiz_questions')
-export class QuestionEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class QuestionEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   quizId: string;
 

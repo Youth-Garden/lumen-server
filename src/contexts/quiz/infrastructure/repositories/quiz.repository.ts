@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,11 +11,16 @@ import { QuestionEntity } from '../entities/question.entity';
 import { QuizStatus, QuestionType } from '../../domain/enums/quiz.enum';
 
 @Injectable()
-export class QuizRepository implements IQuizRepository {
+export class QuizRepository
+  extends BaseRepository<QuizEntity>
+  implements IQuizRepository
+{
   constructor(
     @InjectRepository(QuizEntity)
     private readonly quizRepo: Repository<QuizEntity>,
-  ) {}
+  ) {
+    super(quizRepo);
+  }
 
   async findById(id: string): Promise<Quiz | null> {
     const entity = await this.quizRepo.findOne({

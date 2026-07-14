@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,11 +7,16 @@ import { IGrammarExerciseRepository } from '../../domain/repositories/grammar-ex
 import { GrammarExercise } from '../../domain/aggregates/grammar-exercise.aggregate';
 
 @Injectable()
-export class GrammarExerciseRepository implements IGrammarExerciseRepository {
+export class GrammarExerciseRepository
+  extends BaseRepository<GrammarExerciseEntity>
+  implements IGrammarExerciseRepository
+{
   constructor(
     @InjectRepository(GrammarExerciseEntity)
-    private readonly repository: Repository<GrammarExerciseEntity>,
-  ) {}
+    protected readonly repository: Repository<GrammarExerciseEntity>,
+  ) {
+    super(repository);
+  }
 
   async findById(id: string): Promise<GrammarExercise | null> {
     const entity = await this.repository.findOne({ where: { id } });

@@ -26,4 +26,3 @@ export class StartExamAttemptDto {
   @IsOptional()
   customTimeLimit?: number;
 }
-

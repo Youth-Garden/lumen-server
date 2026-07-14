@@ -28,7 +28,9 @@ export class UpdateExplanationHandler implements ICommandHandler<
     });
 
     if (!question) {
-      throw new NotFoundException(`Question with ID ${command.questionId} not found`);
+      throw new NotFoundException(
+        `Question with ID ${command.questionId} not found`,
+      );
     }
 
     question.explanation = command.explanation;

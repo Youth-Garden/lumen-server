@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,11 +8,16 @@ import { ListeningLesson } from '../../domain/aggregates/listening-lesson.aggreg
 import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
 
 @Injectable()
-export class ListeningLessonRepository implements IListeningLessonRepository {
+export class ListeningLessonRepository
+  extends BaseRepository<ListeningLessonEntity>
+  implements IListeningLessonRepository
+{
   constructor(
     @InjectRepository(ListeningLessonEntity)
-    private readonly repository: Repository<ListeningLessonEntity>,
-  ) {}
+    protected readonly repository: Repository<ListeningLessonEntity>,
+  ) {
+    super(repository);
+  }
 
   async findById(id: string): Promise<ListeningLesson | null> {
     const entity = await this.repository.findOne({ where: { id } });

@@ -1,19 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { GrammarLessonEntity } from './grammar-lesson.entity';
 
 @Entity('grammar_exercises')
-export class GrammarExerciseEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class GrammarExerciseEntity extends BaseEntity {
   @Column('uuid')
   lessonId: string;
 
@@ -32,10 +22,4 @@ export class GrammarExerciseEntity {
   @ManyToOne(() => GrammarLessonEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'lessonId' })
   lesson: GrammarLessonEntity;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

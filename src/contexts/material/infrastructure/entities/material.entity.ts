@@ -1,19 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { TranscriptEntity } from './transcript.entity';
 import { MaterialLevel, MaterialType } from '../../domain/enums/material.enum';
 
 @Entity('materials')
-export class MaterialEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class MaterialEntity extends BaseEntity {
   @Column({ length: 255 })
   title: string;
 
@@ -40,10 +31,4 @@ export class MaterialEntity {
 
   @OneToMany(() => TranscriptEntity, (transcript) => transcript.material)
   transcripts: TranscriptEntity[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

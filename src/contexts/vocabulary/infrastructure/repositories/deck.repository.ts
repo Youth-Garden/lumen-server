@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,11 +7,16 @@ import { Deck } from '../../domain/aggregates/deck.aggregate';
 import { DeckEntity } from '../entities/deck.entity';
 
 @Injectable()
-export class DeckRepository implements IDeckRepository {
+export class DeckRepository
+  extends BaseRepository<DeckEntity>
+  implements IDeckRepository
+{
   constructor(
     @InjectRepository(DeckEntity)
     private readonly repo: Repository<DeckEntity>,
-  ) {}
+  ) {
+    super(repo);
+  }
 
   async findById(id: string): Promise<Deck | null> {
     const entity = await this.repo.findOne({ where: { id } });

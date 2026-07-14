@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,11 +7,16 @@ import { UserProgress } from '../../domain/aggregates/user-progress.aggregate';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
 @Injectable()
-export class UserProgressRepository implements IUserProgressRepository {
+export class UserProgressRepository
+  extends BaseRepository<UserProgressEntity>
+  implements IUserProgressRepository
+{
   constructor(
     @InjectRepository(UserProgressEntity)
     private readonly repo: Repository<UserProgressEntity>,
-  ) {}
+  ) {
+    super(repo);
+  }
 
   async findByUserAndFlashcard(
     userId: string,

@@ -1,13 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('badges')
-export class BadgeEntity {
+export class BadgeEntity extends BaseEntity {
   @PrimaryColumn('varchar', { length: 50 })
   code: string;
 
@@ -19,10 +14,4 @@ export class BadgeEntity {
 
   @Column({ type: 'varchar', length: 50 })
   icon: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

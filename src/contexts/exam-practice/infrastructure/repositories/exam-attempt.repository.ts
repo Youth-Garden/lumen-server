@@ -1,3 +1,4 @@
+import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,11 +8,16 @@ import { ExamAttemptEntity } from '../entities/exam-attempt.entity';
 import { ExamAnswer } from '../../domain/entities/exam-answer.entity';
 
 @Injectable()
-export class ExamAttemptRepository implements IExamAttemptRepository {
+export class ExamAttemptRepository
+  extends BaseRepository<ExamAttemptEntity>
+  implements IExamAttemptRepository
+{
   constructor(
     @InjectRepository(ExamAttemptEntity)
-    private readonly repository: Repository<ExamAttemptEntity>,
-  ) {}
+    protected readonly repository: Repository<ExamAttemptEntity>,
+  ) {
+    super(repository);
+  }
 
   async save(attempt: ExamAttempt): Promise<void> {
     const entity = this.toPersistence(attempt);
@@ -29,7 +35,21 @@ export class ExamAttemptRepository implements IExamAttemptRepository {
       where: { userId },
       order: { startedAt: 'DESC' },
     });
-    return entities.map((e) => this.toDomain(e));
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
+  async findByUserIdPaged(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ items: ExamAttempt[]; total: number }> {
+    const [entities, total] = await this.repository.findAndCount({
+      where: { userId },
+      order: { startedAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return { items: entities.map((entity) => this.toDomain(entity)), total };
   }
 
   private toPersistence(attempt: ExamAttempt): ExamAttemptEntity {
@@ -41,25 +61,33 @@ export class ExamAttemptRepository implements IExamAttemptRepository {
     entity.status = attempt.status;
     entity.mode = attempt.mode;
     entity.partsAttempted = attempt.partsAttempted;
+    entity.questionIds = attempt.questionIds;
     entity.customTimeLimit = attempt.customTimeLimit;
     entity.listeningScore = attempt.listeningScore;
     entity.readingScore = attempt.readingScore;
     entity.totalScore = attempt.totalScore;
     entity.startedAt = attempt.startedAt;
     entity.completedAt = attempt.completedAt;
-    entity.answers = attempt.answers.map((a) => ({
-      questionId: a.questionId,
-      userAnswer: a.userAnswer,
-      isCorrect: a.isCorrect,
-      timeSpent: a.timeSpent,
-      flaggedHard: a.flaggedHard,
+    entity.answers = attempt.answers.map((answer) => ({
+      questionId: answer.questionId,
+      userAnswer: answer.userAnswer,
+      isCorrect: answer.isCorrect,
+      timeSpent: answer.timeSpent,
+      flaggedHard: answer.flaggedHard,
     }));
     return entity;
   }
 
   private toDomain(entity: ExamAttemptEntity): ExamAttempt {
     const answers = (entity.answers || []).map(
-      (a) => new ExamAnswer(a.questionId, a.userAnswer, a.isCorrect, a.timeSpent || 0, a.flaggedHard || false),
+      (answer) =>
+        new ExamAnswer(
+          answer.questionId,
+          answer.userAnswer,
+          answer.isCorrect,
+          answer.timeSpent || 0,
+          answer.flaggedHard || false,
+        ),
     );
 
     return ExamAttempt.restore(
@@ -77,6 +105,7 @@ export class ExamAttemptRepository implements IExamAttemptRepository {
       entity.mode,
       entity.partsAttempted || [],
       entity.customTimeLimit,
+      entity.questionIds,
     );
   }
 }

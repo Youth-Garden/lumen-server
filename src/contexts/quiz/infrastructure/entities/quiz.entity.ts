@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { QuestionEntity } from './question.entity';
 
 @Entity('quizzes')
-export class QuizEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class QuizEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;
 
@@ -20,9 +12,6 @@ export class QuizEntity {
 
   @Column({ type: 'float', default: 0 })
   score: number;
-
-  @CreateDateColumn()
-  createdAt: Date;
 
   @Column({ type: 'timestamp', nullable: true })
   completedAt: Date | null;

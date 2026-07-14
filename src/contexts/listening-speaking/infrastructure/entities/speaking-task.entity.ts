@@ -1,16 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column } from 'typeorm';
 
 @Entity('speaking_tasks')
-export class SpeakingTaskEntity {
-  @PrimaryColumn('uuid')
-  id: string;
-
+export class SpeakingTaskEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
@@ -22,10 +14,4 @@ export class SpeakingTaskEntity {
 
   @Column('simple-array')
   keywords: string[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

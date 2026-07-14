@@ -1,13 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('learning_profiles')
-export class LearningProfileEntity {
+export class LearningProfileEntity extends BaseEntity {
   @PrimaryColumn('uuid')
   userId: string;
 
@@ -25,10 +20,4 @@ export class LearningProfileEntity {
 
   @Column({ type: 'simple-array', nullable: true })
   unlockedBadges: string[] | null;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

@@ -1,19 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { DefinitionEntity } from './definition.entity';
 import { FlashcardEntity } from './flashcard.entity';
 
 @Entity('vocab_words')
-export class WordEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class WordEntity extends BaseEntity {
   @Column({ unique: true })
   term: string;
 
@@ -25,12 +16,6 @@ export class WordEntity {
 
   @Column({ type: 'varchar', nullable: true })
   cefrLevel: string | null;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @OneToMany(() => DefinitionEntity, (definition) => definition.word)
   definitions: DefinitionEntity[];

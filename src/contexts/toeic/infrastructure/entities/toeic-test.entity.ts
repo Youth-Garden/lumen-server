@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { ToeicQuestionEntity } from './toeic-question.entity';
 
 @Entity('toeic_tests')
-export class ToeicTestEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ToeicTestEntity extends BaseEntity {
   @Column()
   title: string;
 
@@ -20,9 +12,6 @@ export class ToeicTestEntity {
 
   @Column({ default: false })
   isPublished: boolean;
-
-  @CreateDateColumn()
-  createdAt: Date;
 
   @OneToMany(
     () => ToeicQuestionEntity,
