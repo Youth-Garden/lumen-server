@@ -33,6 +33,9 @@ export class ExamAttemptEntity extends BaseEntity {
   customTimeLimit: number | null;
 
   @Column({ type: 'int', default: 0 })
+  elapsedSeconds: number;
+
+  @Column({ type: 'int', default: 0 })
   listeningScore: number;
 
   @Column({ type: 'int', default: 0 })

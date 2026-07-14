@@ -63,6 +63,7 @@ export class ExamAttemptRepository
     entity.partsAttempted = attempt.partsAttempted;
     entity.questionIds = attempt.questionIds;
     entity.customTimeLimit = attempt.customTimeLimit;
+    entity.elapsedSeconds = attempt.elapsedSeconds;
     entity.listeningScore = attempt.listeningScore;
     entity.readingScore = attempt.readingScore;
     entity.totalScore = attempt.totalScore;
@@ -105,6 +106,7 @@ export class ExamAttemptRepository
       entity.mode,
       entity.partsAttempted || [],
       entity.customTimeLimit,
+      entity.elapsedSeconds,
       entity.questionIds,
     );
   }

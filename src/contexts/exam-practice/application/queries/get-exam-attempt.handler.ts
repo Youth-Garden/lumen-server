@@ -54,6 +54,7 @@ export class GetExamAttemptHandler implements IQueryHandler<
       startedAt: attempt.startedAt,
       completedAt: attempt.completedAt,
       mode: attempt.mode,
+      elapsedSeconds: attempt.elapsedSeconds,
       questionIds: attempt.questionIds,
       answers: answersDto,
     });

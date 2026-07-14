@@ -25,9 +25,29 @@ export class ExamAttempt extends AggregateRoot {
     private _mode: ExamAttemptMode,
     private _partsAttempted: number[],
     private _customTimeLimit: number | null,
+    private _elapsedSeconds: number,
     private readonly _questionIds: string[] | null = null,
   ) {
     super();
+  }
+
+  commit(): void {
+    super.commit();
+  }
+
+  pause(elapsedSeconds: number): void {
+    if (this._status !== ExamAttemptStatus.IN_PROGRESS) {
+      throw new AppException(ExamPracticeEx.AttemptNotActive);
+    }
+    this._status = ExamAttemptStatus.PAUSED;
+    this._elapsedSeconds = elapsedSeconds;
+  }
+
+  resume(): void {
+    if (this._status !== ExamAttemptStatus.PAUSED) {
+      throw new AppException(ExamPracticeEx.AttemptNotActive);
+    }
+    this._status = ExamAttemptStatus.IN_PROGRESS;
   }
 
   static start(
@@ -54,6 +74,7 @@ export class ExamAttempt extends AggregateRoot {
       mode,
       partsAttempted,
       customTimeLimit,
+      0,
       null,
     );
   }
@@ -80,6 +101,7 @@ export class ExamAttempt extends AggregateRoot {
       ExamAttemptMode.RETEST,
       [],
       null,
+      0,
       questionIds,
     );
   }
@@ -99,6 +121,7 @@ export class ExamAttempt extends AggregateRoot {
     mode: ExamAttemptMode,
     partsAttempted: number[],
     customTimeLimit: number | null,
+    elapsedSeconds: number,
     questionIds: string[] | null = null,
   ): ExamAttempt {
     return new ExamAttempt(
@@ -116,6 +139,7 @@ export class ExamAttempt extends AggregateRoot {
       mode,
       partsAttempted,
       customTimeLimit,
+      elapsedSeconds,
       questionIds,
     );
   }
@@ -161,6 +185,9 @@ export class ExamAttempt extends AggregateRoot {
   }
   get customTimeLimit(): number | null {
     return this._customTimeLimit;
+  }
+  get elapsedSeconds(): number {
+    return this._elapsedSeconds;
   }
   get questionIds(): string[] | null {
     return this._questionIds;

@@ -23,12 +23,15 @@ import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
 import { StartExamAttemptDto } from '../../application/dtos/start-exam-attempt.dto';
 import { SubmitExamAnswerDto } from '../../application/dtos/submit-exam-answer.dto';
 import { GetMyAttemptsDto } from '../../application/dtos/get-my-attempts.dto';
+import { PauseExamAttemptDto } from '../../application/dtos/pause-exam-attempt.dto';
 import { ExamAttemptResponseDto } from '../../application/responses/exam-attempt.response.dto';
 import { AttemptSummaryResponseDto } from '../../application/responses/attempt-summary.response.dto';
 
 import { StartExamAttemptCommand } from '../../application/commands/start-exam-attempt.handler';
 import { SubmitExamAnswerCommand } from '../../application/commands/submit-exam-answer.handler';
 import { FinishExamAttemptCommand } from '../../application/commands/finish-exam-attempt.handler';
+import { PauseExamAttemptCommand } from '../../application/commands/pause-exam-attempt.handler';
+import { ResumeExamAttemptCommand } from '../../application/commands/resume-exam-attempt.handler';
 import { GetExamAttemptQuery } from '../../application/queries/get-exam-attempt.handler';
 import { GetMyAttemptsQuery } from '../../application/queries/get-my-attempts.handler';
 import { StartRetestAttemptCommand } from '../../application/commands/start-retest-attempt.handler';
@@ -95,6 +98,33 @@ export class ExamPracticeController {
   ): Promise<void> {
     await this.commandBus.execute<FinishExamAttemptCommand, void>(
       new FinishExamAttemptCommand(userId, attemptId),
+    );
+  }
+
+  @Post(':id/pause')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Pause the exam attempt' })
+  @ApiResponse({ status: 200, description: 'Exam paused' })
+  async pauseAttempt(
+    @CurrentUser() userId: string,
+    @Param('id') attemptId: string,
+    @Body() dto: PauseExamAttemptDto,
+  ): Promise<void> {
+    await this.commandBus.execute<PauseExamAttemptCommand, void>(
+      new PauseExamAttemptCommand(userId, attemptId, dto.elapsedSeconds || 0),
+    );
+  }
+
+  @Post(':id/resume')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Resume the exam attempt' })
+  @ApiResponse({ status: 200, description: 'Exam resumed' })
+  async resumeAttempt(
+    @CurrentUser() userId: string,
+    @Param('id') attemptId: string,
+  ): Promise<void> {
+    await this.commandBus.execute<ResumeExamAttemptCommand, void>(
+      new ResumeExamAttemptCommand(userId, attemptId),
     );
   }
 

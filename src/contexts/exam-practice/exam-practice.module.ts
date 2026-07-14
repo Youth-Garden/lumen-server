@@ -11,6 +11,8 @@ import { StartExamAttemptHandler } from './application/commands/start-exam-attem
 import { SubmitExamAnswerHandler } from './application/commands/submit-exam-answer.handler';
 import { FinishExamAttemptHandler } from './application/commands/finish-exam-attempt.handler';
 import { StartRetestAttemptHandler } from './application/commands/start-retest-attempt.handler';
+import { PauseExamAttemptHandler } from './application/commands/pause-exam-attempt.handler';
+import { ResumeExamAttemptHandler } from './application/commands/resume-exam-attempt.handler';
 import { GetExamAttemptHandler } from './application/queries/get-exam-attempt.handler';
 import { GetMyAttemptsHandler } from './application/queries/get-my-attempts.handler';
 
@@ -19,6 +21,8 @@ const CommandHandlers = [
   SubmitExamAnswerHandler,
   FinishExamAttemptHandler,
   StartRetestAttemptHandler,
+  PauseExamAttemptHandler,
+  ResumeExamAttemptHandler,
 ];
 
 const QueryHandlers = [GetExamAttemptHandler, GetMyAttemptsHandler];

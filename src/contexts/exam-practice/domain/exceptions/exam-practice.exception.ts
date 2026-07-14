@@ -21,4 +21,9 @@ export const ExamPracticeEx = {
     message: 'No incorrect answers found in this attempt to retest',
     httpStatus: 400,
   },
+  AttemptNotActive: {
+    code: 'EXAM_ATTEMPT_NOT_ACTIVE',
+    message: 'This exam attempt is not currently active',
+    httpStatus: 400,
+  },
 } satisfies ExceptionMap;

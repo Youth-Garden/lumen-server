@@ -70,6 +70,10 @@ export class ExamAttemptResponseDto {
   mode: ExamAttemptMode;
 
   @Expose()
+  @ApiProperty()
+  elapsedSeconds: number;
+
+  @Expose()
   @ApiProperty({ type: [String], nullable: true })
   questionIds: string[] | null;
 
