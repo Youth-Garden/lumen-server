@@ -11,6 +11,10 @@ import { GetUserNotesHandler } from './application/queries/get-user-notes.handle
 import { GetQuestionsWithoutExplanationHandler } from './application/queries/get-questions-without-explanation.handler';
 import { SaveUserNoteHandler } from './application/commands/save-user-note.handler';
 import { UpdateExplanationHandler } from './application/commands/update-explanation.handler';
+import { CreateToeicTestHandler } from './application/commands/create-toeic-test.handler';
+import { UpdateToeicTestHandler } from './application/commands/update-toeic-test.handler';
+import { DeleteToeicTestHandler } from './application/commands/delete-toeic-test.handler';
+import { PublishToeicTestHandler } from './application/commands/publish-toeic-test.handler';
 import { TOEIC_QUERY_REPOSITORY } from './application/ports/toeic-query.repository';
 import { ToeicQueryRepository } from './infrastructure/repositories/toeic-query.repository';
 
@@ -35,6 +39,10 @@ const queryHandlers = [
     ...queryHandlers,
     SaveUserNoteHandler,
     UpdateExplanationHandler,
+    CreateToeicTestHandler,
+    UpdateToeicTestHandler,
+    DeleteToeicTestHandler,
+    PublishToeicTestHandler,
     {
       provide: TOEIC_QUERY_REPOSITORY,
       useClass: ToeicQueryRepository,

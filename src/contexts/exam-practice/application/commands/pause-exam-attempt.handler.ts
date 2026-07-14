@@ -14,9 +14,10 @@ export class PauseExamAttemptCommand {
 }
 
 @CommandHandler(PauseExamAttemptCommand)
-export class PauseExamAttemptHandler
-  implements ICommandHandler<PauseExamAttemptCommand, void>
-{
+export class PauseExamAttemptHandler implements ICommandHandler<
+  PauseExamAttemptCommand,
+  void
+> {
   constructor(
     @Inject(EXAM_ATTEMPT_REPOSITORY)
     private readonly attemptRepo: IExamAttemptRepository,

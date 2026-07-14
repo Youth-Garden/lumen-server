@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Delete,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -29,6 +30,12 @@ import { ListToeicTestsQuery } from '../../application/queries/list-toeic-tests.
 import { MissingExplanationResponseDto } from '../../application/responses/missing-explanation.response.dto';
 import { ToeicTestResponseDto } from '../../application/responses/toeic-test.response.dto';
 import { UserNoteEntity } from '../../infrastructure/entities/user-note.entity';
+import { CreateToeicTestCommand } from '../../application/commands/create-toeic-test.handler';
+import { UpdateToeicTestCommand } from '../../application/commands/update-toeic-test.handler';
+import { DeleteToeicTestCommand } from '../../application/commands/delete-toeic-test.handler';
+import { PublishToeicTestCommand } from '../../application/commands/publish-toeic-test.handler';
+import { CreateToeicTestDto } from './dto/create-toeic-test.dto';
+import { UpdateToeicTestDto } from './dto/update-toeic-test.dto';
 import { SaveUserNoteDto } from './dto/save-user-note.dto';
 import { UpdateExplanationDto } from './dto/update-explanation.dto';
 
@@ -124,5 +131,60 @@ export class ToeicController {
       GetQuestionsWithoutExplanationQuery,
       MissingExplanationResponseDto[]
     >(new GetQuestionsWithoutExplanationQuery());
+  }
+
+  @Post('tests')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new TOEIC test (Admin)' })
+  @ApiResponse({ status: 201, description: 'Test created', type: String })
+  async createTest(@Body() dto: CreateToeicTestDto): Promise<{ id: string }> {
+    const id = await this.commandBus.execute<CreateToeicTestCommand, string>(
+      new CreateToeicTestCommand(dto.title, dto.description, dto.isPublished),
+    );
+    return { id };
+  }
+
+  @Put('tests/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a TOEIC test (Admin)' })
+  async updateTest(
+    @Param('id') id: string,
+    @Body() dto: UpdateToeicTestDto,
+  ): Promise<void> {
+    await this.commandBus.execute<UpdateToeicTestCommand, void>(
+      new UpdateToeicTestCommand(
+        id,
+        dto.title,
+        dto.description,
+        dto.isPublished,
+        dto.questions,
+      ),
+    );
+  }
+
+  @Delete('tests/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a TOEIC test (Admin)' })
+  async deleteTest(@Param('id') id: string): Promise<void> {
+    await this.commandBus.execute<DeleteToeicTestCommand, void>(
+      new DeleteToeicTestCommand(id),
+    );
+  }
+
+  @Post('tests/:id/publish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Publish a TOEIC test (Admin)' })
+  async publishTest(@Param('id') id: string): Promise<void> {
+    await this.commandBus.execute<PublishToeicTestCommand, void>(
+      new PublishToeicTestCommand(id),
+    );
   }
 }

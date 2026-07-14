@@ -1,6 +1,7 @@
 import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { ToeicTestEntity } from './toeic-test.entity';
+import { ToeicQuestionTopic } from '../../domain/enums/toeic-question-topic.enum';
 
 @Entity('toeic_questions')
 export class ToeicQuestionEntity extends BaseEntity {
@@ -36,6 +37,16 @@ export class ToeicQuestionEntity extends BaseEntity {
 
   @Column('text', { nullable: true })
   explanation: string;
+
+  @Column('text', { nullable: true })
+  translation?: string;
+
+  @Column({
+    type: 'enum',
+    enum: ToeicQuestionTopic,
+    nullable: true,
+  })
+  topic?: ToeicQuestionTopic;
 
   @Column({ type: 'jsonb', nullable: true })
   mediaUrls?: string[];

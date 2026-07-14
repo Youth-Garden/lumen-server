@@ -80,6 +80,8 @@ export class ToeicQueryRepository
     dto.materialId = question.materialId;
     dto.correctAnswer = question.correctAnswer;
     dto.explanation = question.explanation;
+    dto.translation = question.translation || null;
+    dto.topic = question.topic || null;
     return dto;
   }
 }

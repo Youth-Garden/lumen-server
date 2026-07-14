@@ -13,9 +13,10 @@ export class ResumeExamAttemptCommand {
 }
 
 @CommandHandler(ResumeExamAttemptCommand)
-export class ResumeExamAttemptHandler
-  implements ICommandHandler<ResumeExamAttemptCommand, void>
-{
+export class ResumeExamAttemptHandler implements ICommandHandler<
+  ResumeExamAttemptCommand,
+  void
+> {
   constructor(
     @Inject(EXAM_ATTEMPT_REPOSITORY)
     private readonly attemptRepo: IExamAttemptRepository,
