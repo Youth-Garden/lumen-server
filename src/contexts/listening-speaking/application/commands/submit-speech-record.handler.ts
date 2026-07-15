@@ -7,10 +7,10 @@ import type { ISpeechRecordRepository } from '../../domain/repositories/speech-r
 import { SPEAKING_TASK_REPOSITORY } from '../../domain/repositories/speaking-task.repository.interface';
 import type { ISpeakingTaskRepository } from '../../domain/repositories/speaking-task.repository.interface';
 import { SpeechRecord } from '../../domain/entities/speech-record.entity';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { ListeningSpeakingEx } from '../../domain/exceptions/listening-speaking.exception';
 import { SpeechRecordResponseDto } from '../responses/speech-record.response.dto';
-import { SpeakingTaskCompletedEvent } from '../../../../shared-kernel/events/speaking-task-completed.event';
+import { SpeakingTaskCompletedEvent } from '../../../../shared/domain/events/speaking-task-completed.event';
 
 @CommandHandler(SubmitSpeechRecordCommand)
 export class SubmitSpeechRecordHandler implements ICommandHandler<

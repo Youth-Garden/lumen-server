@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { UpdateDeckCommand } from './update-deck.command';
 import type { IDeckRepository } from '../../domain/repositories/deck.repository.interface';
 import { DECK_REPOSITORY } from '../../domain/repositories/deck.repository.interface';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 
 @CommandHandler(UpdateDeckCommand)

@@ -8,7 +8,7 @@ import { DECK_REPOSITORY } from '../../domain/repositories/deck.repository.inter
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { Flashcard } from '../../domain/aggregates/flashcard.aggregate';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 
 @CommandHandler(CreateFlashcardCommand)

@@ -5,7 +5,7 @@ import {
   MaterialDto,
   MaterialListDto,
 } from '../responses/material.response.dto';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { MaterialEx } from '../../domain/exceptions/material.exception';
 import { MATERIAL_QUERY_REPOSITORY } from '../ports/material-query.repository';
 import type { IMaterialQueryRepository } from '../ports/material-query.repository';

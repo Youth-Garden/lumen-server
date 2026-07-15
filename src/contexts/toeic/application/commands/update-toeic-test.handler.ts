@@ -1,4 +1,4 @@
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ToeicEx } from '../../domain/exceptions/toeic.exception';
 import { InjectRepository } from '@nestjs/typeorm';

@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { QuizEx } from '../../domain/exceptions/quiz.exception';
 import { plainToInstance } from 'class-transformer';
 import { GetQuizByIdQuery } from './get-quiz-by-id.query';

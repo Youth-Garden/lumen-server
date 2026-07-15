@@ -7,7 +7,7 @@ import { Quiz } from '../../domain/aggregates/quiz.aggregate';
 import { randomUUID } from 'crypto';
 import type { IVocabularyWordRepository } from '../../../vocabulary/domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../../vocabulary/domain/repositories/vocabulary-word.repository.interface';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { QuizEx } from '../../domain/exceptions/quiz.exception';
 import { QuizQuestionFactory } from '../../domain/factories/quiz-question.factory';
 

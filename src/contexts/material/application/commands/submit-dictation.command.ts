@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { MaterialEx } from '../../domain/exceptions/material.exception';
 import { DictationResultDto, SubmitDictationDto } from '../dtos/dictation.dto';
 import type { IMaterialQueryRepository } from '../ports/material-query.repository';

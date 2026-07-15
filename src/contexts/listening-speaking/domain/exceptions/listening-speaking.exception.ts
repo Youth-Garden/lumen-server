@@ -1,4 +1,4 @@
-import type { ExceptionMap } from '../../../../common/exceptions/app.exception';
+import type { ExceptionMap } from '../../../../shared/domain/exceptions/app.exception';
 
 export const ListeningSpeakingEx = {
   ListeningLessonNotFound: {

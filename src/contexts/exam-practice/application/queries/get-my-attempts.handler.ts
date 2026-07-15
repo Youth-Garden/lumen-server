@@ -7,7 +7,7 @@ import { AttemptSummaryResponseDto } from '../responses/attempt-summary.response
 import {
   PagedData,
   PagingMeta,
-} from '../../../../shared-kernel/response/paging';
+} from '../../../../shared/presentation/response/paging';
 
 export class GetMyAttemptsQuery implements IQuery {
   constructor(

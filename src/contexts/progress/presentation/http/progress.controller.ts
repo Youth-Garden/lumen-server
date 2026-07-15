@@ -7,7 +7,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { GetDashboardQuery } from '../../application/queries/get-dashboard.query';
 import { DashboardResponseDto } from '../../application/responses/dashboard.response.dto';
 import { UpdateProgressSettingsDto } from '../../application/dtos/update-progress-settings.dto';

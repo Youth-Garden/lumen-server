@@ -19,7 +19,7 @@ import {
   DictationResultDto,
 } from '../../application/dtos/dictation.dto';
 import { SubmitDictationCommand } from '../../application/commands/submit-dictation.command';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import {
   MaterialDto,
   MaterialListDto,
@@ -29,7 +29,7 @@ import {
   GetMaterialByIdQuery,
 } from '../../application/queries/get-material.query';
 import { MaterialType } from '../../domain/enums/material.enum';
-import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 
 @ApiTags('Materials (Content Hub)')
 @Controller('materials')

@@ -4,7 +4,7 @@ import { GetGrammarTopicDetailsQuery } from './get-grammar-topic-details.query';
 import { GRAMMAR_TOPIC_REPOSITORY } from '../../domain/repositories/grammar-topic.repository.interface';
 import type { IGrammarTopicRepository } from '../../domain/repositories/grammar-topic.repository.interface';
 import { GrammarTopicResponseDto } from '../responses/grammar-topic.response.dto';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { GrammarEx } from '../../domain/exceptions/grammar.exception';
 
 @QueryHandler(GetGrammarTopicDetailsQuery)

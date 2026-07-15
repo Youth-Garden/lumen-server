@@ -22,8 +22,8 @@ import {
   ListPublicArticlesQuery,
 } from '../../application/queries/reading.queries';
 
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
+import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { TranslateTextQuery } from '../../application/queries/translate-text.query';
 
 @ApiTags('Reading')

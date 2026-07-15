@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { BaseFilterDto } from '../../../../shared-kernel/dtos/pagination.dto';
+import { BaseFilterDto } from '../../../../shared/presentation/dtos/pagination.dto';
 
 export class ListWordsFilterDto extends BaseFilterDto {
   @ApiPropertyOptional({ description: 'Filter by CEFR Level (e.g., A1, B2)' })

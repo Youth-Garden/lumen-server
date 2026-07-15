@@ -1,11 +1,11 @@
-import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 import { VocabularyWord } from '../../domain/aggregates/vocabulary-word.aggregate';
 import { VocabularyDefinition } from '../../domain/entities/vocabulary-definition.entity';
 import { VocabularyExample } from '../../domain/entities/vocabulary-example.entity';

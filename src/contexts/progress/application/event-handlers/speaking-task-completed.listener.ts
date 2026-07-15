@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
-import { SpeakingTaskCompletedEvent } from '../../../../shared-kernel/events/speaking-task-completed.event';
+import { SpeakingTaskCompletedEvent } from '../../../../shared/domain/events/speaking-task-completed.event';
 import { LearningProfile } from '../../domain/aggregates/learning-profile.aggregate';
 import { Activity } from '../../domain/entities/activity.entity';
 import type { IActivityRepository } from '../../domain/repositories/activity.repository.interface';

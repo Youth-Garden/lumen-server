@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { Entity, Column, Index } from 'typeorm';
 import { UserNoteCategory } from '../../domain/entities/user-note';
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 import { GrammarTopic } from '../../domain/aggregates/grammar-topic.aggregate';
 import { GrammarLesson } from '../../domain/entities/grammar-lesson.entity';
 import { IGrammarTopicRepository } from '../../domain/repositories/grammar-topic.repository.interface';

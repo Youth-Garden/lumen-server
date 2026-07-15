@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { GrammarExerciseCompletedEvent } from '../../../../shared-kernel/events/grammar-exercise-completed.event';
+import { GrammarExerciseCompletedEvent } from '../../../../shared/domain/events/grammar-exercise-completed.event';
 import { LEARNING_PROFILE_REPOSITORY } from '../../domain/repositories/learning-profile.repository.interface';
 import type { ILearningProfileRepository } from '../../domain/repositories/learning-profile.repository.interface';
 import { LearningProfile } from '../../domain/aggregates/learning-profile.aggregate';

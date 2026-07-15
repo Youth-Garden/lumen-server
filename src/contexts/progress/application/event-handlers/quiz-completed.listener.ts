@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { QuizCompletedEvent } from '../../../../shared-kernel/events/quiz-completed.event';
+import { QuizCompletedEvent } from '../../../../shared/domain/events/quiz-completed.event';
 import { LEARNING_PROFILE_REPOSITORY } from '../../domain/repositories/learning-profile.repository.interface';
 import type { ILearningProfileRepository } from '../../domain/repositories/learning-profile.repository.interface';
 import { LearningProfile } from '../../domain/aggregates/learning-profile.aggregate';

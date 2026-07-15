@@ -4,9 +4,9 @@ import { SubmitGrammarExerciseCommand } from './submit-grammar-exercise.command'
 import { GRAMMAR_EXERCISE_REPOSITORY } from '../../domain/repositories/grammar-exercise.repository.interface';
 import type { IGrammarExerciseRepository } from '../../domain/repositories/grammar-exercise.repository.interface';
 import { SubmitExerciseResponseDto } from '../responses/submit-exercise.response.dto';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { GrammarEx } from '../../domain/exceptions/grammar.exception';
-import { GrammarExerciseCompletedEvent } from '../../../../shared-kernel/events/grammar-exercise-completed.event';
+import { GrammarExerciseCompletedEvent } from '../../../../shared/domain/events/grammar-exercise-completed.event';
 
 @CommandHandler(SubmitGrammarExerciseCommand)
 export class SubmitGrammarExerciseHandler implements ICommandHandler<

@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { Entity, Column } from 'typeorm';
 import { TranscriptLine } from '../../domain/aggregates/listening-lesson.aggregate';
 

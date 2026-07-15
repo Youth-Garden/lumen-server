@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { TranscriptEntity } from './transcript.entity';
 import { MaterialLevel, MaterialType } from '../../domain/enums/material.enum';

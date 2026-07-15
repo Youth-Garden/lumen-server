@@ -1,9 +1,9 @@
-import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IQuizRepository } from '../../domain/repositories/quiz.repository.interface';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 import { Quiz } from '../../domain/aggregates/quiz.aggregate';
 import { Question } from '../../domain/entities/question.entity';
 import { QuizEntity } from '../entities/quiz.entity';

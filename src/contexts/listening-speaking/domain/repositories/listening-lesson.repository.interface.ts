@@ -1,5 +1,5 @@
 import { ListeningLesson } from '../aggregates/listening-lesson.aggregate';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 
 export const LISTENING_LESSON_REPOSITORY = Symbol(
   'LISTENING_LESSON_REPOSITORY',

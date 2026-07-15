@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { UpdateVocabularyWordCommand } from './update-vocabulary-word.command';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 import { VocabularyDefinition } from '../../domain/entities/vocabulary-definition.entity';
 import { VocabularyExample } from '../../domain/entities/vocabulary-example.entity';

@@ -16,10 +16,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import { Roles } from '../../../../shared-kernel/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../shared-kernel/guards/roles.guard';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
+import { Roles } from '../../../../shared/presentation/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../../shared/presentation/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../shared/presentation/guards/roles.guard';
 import { Role } from '../../../iam/domain/enums/role.enum';
 import { CreateToeicTestCommand } from '../../application/commands/create-toeic-test.handler';
 import { DeleteToeicTestCommand } from '../../application/commands/delete-toeic-test.handler';

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { GetNotificationsQuery } from '../../application/queries/get-notifications.query';
 import { MarkNotificationReadCommand } from '../../application/commands/mark-notification-read.command';
 import { MarkAllNotificationsReadCommand } from '../../application/commands/mark-all-notifications-read.command';

@@ -526,3 +526,32 @@ See details at https://github.com/Youth-Garden/lumen-server/wiki
   3. `.env.example`
 
 9. **Naming Convention**: Do not use single-letter variables (e.g., q, m, n). Always use descriptive variable names (e.g., question, user, index, item).
+
+## 7. Shared Module Structure (DDD)
+
+The src/shared directory is the single source of truth for cross-cutting concerns, shared infrastructure, and global constants. It strictly follows DDD layer segregation:
+
+- **shared/domain/**: 
+  - entities/: Abstract base entities (ase.entity.ts).
+  - exceptions/: Global application exceptions (pp.exception.ts, common.exception.ts).
+  - interfaces/: Core domain interfaces used across contexts.
+- **shared/application/**:
+  - services/: Highly reusable stateless services (e.g., hashing.service.ts, 	oken.service.ts).
+  - cqrs/: (Optional) Base abstractions for Commands/Queries if implemented.
+- **shared/infrastructure/**:
+  - config/: App configuration (Joi schemas, environment loading).
+  - mail/: Email delivery infrastructure (Resend, Handlebars).
+  - queue/: Queue management (BullMQ processors).
+  - storage/: Object storage (S3/R2 wrappers).
+  - database/: Global TypeORM setups or context middlewares.
+- **shared/presentation/**:
+  - decorators/: Custom NestJS decorators (@CurrentUser, @Roles).
+  - guards/: Global authentication/authorization guards.
+  - ilters/: Exception filters.
+  - interceptors/: Response transformers.
+  - pipes/: Validation pipes.
+- **shared/constants/**:
+  - enums/: Global enums.
+  - Constants files (e.g., error codes, pagination limits).
+
+**DO NOT** create parallel common, config, or shared-kernel folders at the root of src/. All shared utilities and infrastructure must be placed correctly within the src/shared layers based on their concern (Domain, Application, Infrastructure, Presentation).

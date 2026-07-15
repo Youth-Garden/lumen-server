@@ -1,11 +1,11 @@
-import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SpeakingTaskEntity } from '../entities/speaking-task.entity';
 import { ISpeakingTaskRepository } from '../../domain/repositories/speaking-task.repository.interface';
 import { SpeakingTask } from '../../domain/aggregates/speaking-task.aggregate';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 
 @Injectable()
 export class SpeakingTaskRepository

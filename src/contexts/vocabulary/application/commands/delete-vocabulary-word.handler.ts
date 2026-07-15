@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { DeleteVocabularyWordCommand } from './delete-vocabulary-word.command';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 
 @CommandHandler(DeleteVocabularyWordCommand)

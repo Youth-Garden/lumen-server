@@ -17,8 +17,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../../../../shared/presentation/guards/jwt-auth.guard';
 
 import { StartExamAttemptDto } from '../../application/dtos/start-exam-attempt.dto';
 import { SubmitExamAnswerDto } from '../../application/dtos/submit-exam-answer.dto';
@@ -35,7 +35,7 @@ import { ResumeExamAttemptCommand } from '../../application/commands/resume-exam
 import { GetExamAttemptQuery } from '../../application/queries/get-exam-attempt.handler';
 import { GetMyAttemptsQuery } from '../../application/queries/get-my-attempts.handler';
 import { StartRetestAttemptCommand } from '../../application/commands/start-retest-attempt.handler';
-import { PagedData } from '../../../../shared-kernel/response/paging';
+import { PagedData } from '../../../../shared/presentation/response/paging';
 
 @ApiTags('Exam Practice')
 @Controller('exam-practice/attempts')

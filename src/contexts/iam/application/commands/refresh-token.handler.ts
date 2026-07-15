@@ -3,8 +3,8 @@ import { RefreshTokenCommand } from './refresh-token.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { TokenService } from '../../../../common';
-import { AppException } from '../../../../common/exceptions';
+import { TokenService } from '../../../../shared/application/services';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { AuthEx } from '../../domain/exceptions/auth.exception';
 import { AuthTokensResponseDto } from '../responses/auth-tokens.response.dto';
 

@@ -4,7 +4,7 @@ import { ListGrammarTopicsQuery } from './list-grammar-topics.query';
 import { GRAMMAR_TOPIC_REPOSITORY } from '../../domain/repositories/grammar-topic.repository.interface';
 import type { IGrammarTopicRepository } from '../../domain/repositories/grammar-topic.repository.interface';
 import { GrammarTopicResponseDto } from '../responses/grammar-topic.response.dto';
-import { PaginatedResponseDto } from '../../../../shared-kernel/dtos/paginated-response.dto';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 
 @QueryHandler(ListGrammarTopicsQuery)
 export class ListGrammarTopicsHandler implements IQueryHandler<

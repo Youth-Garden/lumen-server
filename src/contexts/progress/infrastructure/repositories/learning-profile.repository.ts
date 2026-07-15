@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { LearningProfile } from '../../domain/aggregates/learning-profile.aggregate';
 import { ILearningProfileRepository } from '../../domain/repositories/learning-profile.repository.interface';
 import { LearningProfileEntity } from '../entities/learning-profile.entity';

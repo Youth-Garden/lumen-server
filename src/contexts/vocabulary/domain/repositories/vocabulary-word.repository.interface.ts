@@ -1,4 +1,4 @@
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 import { VocabularyWord } from '../aggregates/vocabulary-word.aggregate';
 
 export const VOCABULARY_WORD_REPOSITORY = Symbol('VOCABULARY_WORD_REPOSITORY');

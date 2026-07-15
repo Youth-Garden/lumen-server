@@ -1,11 +1,11 @@
-import { BaseRepository } from '../../../../shared-kernel/infrastructure/database/base.repository';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ListeningLessonEntity } from '../entities/listening-lesson.entity';
 import { IListeningLessonRepository } from '../../domain/repositories/listening-lesson.repository.interface';
 import { ListeningLesson } from '../../domain/aggregates/listening-lesson.aggregate';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 
 @Injectable()
 export class ListeningLessonRepository

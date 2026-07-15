@@ -7,9 +7,9 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import { Public } from '../../../../shared-kernel/decorators/public.decorator';
-import { PaginatedResponseDto } from '../../../../shared-kernel/dtos/paginated-response.dto';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
+import { Public } from '../../../../shared/presentation/decorators/public.decorator';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 import { CreateGrammarTopicDto } from '../../application/dtos/create-grammar-topic.dto';
 import { AddGrammarLessonDto } from '../../application/dtos/add-grammar-lesson.dto';
 import { AddGrammarExerciseDto } from '../../application/dtos/add-grammar-exercise.dto';

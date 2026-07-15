@@ -1,4 +1,4 @@
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 import { Quiz } from '../aggregates/quiz.aggregate';
 
 export const QUIZ_REPOSITORY = Symbol('QUIZ_REPOSITORY');

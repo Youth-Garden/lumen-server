@@ -21,7 +21,7 @@ import {
 import { GenerateQuizCommand } from '../../application/commands/generate-quiz.command';
 import { SubmitAnswerCommand } from '../../application/commands/submit-answer.command';
 import { FinishQuizCommand } from '../../application/commands/finish-quiz.command';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import {
   GenerateQuizResponseDto,
   FinishQuizResponseDto,

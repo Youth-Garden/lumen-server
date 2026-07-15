@@ -4,7 +4,7 @@ import { ListListeningLessonsQuery } from './list-listening-lessons.query';
 import { LISTENING_LESSON_REPOSITORY } from '../../domain/repositories/listening-lesson.repository.interface';
 import type { IListeningLessonRepository } from '../../domain/repositories/listening-lesson.repository.interface';
 import { ListeningLessonResponseDto } from '../responses/listening-lesson.response.dto';
-import { PaginatedResponseDto } from '../../../../shared-kernel/dtos/paginated-response.dto';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 
 @QueryHandler(ListListeningLessonsQuery)
 export class ListListeningLessonsHandler implements IQueryHandler<

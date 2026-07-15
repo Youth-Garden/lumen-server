@@ -6,7 +6,7 @@ import {
 } from '../enums/exam.enum';
 import { ExamAnswer } from '../entities/exam-answer.entity';
 import { ExamAttemptCompletedEvent } from '../events/exam-attempt-completed.event';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { ExamPracticeEx } from '../exceptions/exam-practice.exception';
 
 export class ExamAttempt extends AggregateRoot {

@@ -1,3 +1,3 @@
-import { BaseFilterDto } from '../../../../shared-kernel/dtos/pagination.dto';
+import { BaseFilterDto } from '../../../../shared/presentation/dtos/pagination.dto';
 
 export class ListSpeakingTasksFilterDto extends BaseFilterDto {}

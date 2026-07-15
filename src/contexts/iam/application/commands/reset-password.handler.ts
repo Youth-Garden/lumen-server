@@ -2,7 +2,7 @@ import { BadRequestException, Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HashingService } from '../../../../common';
+import { HashingService } from '../../../../shared/application/services';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { PasswordResetTokenEntity } from '../../infrastructure/entities/password-reset-token.entity';

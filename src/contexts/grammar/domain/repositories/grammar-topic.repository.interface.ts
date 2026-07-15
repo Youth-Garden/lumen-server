@@ -1,5 +1,5 @@
 import { GrammarTopic } from '../aggregates/grammar-topic.aggregate';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 
 export const GRAMMAR_TOPIC_REPOSITORY = Symbol('GRAMMAR_TOPIC_REPOSITORY');
 

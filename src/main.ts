@@ -7,10 +7,10 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ExceptionsFilter } from './shared-kernel/filters/exception.filter';
-import { ResponseWrapperInterceptor } from './shared-kernel/interceptors/response-wrapper.interceptor';
-import { createValidationPipe } from './shared-kernel/pipes/validation.pipe';
-import { TypedConfigService } from './config/typed-config.service';
+import { ExceptionsFilter } from './shared/presentation/filters/exception.filter';
+import { ResponseWrapperInterceptor } from './shared/presentation/interceptors/response-wrapper.interceptor';
+import { createValidationPipe } from './shared/presentation/pipes/validation.pipe';
+import { TypedConfigService } from './shared/infrastructure/config/typed-config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

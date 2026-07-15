@@ -44,8 +44,8 @@ import {
   DeckResponseDto,
 } from '../../application/responses/deck.response.dto';
 import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
-import { Public } from '../../../../shared-kernel/decorators/public.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
+import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { Query } from '@nestjs/common';
 import { ListWordsFilterDto } from '../../application/dtos/list-words-filter.dto';
 

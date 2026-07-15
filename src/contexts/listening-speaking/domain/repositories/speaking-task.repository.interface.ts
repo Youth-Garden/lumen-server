@@ -1,5 +1,5 @@
 import { SpeakingTask } from '../aggregates/speaking-task.aggregate';
-import { PaginatedResult } from '../../../../shared-kernel/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../../../../shared/domain/interfaces/paginated-result.interface';
 
 export const SPEAKING_TASK_REPOSITORY = Symbol('SPEAKING_TASK_REPOSITORY');
 

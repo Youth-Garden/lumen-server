@@ -7,7 +7,7 @@ import {
 import { Inject } from '@nestjs/common';
 import { EXAM_ATTEMPT_REPOSITORY } from '../../domain/repositories/exam-attempt.repository.interface';
 import type { IExamAttemptRepository } from '../../domain/repositories/exam-attempt.repository.interface';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { ExamPracticeEx } from '../../domain/exceptions/exam-practice.exception';
 import { ExamType } from '../../domain/enums/exam.enum';
 import { GetToeicTestByIdQuery } from '../../../toeic/application/queries/get-toeic-test-by-id.query';

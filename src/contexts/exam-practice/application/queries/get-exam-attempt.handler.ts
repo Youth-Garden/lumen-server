@@ -6,7 +6,7 @@ import {
   ExamAttemptResponseDto,
   ExamAnswerResponseDto,
 } from '../responses/exam-attempt.response.dto';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { ExamPracticeEx } from '../../domain/exceptions/exam-practice.exception';
 
 export class GetExamAttemptQuery implements IQuery {

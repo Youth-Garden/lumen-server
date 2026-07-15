@@ -13,14 +13,20 @@ import { ListSessionsHandler } from './application/queries/list-sessions.handler
 import { UpdateProfileHandler } from './application/commands/update-profile.handler';
 import { UserRepository } from './infrastructure/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
-import { HashingService, TokenService, GoogleAuthService } from '../../common';
-import { JwtStrategy } from '../../shared-kernel/strategies/jwt.strategy';
+import {
+  HashingService,
+  TokenService,
+  GoogleAuthService,
+} from '../../shared/application/services';
+import { JwtStrategy } from '../../shared/infrastructure/strategies/jwt.strategy';
 import { UserEntity } from './infrastructure/entities/user.entity';
 import { SessionEntity } from './infrastructure/entities/session.entity';
 import { PasswordResetTokenEntity } from './infrastructure/entities/password-reset-token.entity';
 import { ConfigService } from '@nestjs/config';
 import { ForgotPasswordHandler } from './application/commands/forgot-password.handler';
 import { ResetPasswordHandler } from './application/commands/reset-password.handler';
+import { IamEmailService } from './application/services/iam-email.service';
+import { QueueModule } from '../../shared/infrastructure/queue/queue.module';
 
 @Module({
   imports: [
@@ -39,6 +45,7 @@ import { ResetPasswordHandler } from './application/commands/reset-password.hand
         },
       }),
     }),
+    QueueModule,
   ],
   controllers: [IamController],
   providers: [
@@ -56,6 +63,7 @@ import { ResetPasswordHandler } from './application/commands/reset-password.hand
     TokenService,
     GoogleAuthService,
     JwtStrategy,
+    IamEmailService,
     {
       provide: USER_REPOSITORY,
       useClass: UserRepository,

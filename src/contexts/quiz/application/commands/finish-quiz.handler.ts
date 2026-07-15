@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { QuizEx } from '../../domain/exceptions/quiz.exception';
 import { FinishQuizCommand } from './finish-quiz.command';
 import type { IQuizRepository } from '../../domain/repositories/quiz.repository.interface';
 import { QUIZ_REPOSITORY } from '../../domain/repositories/quiz.repository.interface';
-import { QuizCompletedEvent } from '../../../../shared-kernel/events/quiz-completed.event';
+import { QuizCompletedEvent } from '../../../../shared/domain/events/quiz-completed.event';
 
 @CommandHandler(FinishQuizCommand)
 export class FinishQuizHandler implements ICommandHandler<

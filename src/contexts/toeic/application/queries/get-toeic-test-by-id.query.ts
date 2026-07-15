@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { ToeicEx } from '../../domain/exceptions/toeic.exception';
 import type { IToeicQueryRepository } from '../ports/toeic-query.repository';
 import { TOEIC_QUERY_REPOSITORY } from '../ports/toeic-query.repository';

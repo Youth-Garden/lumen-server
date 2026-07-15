@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { EXAM_ATTEMPT_REPOSITORY } from '../../domain/repositories/exam-attempt.repository.interface';
 import type { IExamAttemptRepository } from '../../domain/repositories/exam-attempt.repository.interface';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { ExamPracticeEx } from '../../domain/exceptions/exam-practice.exception';
 
 export class ResumeExamAttemptCommand {

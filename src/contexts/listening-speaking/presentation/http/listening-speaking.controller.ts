@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { CreateListeningLessonDto } from '../../application/dtos/create-listening-lesson.dto';
 import { CreateSpeakingTaskDto } from '../../application/dtos/create-speaking-task.dto';
 import { SubmitSpeechRecordDto } from '../../application/dtos/submit-speech-record.dto';
@@ -16,7 +16,7 @@ import { ListSpeakingTasksQuery } from '../../application/queries/list-speaking-
 import { ListeningLessonResponseDto } from '../../application/responses/listening-lesson.response.dto';
 import { SpeakingTaskResponseDto } from '../../application/responses/speaking-task.response.dto';
 import { SpeechRecordResponseDto } from '../../application/responses/speech-record.response.dto';
-import { PaginatedResponseDto } from '../../../../shared-kernel/dtos/paginated-response.dto';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 
 // Note: Ensure to import Auth/User decorators for the real user ID instead of mock
 

@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../../shared-kernel/infrastructure/database/base.entity';
+import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { WordEntity } from './word.entity';
 import { ExampleEntity } from './example.entity';

@@ -7,7 +7,7 @@ import { VocabularyWord } from '../../domain/aggregates/vocabulary-word.aggregat
 import { VocabularyDefinition } from '../../domain/entities/vocabulary-definition.entity';
 import { VocabularyExample } from '../../domain/entities/vocabulary-example.entity';
 import { randomUUID } from 'crypto';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 
 @CommandHandler(CreateVocabularyWordCommand)

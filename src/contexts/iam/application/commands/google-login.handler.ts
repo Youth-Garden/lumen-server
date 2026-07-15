@@ -3,10 +3,13 @@ import { GoogleLoginCommand } from './google-login.command';
 import { Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
-import { TokenService, GoogleAuthService } from '../../../../common';
+import {
+  TokenService,
+  GoogleAuthService,
+} from '../../../../shared/application/services';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
-import { AppException } from '../../../../common/exceptions';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { AuthEx } from '../../domain/exceptions/auth.exception';
 
 import { User } from '../../domain/entities/user.entity';

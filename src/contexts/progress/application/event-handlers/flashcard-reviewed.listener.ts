@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { FlashcardReviewedEvent } from '../../../../shared-kernel/events/flashcard-reviewed.event';
+import { FlashcardReviewedEvent } from '../../../../shared/domain/events/flashcard-reviewed.event';
 import { LEARNING_PROFILE_REPOSITORY } from '../../domain/repositories/learning-profile.repository.interface';
 import type { ILearningProfileRepository } from '../../domain/repositories/learning-profile.repository.interface';
 import { LearningProfile } from '../../domain/aggregates/learning-profile.aggregate';

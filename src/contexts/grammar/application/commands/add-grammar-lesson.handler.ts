@@ -5,7 +5,7 @@ import { AddGrammarLessonCommand } from './add-grammar-lesson.command';
 import { GRAMMAR_TOPIC_REPOSITORY } from '../../domain/repositories/grammar-topic.repository.interface';
 import type { IGrammarTopicRepository } from '../../domain/repositories/grammar-topic.repository.interface';
 import { GrammarLesson } from '../../domain/entities/grammar-lesson.entity';
-import { AppException } from '../../../../common/exceptions/app.exception';
+import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { GrammarEx } from '../../domain/exceptions/grammar.exception';
 
 @CommandHandler(AddGrammarLessonCommand)
