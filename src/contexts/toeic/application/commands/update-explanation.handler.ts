@@ -33,7 +33,7 @@ export class UpdateExplanationHandler implements ICommandHandler<
       );
     }
 
-    question.explanation = command.explanation;
+    question.explanation = { en: command.explanation };
     if (command.mediaUrls !== undefined) {
       question.mediaUrls = command.mediaUrls;
     }

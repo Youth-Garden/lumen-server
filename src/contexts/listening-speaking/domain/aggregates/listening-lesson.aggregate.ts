@@ -1,9 +1,10 @@
 import { AggregateRoot } from '@nestjs/cqrs';
+import { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 
 export interface TranscriptLine {
   startTime: number; // in seconds
   endTime: number; // in seconds
-  text: string;
+  text: TranslationRecord;
 }
 
 export class ListeningLesson extends AggregateRoot {

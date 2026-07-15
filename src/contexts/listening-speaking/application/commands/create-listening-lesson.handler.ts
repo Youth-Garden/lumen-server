@@ -22,7 +22,11 @@ export class CreateListeningLessonHandler implements ICommandHandler<
       command.title,
       command.audioUrl,
       command.cefrLevel,
-      command.transcript,
+      command.transcript.map((t) => ({
+        startTime: t.startTime,
+        endTime: t.endTime,
+        text: { en: t.text },
+      })),
     );
 
     await this.repo.save(lesson);

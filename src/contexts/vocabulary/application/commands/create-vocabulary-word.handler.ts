@@ -27,19 +27,16 @@ export class CreateVocabularyWordHandler implements ICommandHandler<
     }
 
     const definitions = command.definitions.map((defDto) => {
-      const def = new VocabularyDefinition(
-        randomUUID(),
-        defDto.partOfSpeech,
-        defDto.definitionEn,
-        defDto.translationVi,
-      );
+      const def = new VocabularyDefinition(randomUUID(), defDto.partOfSpeech, {
+        en: defDto.definitionEn,
+        vi: defDto.translationVi,
+      });
       defDto.examples.forEach((exDto) => {
         def.addExample(
-          new VocabularyExample(
-            randomUUID(),
-            exDto.sentenceEn,
-            exDto.translationVi,
-          ),
+          new VocabularyExample(randomUUID(), {
+            en: exDto.sentenceEn,
+            vi: exDto.translationVi,
+          }),
         );
       });
       return def;

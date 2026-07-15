@@ -1,28 +1,36 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
-import { ToeicTestEntity } from './contexts/toeic/infrastructure/entities/toeic-test.entity';
-import { ToeicQuestionEntity } from './contexts/toeic/infrastructure/entities/toeic-question.entity';
+import { AppModule } from './app.module';
+import { GrammarExerciseEntity } from './contexts/grammar/infrastructure/entities/grammar-exercise.entity';
+import { GrammarLessonEntity } from './contexts/grammar/infrastructure/entities/grammar-lesson.entity';
+import { GrammarTopicEntity } from './contexts/grammar/infrastructure/entities/grammar-topic.entity';
+import { UserEntity } from './contexts/iam/infrastructure/entities/user.entity';
+import { ListeningLessonEntity } from './contexts/listening-speaking/infrastructure/entities/listening-lesson.entity';
+import { SpeakingTaskEntity } from './contexts/listening-speaking/infrastructure/entities/speaking-task.entity';
+import { SpeechRecordEntity } from './contexts/listening-speaking/infrastructure/entities/speech-record.entity';
 import { MaterialEntity } from './contexts/material/infrastructure/entities/material.entity';
 import { TranscriptEntity } from './contexts/material/infrastructure/entities/transcript.entity';
-import { UserEntity } from './contexts/iam/infrastructure/entities/user.entity';
+import { BadgeEntity } from './contexts/progress/infrastructure/entities/badge.entity';
+import { QuestionEntity as QuizQuestionEntity } from './contexts/quiz/infrastructure/entities/question.entity';
+import { QuizEntity } from './contexts/quiz/infrastructure/entities/quiz.entity';
+import { ArticleEntity } from './contexts/reading/infrastructure/entities/article.entity';
+import { ToeicQuestionEntity } from './contexts/toeic/infrastructure/entities/toeic-question.entity';
+import { ToeicTestEntity } from './contexts/toeic/infrastructure/entities/toeic-test.entity';
 import { DeckEntity } from './contexts/vocabulary/infrastructure/entities/deck.entity';
-import { WordEntity } from './contexts/vocabulary/infrastructure/entities/word.entity';
 import { DefinitionEntity } from './contexts/vocabulary/infrastructure/entities/definition.entity';
 import { ExampleEntity } from './contexts/vocabulary/infrastructure/entities/example.entity';
 import { FlashcardEntity } from './contexts/vocabulary/infrastructure/entities/flashcard.entity';
-import { ArticleEntity } from './contexts/reading/infrastructure/entities/article.entity';
-import { toeicMockData } from './seed/toeic-data';
+import { WordEntity } from './contexts/vocabulary/infrastructure/entities/word.entity';
+import { badgeData } from './seed/badge-data';
+import { grammarData } from './seed/grammar-data';
 import { materialMockData } from './seed/material-data';
+import { quizMockData } from './seed/quiz-data';
+import { articleData } from './seed/reading-data';
+import { listeningLessonData, speakingTaskData } from './seed/speaking-data';
+import { toeicMockData } from './seed/toeic-data';
 import { userData } from './seed/user-data';
 import { deckData } from './seed/vocabulary-data';
-import { articleData } from './seed/reading-data';
-import { quizMockData } from './seed/quiz-data';
-import { QuizEntity } from './contexts/quiz/infrastructure/entities/quiz.entity';
-import { QuestionEntity as QuizQuestionEntity } from './contexts/quiz/infrastructure/entities/question.entity';
-import { BadgeEntity } from './contexts/progress/infrastructure/entities/badge.entity';
-import { badgeData } from './seed/badge-data';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -42,6 +50,12 @@ async function bootstrap() {
   const quizRepo = dataSource.getRepository(QuizEntity);
   const quizQuestionRepo = dataSource.getRepository(QuizQuestionEntity);
   const badgeRepo = dataSource.getRepository(BadgeEntity);
+  const grammarTopicRepo = dataSource.getRepository(GrammarTopicEntity);
+  const grammarLessonRepo = dataSource.getRepository(GrammarLessonEntity);
+  const grammarExerciseRepo = dataSource.getRepository(GrammarExerciseEntity);
+  const listeningLessonRepo = dataSource.getRepository(ListeningLessonEntity);
+  const speakingTaskRepo = dataSource.getRepository(SpeakingTaskEntity);
+  const speechRecordRepo = dataSource.getRepository(SpeechRecordEntity);
 
   console.log('--- Starting System Database Seeding ---');
   await badgeRepo.createQueryBuilder().delete().execute();
@@ -56,9 +70,16 @@ async function bootstrap() {
   await badgeRepo.save(badgesToSave);
   console.log(`Seeded ${badgesToSave.length} Badges.`);
 
-  console.log('--- Starting TOEIC Database Seeding ---');
+  console.log('--- Starting System Database Seeding ---');
 
   // Clear existing data
+  await grammarExerciseRepo.createQueryBuilder().delete().execute();
+  await grammarLessonRepo.createQueryBuilder().delete().execute();
+  await grammarTopicRepo.createQueryBuilder().delete().execute();
+  await speechRecordRepo.createQueryBuilder().delete().execute();
+  await speakingTaskRepo.createQueryBuilder().delete().execute();
+  await listeningLessonRepo.createQueryBuilder().delete().execute();
+
   await flashcardRepo.createQueryBuilder().delete().execute();
   await exampleRepo.createQueryBuilder().delete().execute();
   await definitionRepo.createQueryBuilder().delete().execute();
@@ -113,13 +134,73 @@ async function bootstrap() {
       question.questionText = questionData.questionText || '';
       question.options = questionData.options || [];
       question.correctAnswer = questionData.correctAnswer || '';
-      question.explanation = questionData.explanation || '';
+      question.explanation = {
+        en: questionData.explanation || '',
+        vi:
+          ('translation' in questionData
+            ? (questionData as { translation?: string }).translation
+            : '') || '',
+      };
 
       await questionRepo.save(question);
     }
     console.log(
       `Created ${testData.questions.length} questions for ${savedTest.title}`,
     );
+  }
+
+  console.log('--- Starting Grammar Database Seeding ---');
+  for (const topicData of grammarData) {
+    const topic = new GrammarTopicEntity();
+    topic.title = topicData.title;
+    topic.description = topicData.description;
+    topic.cefrLevel = topicData.cefrLevel;
+    const savedTopic = await grammarTopicRepo.save(topic);
+
+    for (const lessonData of topicData.lessons) {
+      const lesson = new GrammarLessonEntity();
+      lesson.topicId = savedTopic.id;
+      lesson.title = lessonData.title;
+      lesson.content = lessonData.content;
+      lesson.orderIndex = lessonData.orderIndex;
+      const savedLesson = await grammarLessonRepo.save(lesson);
+
+      for (const exData of lessonData.exercises) {
+        const exercise = new GrammarExerciseEntity();
+        exercise.lessonId = savedLesson.id;
+        exercise.questionText = exData.questionText;
+        exercise.options = exData.options;
+        exercise.correctAnswer = exData.correctAnswer;
+        exercise.explanation = exData.explanation;
+        await grammarExerciseRepo.save(exercise);
+      }
+    }
+    console.log(`Created Grammar Topic: ${savedTopic.title}`);
+  }
+
+  console.log('--- Starting Listening-Speaking Database Seeding ---');
+  for (const taskData of speakingTaskData) {
+    const task = new SpeakingTaskEntity();
+    task.title = taskData.title;
+    task.prompt = taskData.prompt;
+    task.referenceAudioUrl = taskData.referenceAudioUrl;
+    task.keywords = taskData.keywords;
+    await speakingTaskRepo.save(task);
+    console.log(`Created Speaking Task: ${task.title}`);
+  }
+
+  for (const lessonData of listeningLessonData) {
+    const lesson = new ListeningLessonEntity();
+    lesson.title = lessonData.title;
+    lesson.audioUrl = lessonData.audioUrl;
+    lesson.cefrLevel = lessonData.cefrLevel;
+    lesson.transcript = lessonData.transcript.map((t) => ({
+      startTime: t.startTime,
+      endTime: t.endTime,
+      text: { en: t.text, vi: t.translation },
+    }));
+    await listeningLessonRepo.save(lesson);
+    console.log(`Created Listening Lesson: ${lesson.title}`);
   }
 
   console.log('--- Starting Material (Dictation) Database Seeding ---');
@@ -173,14 +254,12 @@ async function bootstrap() {
       const definition = new DefinitionEntity();
       definition.wordId = savedWord.id;
       definition.partOfSpeech = wordData.partOfSpeech;
-      definition.definitionEn = wordData.definition;
-      definition.translationVi = wordData.translationVi;
+      definition.definition = { en: wordData.definition };
       const savedDef = await definitionRepo.save(definition);
 
       const example = new ExampleEntity();
       example.definitionId = savedDef.id;
-      example.sentenceEn = wordData.example;
-      example.translationVi = wordData.exampleTranslation;
+      example.sentence = { en: wordData.example };
       await exampleRepo.save(example);
 
       const flashcard = new FlashcardEntity();

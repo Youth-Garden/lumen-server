@@ -1,7 +1,9 @@
+import '@fastify/cookie';
 import { Body, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { TypedConfigService } from '../../../../shared/infrastructure/config/typed-config.service';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { RefreshToken } from '../../../../shared/presentation/decorators/refresh-token.decorator';
@@ -19,7 +21,6 @@ import { LoginUserDto } from '../../application/dtos/login-user.dto';
 import { RegisterUserDto } from '../../application/dtos/register-user.dto';
 import { ResetPasswordDto } from '../../application/dtos/reset-password.dto';
 import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
-import { TypedConfigService } from '../../../../shared/infrastructure/config/typed-config.service';
 import { GetMeQuery } from '../../application/queries/get-me.query';
 import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
 import {
@@ -221,8 +222,8 @@ export class IamController {
       );
     }
 
-    res.cookie('jwta', '', { maxAge: 0, path: '/' });
-    res.cookie('jwtr', '', { maxAge: 0, path: '/' });
+    res.clearCookie('jwta', { path: '/' });
+    res.clearCookie('jwtr', { path: '/' });
   }
 
   private setAuthCookies(
@@ -230,23 +231,20 @@ export class IamController {
     accessToken: string,
     refreshToken: string,
   ) {
-    const isProd = this.configService.app.nodeEnv === 'production';
-
-    // 15 minutes
     res.cookie('jwta', accessToken, {
       httpOnly: true,
-      secure: isProd,
+      secure: this.configService.app.nodeEnv === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 900,
+      maxAge: this.configService.jwt.expiresIn,
     });
-    // 30 days
+
     res.cookie('jwtr', refreshToken, {
       httpOnly: true,
-      secure: isProd,
+      secure: this.configService.app.nodeEnv === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 2592000,
+      maxAge: this.configService.jwt.refreshExpiresIn,
     });
   }
 

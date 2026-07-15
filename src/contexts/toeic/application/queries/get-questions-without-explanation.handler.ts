@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { ToeicQuestionEntity } from '../../infrastructure/entities/toeic-question.entity';
 import { MissingExplanationResponseDto } from '../responses/missing-explanation.response.dto';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 
 export class GetQuestionsWithoutExplanationQuery {}
 
@@ -18,7 +19,10 @@ export class GetQuestionsWithoutExplanationHandler implements IQueryHandler<
 
   async execute(): Promise<MissingExplanationResponseDto[]> {
     const questions = await this.questionRepo.find({
-      where: [{ explanation: IsNull() }, { explanation: '' }],
+      where: [
+        { explanation: IsNull() },
+        { explanation: '' as unknown as TranslationRecord },
+      ],
       relations: {
         test: true,
       },

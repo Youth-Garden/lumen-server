@@ -1,5 +1,6 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 import { ToeicTestEntity } from './toeic-test.entity';
 import { ToeicQuestionTopic } from '../../domain/enums/toeic-question-topic.enum';
 
@@ -35,11 +36,9 @@ export class ToeicQuestionEntity extends BaseEntity {
   @Column({ nullable: true })
   correctAnswer: string; // A, B, C, D
 
-  @Column('text', { nullable: true })
-  explanation: string;
-
-  @Column('text', { nullable: true })
-  translation?: string;
+  @Column({ type: 'jsonb', nullable: true })
+  @Index('idx_toeic_question_explanation_jsonb')
+  explanation?: TranslationRecord;
 
   @Column({
     type: 'enum',

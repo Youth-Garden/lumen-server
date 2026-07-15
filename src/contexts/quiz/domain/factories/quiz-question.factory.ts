@@ -25,7 +25,7 @@ export class QuizQuestionFactory {
       const word = questionWords[index];
 
       const definition =
-        word.definitions.length > 0 ? word.definitions[0].definitionEn : 'N/A';
+        word.definitions.length > 0 ? word.definitions[0].definition.en : 'N/A';
       const correctAnswer = word.term;
       const options = [correctAnswer];
 

@@ -70,8 +70,10 @@ export class UpdateToeicTestHandler implements ICommandHandler<
           questionText: q.questionText,
           options: q.options,
           correctAnswer: q.correctAnswer,
-          explanation: q.explanation,
-          translation: q.translation,
+          explanation:
+            q.explanation || q.translation
+              ? { en: q.explanation, vi: q.translation }
+              : undefined,
           topic: q.topic,
         });
       });

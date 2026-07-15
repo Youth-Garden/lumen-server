@@ -1,13 +1,13 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { UpdateVocabularyWordCommand } from './update-vocabulary-word.command';
-import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
-import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
 import { AppException } from '../../../../shared/domain/exceptions';
-import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 import { VocabularyDefinition } from '../../domain/entities/vocabulary-definition.entity';
 import { VocabularyExample } from '../../domain/entities/vocabulary-example.entity';
-import { randomUUID } from 'crypto';
+import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
+import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
+import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
+import { UpdateVocabularyWordCommand } from './update-vocabulary-word.command';
 
 @CommandHandler(UpdateVocabularyWordCommand)
 export class UpdateVocabularyWordHandler implements ICommandHandler<
@@ -38,16 +38,14 @@ export class UpdateVocabularyWordHandler implements ICommandHandler<
         const definition = new VocabularyDefinition(
           randomUUID(),
           def.partOfSpeech,
-          def.definitionEn,
-          def.translationVi,
+          { en: def.definitionEn, vi: def.translationVi },
         );
         def.examples.forEach((ex) => {
           definition.addExample(
-            new VocabularyExample(
-              randomUUID(),
-              ex.sentenceEn,
-              ex.translationVi,
-            ),
+            new VocabularyExample(randomUUID(), {
+              en: ex.sentenceEn,
+              vi: ex.translationVi,
+            }),
           );
         });
         return definition;

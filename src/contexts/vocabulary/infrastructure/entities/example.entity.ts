@@ -1,5 +1,6 @@
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { DefinitionEntity } from './definition.entity';
 
 @Entity('vocab_examples')
@@ -7,11 +8,9 @@ export class ExampleEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   definitionId: string;
 
-  @Column()
-  sentenceEn: string;
-
-  @Column()
-  translationVi: string;
+  @Column({ type: 'jsonb' })
+  @Index('idx_example_sentence_jsonb')
+  sentence: TranslationRecord;
 
   @ManyToOne(() => DefinitionEntity, (definition) => definition.examples, {
     onDelete: 'CASCADE',

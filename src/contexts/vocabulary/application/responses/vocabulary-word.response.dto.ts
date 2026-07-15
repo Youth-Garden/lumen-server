@@ -1,14 +1,12 @@
 import { Exclude, Expose, Type } from 'class-transformer';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 
 export class VocabularyExampleResponseDto {
   @Expose()
   id: string;
 
   @Expose()
-  sentenceEn: string;
-
-  @Expose()
-  translationVi: string;
+  sentence: TranslationRecord;
 
   constructor(partial: Partial<VocabularyExampleResponseDto>) {
     Object.assign(this, partial);
@@ -23,10 +21,7 @@ export class VocabularyDefinitionResponseDto {
   partOfSpeech: string;
 
   @Expose()
-  definitionEn: string;
-
-  @Expose()
-  translationVi: string;
+  definition: TranslationRecord;
 
   @Expose()
   @Type(() => VocabularyExampleResponseDto)

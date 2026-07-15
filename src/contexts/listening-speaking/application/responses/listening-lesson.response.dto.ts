@@ -1,4 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 
 export class TranscriptLineResponseDto {
   @Expose()
@@ -8,7 +9,7 @@ export class TranscriptLineResponseDto {
   endTime: number;
 
   @Expose()
-  text: string;
+  text: TranslationRecord;
 }
 
 @Exclude()

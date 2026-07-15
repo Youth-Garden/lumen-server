@@ -34,12 +34,10 @@ export class GetVocabularyWordByIdHandler implements IQueryHandler<
       definitions: word.definitions.map((def) => ({
         id: def.id,
         partOfSpeech: def.partOfSpeech,
-        definitionEn: def.definitionEn,
-        translationVi: def.translationVi,
+        definition: def.definition,
         examples: def.examples.map((ex) => ({
           id: ex.id,
-          sentenceEn: ex.sentenceEn,
-          translationVi: ex.translationVi,
+          sentence: ex.sentence,
         })),
       })),
     });

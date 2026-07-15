@@ -1,7 +1,15 @@
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { WordEntity } from './word.entity';
 import { ExampleEntity } from './example.entity';
+import { WordEntity } from './word.entity';
 
 @Entity('vocab_definitions')
 export class DefinitionEntity extends BaseEntity {
@@ -11,11 +19,9 @@ export class DefinitionEntity extends BaseEntity {
   @Column()
   partOfSpeech: string;
 
-  @Column()
-  definitionEn: string;
-
-  @Column()
-  translationVi: string;
+  @Column({ type: 'jsonb' })
+  @Index('idx_definition_jsonb')
+  definition: TranslationRecord;
 
   @ManyToOne(() => WordEntity, (word) => word.definitions, {
     onDelete: 'CASCADE',

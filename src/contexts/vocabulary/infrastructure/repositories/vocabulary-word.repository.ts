@@ -82,15 +82,13 @@ export class VocabularyWordRepository
         defEntity.id = def.id;
         defEntity.wordId = word.id;
         defEntity.partOfSpeech = def.partOfSpeech;
-        defEntity.definitionEn = def.definitionEn;
-        defEntity.translationVi = def.translationVi;
+        defEntity.definition = def.definition;
 
         defEntity.examples = def.examples.map((ex: VocabularyExample) => {
           const exEntity = new ExampleEntity();
           exEntity.id = ex.id;
           exEntity.definitionId = def.id;
-          exEntity.sentenceEn = ex.sentenceEn;
-          exEntity.translationVi = ex.translationVi;
+          exEntity.sentence = ex.sentence;
           return exEntity;
         });
         return defEntity;
@@ -106,17 +104,10 @@ export class VocabularyWordRepository
         const def = new VocabularyDefinition(
           defEntity.id,
           defEntity.partOfSpeech,
-          defEntity.definitionEn,
-          defEntity.translationVi,
+          defEntity.definition,
         );
         defEntity.examples?.forEach((exEntity) => {
-          def.addExample(
-            new VocabularyExample(
-              exEntity.id,
-              exEntity.sentenceEn,
-              exEntity.translationVi,
-            ),
-          );
+          def.addExample(new VocabularyExample(exEntity.id, exEntity.sentence));
         });
         return def;
       }) || [];

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ToeicQuestionTopic } from '../../domain/enums/toeic-question-topic.enum';
+import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 
 export class ToeicQuestionResponseDto {
   @ApiProperty()
@@ -36,10 +37,7 @@ export class ToeicQuestionResponseDto {
   correctAnswer: string;
 
   @ApiProperty({ nullable: true })
-  explanation: string | null;
-
-  @ApiProperty({ nullable: true })
-  translation: string | null;
+  explanation: TranslationRecord | null;
 
   @ApiProperty({ enum: ToeicQuestionTopic, nullable: true })
   topic: ToeicQuestionTopic | null;

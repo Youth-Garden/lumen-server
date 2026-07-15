@@ -79,8 +79,7 @@ export class ToeicQueryRepository
     dto.options = question.options;
     dto.materialId = question.materialId;
     dto.correctAnswer = question.correctAnswer;
-    dto.explanation = question.explanation;
-    dto.translation = question.translation || null;
+    dto.explanation = question.explanation || null;
     dto.topic = question.topic || null;
     return dto;
   }
