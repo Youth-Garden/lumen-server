@@ -12,6 +12,7 @@ import { FlashcardReviewedListener } from './application/event-handlers/flashcar
 import { QuizCompletedListener } from './application/event-handlers/quiz-completed.listener';
 import { GrammarExerciseCompletedListener } from './application/event-handlers/grammar-exercise-completed.listener';
 import { SpeakingTaskCompletedListener } from './application/event-handlers/speaking-task-completed.listener';
+import { ExamAttemptCompletedListener } from './application/event-handlers/exam-attempt-completed.listener';
 import { GetDashboardHandler } from './application/queries/get-dashboard.handler';
 import { GetRecentActivitiesHandler } from './application/queries/get-recent-activities.handler';
 import { GetLeaderboardHandler } from './application/queries/get-leaderboard.handler';
@@ -24,6 +25,7 @@ const EventHandlers = [
   QuizCompletedListener,
   GrammarExerciseCompletedListener,
   SpeakingTaskCompletedListener,
+  ExamAttemptCompletedListener,
 ];
 const QueryHandlers = [
   GetDashboardHandler,

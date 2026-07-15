@@ -1,10 +1,10 @@
-import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { ToeicTestResponseDto } from '../responses/toeic-test.response.dto';
+import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { AppException } from '../../../../common/exceptions';
 import { ToeicEx } from '../../domain/exceptions/toeic.exception';
-import { TOEIC_QUERY_REPOSITORY } from '../ports/toeic-query.repository';
 import type { IToeicQueryRepository } from '../ports/toeic-query.repository';
+import { TOEIC_QUERY_REPOSITORY } from '../ports/toeic-query.repository';
+import { ToeicTestResponseDto } from '../responses/toeic-test.response.dto';
 
 export class GetToeicTestByIdQuery implements IQuery {
   constructor(public readonly id: string) {}

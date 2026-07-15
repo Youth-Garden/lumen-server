@@ -16,6 +16,10 @@ export class AttemptSummaryResponseDto {
   testId: string;
 
   @Expose()
+  @ApiProperty({ nullable: true })
+  testTitle: string | null;
+
+  @Expose()
   @ApiProperty({ enum: ExamType })
   testType: ExamType;
 

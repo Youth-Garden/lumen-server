@@ -1,4 +1,6 @@
+import { AppException } from '../../../../common/exceptions/app.exception';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { ToeicEx } from '../../domain/exceptions/toeic.exception';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
@@ -35,7 +37,7 @@ export class UpdateToeicTestHandler implements ICommandHandler<
     });
 
     if (!test) {
-      throw new Error('Test not found');
+      throw new AppException(ToeicEx.TestNotFound);
     }
 
     if (command.title !== undefined) test.title = command.title;
@@ -47,8 +49,7 @@ export class UpdateToeicTestHandler implements ICommandHandler<
     await this.testRepo.save(test);
 
     if (command.questions) {
-      // Very basic replace-all strategy for simplicity, or upsert.
-      // We will delete all existing questions and insert the new ones, or upsert by ID.
+      // Process question upserts and deletions
       const existingIds = test.questions.map((q) => q.id);
       const incomingIds = command.questions.map((q) => q.id).filter(Boolean);
 

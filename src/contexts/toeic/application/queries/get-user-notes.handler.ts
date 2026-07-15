@@ -1,7 +1,8 @@
-import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserNoteEntity } from '../../infrastructure/entities/user-note.entity';
+import { UserNoteResponseDto } from '../responses/user-note.response.dto';
 
 export class GetUserNotesQuery {
   constructor(
@@ -13,21 +14,23 @@ export class GetUserNotesQuery {
 @QueryHandler(GetUserNotesQuery)
 export class GetUserNotesHandler implements IQueryHandler<
   GetUserNotesQuery,
-  UserNoteEntity[]
+  UserNoteResponseDto[]
 > {
   constructor(
     @InjectRepository(UserNoteEntity)
     private readonly noteRepo: Repository<UserNoteEntity>,
   ) {}
 
-  async execute(query: GetUserNotesQuery): Promise<UserNoteEntity[]> {
+  async execute(query: GetUserNotesQuery): Promise<UserNoteResponseDto[]> {
     const where: Record<string, string> = { userId: query.userId };
     if (query.testId) {
       where.testId = query.testId;
     }
-    return this.noteRepo.find({
+    const entities = await this.noteRepo.find({
       where,
       order: { updatedAt: 'DESC' },
     });
+
+    return entities.map((entity) => new UserNoteResponseDto(entity));
   }
 }

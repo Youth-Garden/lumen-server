@@ -1,9 +1,8 @@
-import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { randomUUID } from 'crypto';
-import { ToeicTestEntity } from '../../infrastructure/entities/toeic-test.entity';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
+import { Repository } from 'typeorm';
+import { ToeicTestEntity } from '../../infrastructure/entities/toeic-test.entity';
 
 export class CreateToeicTestCommand {
   constructor(

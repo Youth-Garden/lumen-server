@@ -1,11 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
   Put,
-  Delete,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -21,23 +21,23 @@ import { Roles } from '../../../../shared-kernel/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../shared-kernel/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../shared-kernel/guards/roles.guard';
 import { Role } from '../../../iam/domain/enums/role.enum';
+import { CreateToeicTestCommand } from '../../application/commands/create-toeic-test.handler';
+import { DeleteToeicTestCommand } from '../../application/commands/delete-toeic-test.handler';
+import { PublishToeicTestCommand } from '../../application/commands/publish-toeic-test.handler';
 import { SaveUserNoteCommand } from '../../application/commands/save-user-note.handler';
 import { UpdateExplanationCommand } from '../../application/commands/update-explanation.handler';
+import { UpdateToeicTestCommand } from '../../application/commands/update-toeic-test.handler';
 import { GetQuestionsWithoutExplanationQuery } from '../../application/queries/get-questions-without-explanation.handler';
 import { GetToeicTestByIdQuery } from '../../application/queries/get-toeic-test-by-id.query';
 import { GetUserNotesQuery } from '../../application/queries/get-user-notes.handler';
 import { ListToeicTestsQuery } from '../../application/queries/list-toeic-tests.query';
 import { MissingExplanationResponseDto } from '../../application/responses/missing-explanation.response.dto';
 import { ToeicTestResponseDto } from '../../application/responses/toeic-test.response.dto';
-import { UserNoteEntity } from '../../infrastructure/entities/user-note.entity';
-import { CreateToeicTestCommand } from '../../application/commands/create-toeic-test.handler';
-import { UpdateToeicTestCommand } from '../../application/commands/update-toeic-test.handler';
-import { DeleteToeicTestCommand } from '../../application/commands/delete-toeic-test.handler';
-import { PublishToeicTestCommand } from '../../application/commands/publish-toeic-test.handler';
+import { UserNoteResponseDto } from '../../application/responses/user-note.response.dto';
 import { CreateToeicTestDto } from './dto/create-toeic-test.dto';
-import { UpdateToeicTestDto } from './dto/update-toeic-test.dto';
 import { SaveUserNoteDto } from './dto/save-user-note.dto';
 import { UpdateExplanationDto } from './dto/update-explanation.dto';
+import { UpdateToeicTestDto } from './dto/update-toeic-test.dto';
 
 @ApiTags('TOEIC')
 @Controller('toeic')
@@ -77,11 +77,12 @@ export class ToeicController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user notes, optionally filtered by testId' })
+  @ApiResponse({ type: [UserNoteResponseDto] })
   async listNotes(
     @CurrentUser() userId: string,
     @Query('testId') testId?: string,
-  ) {
-    return this.queryBus.execute<GetUserNotesQuery, UserNoteEntity[]>(
+  ): Promise<UserNoteResponseDto[]> {
+    return this.queryBus.execute<GetUserNotesQuery, UserNoteResponseDto[]>(
       new GetUserNotesQuery(userId, testId),
     );
   }

@@ -3,7 +3,6 @@ import {
   ICommandHandler,
   EventBus,
   QueryBus,
-  IEvent,
 } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { EXAM_ATTEMPT_REPOSITORY } from '../../domain/repositories/exam-attempt.repository.interface';
@@ -70,8 +69,8 @@ export class FinishExamAttemptHandler implements ICommandHandler<
     await this.attemptRepo.save(attempt);
 
     // Publish domain events (ExamAttemptCompletedEvent)
-    attempt.getUncommittedEvents().forEach((e: IEvent) => {
-      this.eventBus.publish(e);
+    attempt.getUncommittedEvents().forEach((domainEvent) => {
+      this.eventBus.publish(domainEvent);
     });
     attempt.commit();
   }

@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from '../../../../shared-kernel/decorators/current-user.decorator';
 import { CreateListeningLessonDto } from '../../application/dtos/create-listening-lesson.dto';
 import { CreateSpeakingTaskDto } from '../../application/dtos/create-speaking-task.dto';
 import { SubmitSpeechRecordDto } from '../../application/dtos/submit-speech-record.dto';
@@ -108,19 +109,17 @@ export class ListeningSpeakingController {
     );
   }
 
+  @ApiBearerAuth()
   @Post('speaking-tasks/:id/submit')
   @ApiOperation({ summary: 'Submit an audio recording for a speaking task' })
   async submitSpeechRecord(
     @Param('id') taskId: string,
+    @CurrentUser() userId: string,
     @Body() dto: SubmitSpeechRecordDto,
   ): Promise<SpeechRecordResponseDto> {
-    // In a real application, you would get the user ID from the JWT token via a custom decorator (e.g., @CurrentUser())
-    // For this example, we'll mock a user ID.
-    const mockUserId = '11111111-2222-3333-4444-555555555555';
-
     return this.commandBus.execute<
       SubmitSpeechRecordCommand,
       SpeechRecordResponseDto
-    >(new SubmitSpeechRecordCommand(taskId, mockUserId, dto.audioUrl));
+    >(new SubmitSpeechRecordCommand(taskId, userId, dto.audioUrl));
   }
 }
