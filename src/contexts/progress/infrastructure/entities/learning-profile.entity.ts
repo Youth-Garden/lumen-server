@@ -20,4 +20,7 @@ export class LearningProfileEntity extends BaseEntity {
 
   @Column({ type: 'simple-array', nullable: true })
   unlockedBadges: string[] | null;
+
+  @Column({ type: 'int', default: 0 })
+  streakFreezes: number;
 }

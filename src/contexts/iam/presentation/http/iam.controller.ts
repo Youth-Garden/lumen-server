@@ -1,5 +1,6 @@
 import '@fastify/cookie';
 import { Body, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -40,6 +41,7 @@ export class IamController {
   ) {}
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   @ApiOperation({
     summary: 'Register a new user',
@@ -58,6 +60,7 @@ export class IamController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('forgot-password')
   @ApiOperation({
     summary: 'Request a password reset',
@@ -72,6 +75,7 @@ export class IamController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('reset-password')
   @ApiOperation({
     summary: 'Reset password using token',
@@ -87,6 +91,7 @@ export class IamController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
   @ApiOperation({
     summary: 'Login with email & password',

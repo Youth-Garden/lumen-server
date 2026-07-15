@@ -4,7 +4,7 @@ export class DueFlashcardResponseDto {
   term: string;
   deckId: string;
   deckName: string;
-  nextReviewDate: Date;
-  easeFactor: number;
-  repetitions: number;
+  due: Date;
+  state: number;
+  reps: number;
 }

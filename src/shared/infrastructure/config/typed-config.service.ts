@@ -4,6 +4,7 @@ import type { AppConfig } from './app.config';
 import type { JwtConfig } from './jwt.config';
 import type { DatabaseConfig } from './database.config';
 import type { IamConfig } from './iam.config';
+import type { InfrastructureConfig } from './infrastructure.config';
 
 @Injectable()
 export class TypedConfigService {
@@ -23,5 +24,11 @@ export class TypedConfigService {
 
   get iam(): IamConfig {
     return this.configService.getOrThrow<IamConfig>('iam');
+  }
+
+  get infrastructure(): InfrastructureConfig {
+    return this.configService.getOrThrow<InfrastructureConfig>(
+      'infrastructure',
+    );
   }
 }

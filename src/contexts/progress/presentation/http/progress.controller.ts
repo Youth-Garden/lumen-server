@@ -18,6 +18,8 @@ import { GetLeaderboardQuery } from '../../application/queries/get-leaderboard.q
 import { LeaderboardResponseDto } from '../../application/responses/leaderboard.response.dto';
 import { GetAllBadgesQuery } from '../../application/queries/get-all-badges.query';
 import { BadgeResponseDto } from '../../application/responses/badge.response.dto';
+import { GetHeatmapQuery } from '../../application/queries/get-heatmap.query';
+import { HeatmapItemDto } from '../../application/responses/heatmap.response.dto';
 
 @ApiTags('Progress')
 @ApiBearerAuth()
@@ -63,9 +65,22 @@ export class ProgressController {
     description: 'Badges retrieved successfully.',
     type: [BadgeResponseDto],
   })
-  async getAllBadges(): Promise<BadgeResponseDto[]> {
+  async getBadges(): Promise<BadgeResponseDto[]> {
     return this.queryBus.execute<GetAllBadgesQuery, BadgeResponseDto[]>(
       new GetAllBadgesQuery(),
+    );
+  }
+
+  @Get('heatmap')
+  @ApiOperation({ summary: 'Get user activity heatmap' })
+  @ApiResponse({
+    status: 200,
+    description: 'Heatmap data retrieved successfully.',
+    type: [HeatmapItemDto],
+  })
+  async getHeatmap(@CurrentUser() userId: string): Promise<HeatmapItemDto[]> {
+    return this.queryBus.execute<GetHeatmapQuery, HeatmapItemDto[]>(
+      new GetHeatmapQuery(userId, 365),
     );
   }
 

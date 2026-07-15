@@ -8,11 +8,12 @@ export class ReviewFlashcardDto {
   flashcardId: string;
 
   @ApiProperty({
-    example: 4,
-    description: 'Grade from 0 to 5 based on SM-2 algorithm',
+    example: 3,
+    description:
+      'Quality from 1 to 4 based on FSRS algorithm (1=Again, 2=Hard, 3=Good, 4=Easy)',
   })
   @IsInt()
-  @Min(0)
-  @Max(5)
-  grade: number;
+  @Min(1)
+  @Max(4)
+  quality: number;
 }

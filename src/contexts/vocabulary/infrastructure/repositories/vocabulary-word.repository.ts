@@ -138,8 +138,14 @@ export class VocabularyWordRepository
 
     if (filter.search) {
       query.andWhere(
-        '(word.term ILIKE :search OR definition.definitionEn ILIKE :search OR definition.translationVi ILIKE :search)',
-        { search: `%${filter.search}%` },
+        `(
+          to_tsvector('simple', word.term) @@ plainto_tsquery('simple', :search)
+          OR
+          to_tsvector('english', coalesce(definition.definition->>'en', '')) @@ plainto_tsquery('english', :search)
+          OR
+          to_tsvector('simple', coalesce(definition.definition->>'vi', '')) @@ plainto_tsquery('simple', :search)
+        )`,
+        { search: filter.search },
       );
     }
 

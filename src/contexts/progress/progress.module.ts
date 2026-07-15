@@ -17,6 +17,7 @@ import { GetDashboardHandler } from './application/queries/get-dashboard.handler
 import { GetRecentActivitiesHandler } from './application/queries/get-recent-activities.handler';
 import { GetLeaderboardHandler } from './application/queries/get-leaderboard.handler';
 import { GetAllBadgesHandler } from './application/queries/get-all-badges.handler';
+import { GetHeatmapHandler } from './application/queries/get-heatmap.handler';
 import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
@@ -32,6 +33,7 @@ const QueryHandlers = [
   GetRecentActivitiesHandler,
   GetLeaderboardHandler,
   GetAllBadgesHandler,
+  GetHeatmapHandler,
 ];
 const CommandHandlers = [UpdateProgressSettingsHandler];
 

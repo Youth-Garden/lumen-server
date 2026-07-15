@@ -28,6 +28,7 @@ export class LearningProfileRepository
       entity.lastActivityDate,
       entity.totalPoints,
       entity.dailyGoalMinutes,
+      entity.streakFreezes || 0,
     );
     if (entity.unlockedBadges) {
       profile.restoreBadges(entity.unlockedBadges);
@@ -43,6 +44,7 @@ export class LearningProfileRepository
       totalPoints: profile.points,
       dailyGoalMinutes: profile.dailyGoalMinutes,
       unlockedBadges: profile.unlockedBadges,
+      streakFreezes: profile.streakFreezes,
     });
 
     await this.repo.save(entity);

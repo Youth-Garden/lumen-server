@@ -5,11 +5,12 @@ export class LearningProfile {
     private lastActivityDate: Date | null,
     private totalPoints: number,
     private _dailyGoalMinutes: number,
+    private _streakFreezes: number = 0,
     private _unlockedBadges: string[] = [],
   ) {}
 
   static create(userId: string): LearningProfile {
-    return new LearningProfile(userId, 0, null, 0, 15);
+    return new LearningProfile(userId, 0, null, 0, 15, 0);
   }
 
   static reconstitute(
@@ -18,6 +19,7 @@ export class LearningProfile {
     lastActivityDate: Date | null,
     totalPoints: number,
     dailyGoalMinutes: number,
+    streakFreezes: number,
   ): LearningProfile {
     return new LearningProfile(
       userId,
@@ -25,6 +27,7 @@ export class LearningProfile {
       lastActivityDate,
       totalPoints,
       dailyGoalMinutes,
+      streakFreezes,
       [],
     );
   }
@@ -47,6 +50,10 @@ export class LearningProfile {
 
   get dailyGoalMinutes(): number {
     return this._dailyGoalMinutes;
+  }
+
+  get streakFreezes(): number {
+    return this._streakFreezes;
   }
 
   get unlockedBadges(): string[] {
@@ -97,10 +104,21 @@ export class LearningProfile {
     if (diffDays === 1) {
       // Consecutive day
       this.streak += 1;
+      this._streakFreezes += 1; // Gain 1 freeze for maintaining streak
       this.lastActivityDate = activityDate;
     } else if (diffDays > 1) {
       // Missed a day
-      this.streak = 1;
+      const missedDays = diffDays - 1;
+      if (this._streakFreezes >= missedDays) {
+        // Used freeze
+        this._streakFreezes -= missedDays;
+        this.streak += 1;
+        this._streakFreezes += 1; // Gain 1 freeze for maintaining streak today
+      } else {
+        // Streak lost
+        this.streak = 1;
+        this._streakFreezes = 0; // Reset freezes when streak is lost (optional, but makes sense)
+      }
       this.lastActivityDate = activityDate;
     }
     // If diffDays === 0, it means activity on the same day, streak remains the same, update lastActivityDate

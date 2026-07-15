@@ -42,6 +42,35 @@ export class ActivityRepository
     return entities.map((entity) => this.toDomain(entity));
   }
 
+  async getHeatmapData(
+    userId: string,
+    startDate: Date,
+  ): Promise<{ date: string; count: number }[]> {
+    const raw = await this.repository
+      .createQueryBuilder('activity')
+      .select('DATE(activity.timestamp)', 'date')
+      .addSelect('COUNT(activity.id)', 'count')
+      .where('activity.userId = :userId', { userId })
+      .andWhere('activity.timestamp >= :startDate', { startDate })
+      .groupBy('DATE(activity.timestamp)')
+      .orderBy('date', 'ASC')
+      .getRawMany<{ date: string | Date; count: string | number }>();
+
+    return raw.map((row) => {
+      const dateStr =
+        row.date instanceof Date
+          ? row.date.toISOString().split('T')[0]
+          : String(row.date);
+      return {
+        date: dateStr,
+        count:
+          typeof row.count === 'string'
+            ? parseInt(row.count, 10)
+            : Number(row.count),
+      };
+    });
+  }
+
   async save(activity: Activity): Promise<void> {
     const entity = this.toPersistence(activity);
     await this.repository.save(entity);

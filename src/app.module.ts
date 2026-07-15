@@ -1,31 +1,34 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { redisStore } from 'cache-manager-redis-yet';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ExamPracticeModule } from './contexts/exam-practice/exam-practice.module';
+import { GrammarModule } from './contexts/grammar/grammar.module';
 import { IamModule } from './contexts/iam/iam.module';
-import { DatabaseModule } from './shared/infrastructure/database/database.module';
-import { ConfigModule } from '@nestjs/config';
+import { ListeningSpeakingModule } from './contexts/listening-speaking/listening-speaking.module';
+import { MaterialModule } from './contexts/material/material.module';
+import { NotificationModule } from './contexts/notification/notification.module';
+import { ProgressModule } from './contexts/progress/progress.module';
+import { QuizModule } from './contexts/quiz/quiz.module';
+import { ReadingModule } from './contexts/reading/reading.module';
+import { ToeicModule } from './contexts/toeic/toeic.module';
+import { VocabularyModule } from './contexts/vocabulary/vocabulary.module';
 import {
   appConfig,
-  jwtConfig,
   databaseConfig,
   iamConfig,
   infrastructureConfig,
-  validationSchema,
+  jwtConfig,
   TypedConfigService,
+  validationSchema,
 } from './shared/infrastructure/config';
-import { VocabularyModule } from './contexts/vocabulary/vocabulary.module';
-import { QuizModule } from './contexts/quiz/quiz.module';
-import { ProgressModule } from './contexts/progress/progress.module';
-import { ReadingModule } from './contexts/reading/reading.module';
-import { ToeicModule } from './contexts/toeic/toeic.module';
-import { MaterialModule } from './contexts/material/material.module';
-import { GrammarModule } from './contexts/grammar/grammar.module';
-import { ListeningSpeakingModule } from './contexts/listening-speaking/listening-speaking.module';
-import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
-import { ExamPracticeModule } from './contexts/exam-practice/exam-practice.module';
-import { NotificationModule } from './contexts/notification/notification.module';
+import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RequestContextMiddleware } from './shared/infrastructure/database/request-context.middleware';
+import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -41,6 +44,24 @@ import { RequestContextMiddleware } from './shared/infrastructure/database/reque
       validationSchema,
       validationOptions: {
         abortEarly: false,
+      },
+    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [TypedConfigService],
+      useFactory: async (configService: TypedConfigService) => {
+        const url = configService.infrastructure.redis.url;
+        const store = await redisStore({ url });
+        return {
+          store,
+          ttl: 30000, // Default 30 seconds
+        };
       },
     }),
     IamModule,
@@ -63,6 +84,10 @@ import { RequestContextMiddleware } from './shared/infrastructure/database/reque
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
   exports: [TypedConfigService],

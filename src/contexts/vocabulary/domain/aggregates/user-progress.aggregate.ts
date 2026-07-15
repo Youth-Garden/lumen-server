@@ -2,16 +2,14 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
 import { AppException } from '../../../../shared/domain/exceptions/app.exception';
 import { VocabEx } from '../exceptions/vocabulary.exception';
+import { Card, Rating, createEmptyCard, fsrs } from 'ts-fsrs';
 
 export class UserProgress extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _userId: string,
     private readonly _flashcardId: string,
-    private _easeFactor: number,
-    private _interval: number,
-    private _repetitions: number,
-    private _nextReviewDate: Date,
+    private _card: Card,
   ) {
     super();
   }
@@ -21,10 +19,7 @@ export class UserProgress extends AggregateRoot {
       randomUUID(),
       userId,
       flashcardId,
-      2.5, // Default Ease Factor
-      0, // Initial Interval
-      0, // Initial Repetitions
-      new Date(), // Next Review is Now
+      createEmptyCard(),
     );
   }
 
@@ -32,20 +27,9 @@ export class UserProgress extends AggregateRoot {
     id: string,
     userId: string,
     flashcardId: string,
-    easeFactor: number,
-    interval: number,
-    repetitions: number,
-    nextReviewDate: Date,
+    card: Card,
   ): UserProgress {
-    return new UserProgress(
-      id,
-      userId,
-      flashcardId,
-      easeFactor,
-      interval,
-      repetitions,
-      nextReviewDate,
-    );
+    return new UserProgress(id, userId, flashcardId, card);
   }
 
   get id(): string {
@@ -57,49 +41,40 @@ export class UserProgress extends AggregateRoot {
   get flashcardId(): string {
     return this._flashcardId;
   }
-  get easeFactor(): number {
-    return this._easeFactor;
+  get card(): Card {
+    return this._card;
   }
-  get interval(): number {
-    return this._interval;
-  }
-  get repetitions(): number {
-    return this._repetitions;
-  }
-  get nextReviewDate(): Date {
-    return this._nextReviewDate;
-  }
-
-  review(grade: number): void {
-    if (grade < 0 || grade > 5) {
-      throw new AppException(VocabEx.InvalidGrade);
+  /**
+   * Reviews the flashcard using ts-fsrs.
+   * @param quality 1 (Again), 2 (Hard), 3 (Good), 4 (Easy)
+   */
+  review(quality: number): void {
+    if (quality < 1 || quality > 4) {
+      throw new AppException(VocabEx.InvalidReviewQuality);
     }
 
-    if (grade >= 3) {
-      this._repetitions += 1;
+    const f = fsrs();
+    const schedulingCards = f.repeat(this._card, new Date());
 
-      if (this._repetitions === 1) {
-        this._interval = 1;
-      } else if (this._repetitions === 2) {
-        this._interval = 6;
-      } else {
-        this._interval = Math.round(this._interval * this._easeFactor);
-      }
-
-      this._easeFactor =
-        this._easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
-    } else {
-      this._repetitions = 0;
-      this._interval = 1;
+    let rating: Rating;
+    switch (quality) {
+      case 1:
+        rating = Rating.Again;
+        break;
+      case 2:
+        rating = Rating.Hard;
+        break;
+      case 3:
+        rating = Rating.Good;
+        break;
+      case 4:
+        rating = Rating.Easy;
+        break;
+      default:
+        rating = Rating.Good;
     }
 
-    if (this._easeFactor < 1.3) {
-      this._easeFactor = 1.3;
-    }
-
-    const now = new Date();
-    this._nextReviewDate = new Date(
-      now.getTime() + this._interval * 24 * 60 * 60 * 1000,
-    );
+    const record = schedulingCards[rating];
+    this._card = record.card;
   }
 }

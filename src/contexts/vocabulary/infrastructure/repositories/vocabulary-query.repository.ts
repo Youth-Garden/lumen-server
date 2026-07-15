@@ -81,7 +81,7 @@ export class VocabularyQueryRepository
     const progresses = await this.progressRepo.find({
       where: {
         userId,
-        nextReviewDate: LessThanOrEqual(new Date()),
+        due: LessThanOrEqual(new Date()),
       },
       relations: {
         flashcard: {
@@ -89,7 +89,7 @@ export class VocabularyQueryRepository
           deck: true,
         },
       },
-      order: { nextReviewDate: 'ASC' },
+      order: { due: 'ASC' },
     });
 
     return progresses.map((progress) => ({
@@ -98,9 +98,9 @@ export class VocabularyQueryRepository
       term: progress.flashcard.word.term,
       deckId: progress.flashcard.deck.id,
       deckName: progress.flashcard.deck.name,
-      nextReviewDate: progress.nextReviewDate,
-      easeFactor: progress.easeFactor,
-      repetitions: progress.repetitions,
+      due: progress.due,
+      state: progress.state,
+      reps: progress.reps,
     }));
   }
 }

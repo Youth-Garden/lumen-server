@@ -1,6 +1,18 @@
 import { registerAs } from '@nestjs/config';
 
-export default registerAs('infrastructure', () => ({
+export interface InfrastructureConfig {
+  redis: { url?: string };
+  resend: { apiKey?: string };
+  r2: {
+    accessKey?: string;
+    secretKey?: string;
+    bucket?: string;
+    endpoint?: string;
+    publicUrl?: string;
+  };
+}
+
+export default registerAs('infrastructure', (): InfrastructureConfig => ({
   redis: {
     url: process.env.UPSTASH_REDIS_URL,
   },

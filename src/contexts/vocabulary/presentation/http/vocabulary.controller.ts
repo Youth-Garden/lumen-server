@@ -289,9 +289,9 @@ export class VocabularyController {
 
   @Post('flashcards/review')
   @ApiOperation({
-    summary: 'Review a flashcard (SM-2)',
+    summary: 'Review a flashcard (FSRS)',
     description:
-      'Submit a review grade (0–5) for a flashcard. The SM-2 spaced repetition algorithm will calculate the next review date and update the easiness factor.',
+      'Submit a review quality (1–4) for a flashcard. The FSRS spaced repetition algorithm will calculate the next review date and update the card metrics.',
   })
   @ApiBody({ type: ReviewFlashcardDto })
   @ApiResponse({
@@ -309,7 +309,7 @@ export class VocabularyController {
     @CurrentUser() userId: string,
   ): Promise<void> {
     await this.commandBus.execute<ReviewFlashcardCommand, void>(
-      new ReviewFlashcardCommand(dto.flashcardId, dto.grade, userId),
+      new ReviewFlashcardCommand(dto.flashcardId, dto.quality, userId),
     );
   }
 }
