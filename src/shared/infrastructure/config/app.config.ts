@@ -5,6 +5,7 @@ export interface AppConfig {
   nodeEnv: 'development' | 'staging' | 'production' | 'test';
   cookieSecret: string;
   frontendUrl: string;
+  backendUrl?: string;
 }
 
 export default registerAs('app', (): AppConfig => ({
@@ -12,4 +13,5 @@ export default registerAs('app', (): AppConfig => ({
   nodeEnv: (process.env.NODE_ENV as AppConfig['nodeEnv']) ?? 'development',
   cookieSecret: process.env.COOKIE_SECRET || 'my-cookie-secret',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3001',
+  backendUrl: process.env.BACKEND_URL,
 }));

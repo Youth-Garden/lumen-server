@@ -27,6 +27,7 @@ import {
 } from './shared/infrastructure/config';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RequestContextMiddleware } from './shared/infrastructure/database/request-context.middleware';
+import { KeepAliveService } from './shared/infrastructure/keep-alive/keep-alive.service';
 import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
 
 @Module({
@@ -76,6 +77,7 @@ import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
   providers: [
     AppService,
     TypedConfigService,
+    KeepAliveService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
