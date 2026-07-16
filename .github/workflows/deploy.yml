@@ -56,6 +56,6 @@ jobs:
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.OWNER }}/lumen-server:buildcache,mode=max
 
       - name: Trigger Render Deploy
-        if: success()
+        if: success() && secrets.RENDER_DEPLOY_HOOK_URL != ''
         run: |
           curl -f "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
