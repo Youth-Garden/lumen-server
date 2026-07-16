@@ -1,9 +1,8 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { redisStore } from 'cache-manager-redis-yet';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ExamPracticeModule } from './contexts/exam-practice/exam-practice.module';
@@ -54,13 +53,10 @@ import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
     ]),
     CacheModule.registerAsync({
       isGlobal: true,
-      inject: [TypedConfigService],
-      useFactory: async (configService: TypedConfigService) => {
-        const url = configService.infrastructure.redis.url;
-        const store = await redisStore({ url });
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
         return {
-          store,
-          ttl: 30000, // Default 30 seconds
+          ttl: 30000,
         };
       },
     }),

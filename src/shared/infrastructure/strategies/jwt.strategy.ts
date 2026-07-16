@@ -10,8 +10,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const extractors = [
       (request: FastifyRequest) => {
         let token = null;
-        if (request && request.cookies) {
-          token = request.cookies['jwta'] || null;
+        if (request && (request as any).cookies) {
+          token = (request as any).cookies['jwta'] || null;
         }
         return token;
       },

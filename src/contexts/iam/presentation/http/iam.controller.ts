@@ -1,8 +1,8 @@
 import '@fastify/cookie';
 import { Body, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { TypedConfigService } from '../../../../shared/infrastructure/config/typed-config.service';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
@@ -209,6 +209,7 @@ export class IamController {
     return result;
   }
 
+  @Public()
   @Post('logout')
   @ApiOperation({
     summary: 'Logout user',
@@ -217,18 +218,18 @@ export class IamController {
   @ApiResponse({ status: 201, description: 'Logged out successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async logout(
-    @RefreshToken() token: string,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<void> {
+    const token = (req as any).cookies?.jwtr || '';
     if (token) {
       await this.commandBus.execute<LogoutCommand, void>(
         new LogoutCommand(token),
       );
     }
 
-    res.clearCookie('jwta', { path: '/' });
-    res.clearCookie('jwtr', { path: '/' });
+    (res as any).clearCookie('jwta', { path: '/' });
+    (res as any).clearCookie('jwtr', { path: '/' });
   }
 
   private setAuthCookies(
@@ -236,7 +237,7 @@ export class IamController {
     accessToken: string,
     refreshToken: string,
   ) {
-    res.cookie('jwta', accessToken, {
+    (res as any).cookie('jwta', accessToken, {
       httpOnly: true,
       secure: this.configService.app.nodeEnv === 'production',
       sameSite: 'lax',
@@ -244,7 +245,7 @@ export class IamController {
       maxAge: this.configService.jwt.expiresIn,
     });
 
-    res.cookie('jwtr', refreshToken, {
+    (res as any).cookie('jwtr', refreshToken, {
       httpOnly: true,
       secure: this.configService.app.nodeEnv === 'production',
       sameSite: 'lax',

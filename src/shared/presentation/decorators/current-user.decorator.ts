@@ -5,9 +5,10 @@ import { AppException, CommonEx } from '../../domain/exceptions';
 export const CurrentUser = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): string => {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
-    if (!request.user || !request.user.userId) {
+    const user = (request as any).user;
+    if (!user || !user.userId) {
       throw new AppException(CommonEx.Unauthorized);
     }
-    return request.user.userId;
+    return user.userId;
   },
 );

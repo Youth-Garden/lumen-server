@@ -13,6 +13,6 @@ export class ListeningLessonEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 10 })
   cefrLevel: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: '[]' })
   transcript: TranscriptLine[];
 }

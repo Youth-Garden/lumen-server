@@ -7,7 +7,7 @@ export const RefreshToken = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): string => {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
     const token =
-      request.cookies?.jwtr ||
+      (request as any).cookies?.jwtr ||
       (Array.isArray(request.headers['x-refresh-token'])
         ? request.headers['x-refresh-token'][0]
         : request.headers['x-refresh-token']) ||

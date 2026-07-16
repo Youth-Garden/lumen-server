@@ -8,7 +8,7 @@ export class ExampleEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   definitionId: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: '{}' })
   @Index('idx_example_sentence_jsonb')
   sentence: TranslationRecord;
 

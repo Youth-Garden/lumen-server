@@ -19,7 +19,7 @@ export class DefinitionEntity extends BaseEntity {
   @Column()
   partOfSpeech: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', default: '{}' })
   @Index('idx_definition_jsonb')
   definition: TranslationRecord;
 

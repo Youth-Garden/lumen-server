@@ -555,3 +555,7 @@ The src/shared directory is the single source of truth for cross-cutting concern
   - Constants files (e.g., error codes, pagination limits).
 
 **DO NOT** create parallel common, config, or shared-kernel folders at the root of src/. All shared utilities and infrastructure must be placed correctly within the src/shared layers based on their concern (Domain, Application, Infrastructure, Presentation).
+
+## 12. Code Commenting Convention
+
+- **No Unnecessary Comments**: Do not add comments for normal, self-explanatory information or clearly written code. Only add comments if a function involves multiple steps, contains complex logic, or is highly complicated.

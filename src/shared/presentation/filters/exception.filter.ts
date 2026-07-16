@@ -24,7 +24,7 @@ export class ExceptionsFilter implements ExceptionFilter {
         new BaseResponse({
           code: exception.code,
           message: exception.message,
-          errors: exception.errors ?? [new ErrorItem(exception.message)],
+          errors: exception.errors,
         }),
       );
       return;
@@ -36,7 +36,7 @@ export class ExceptionsFilter implements ExceptionFilter {
       const response = exception.getResponse();
 
       let message = exception.message;
-      let errorItems: ErrorItem[] = [];
+      let errorItems: ErrorItem[] | undefined = undefined;
 
       if (typeof response === 'object' && response !== null) {
         const resObj = response as Record<string, unknown>;
@@ -50,11 +50,7 @@ export class ExceptionsFilter implements ExceptionFilter {
         if (Array.isArray(resObj.message)) {
           errorItems = resObj.message.map((msg) => new ErrorItem(String(msg)));
           message = 'Validation failed';
-        } else {
-          errorItems = [new ErrorItem(message)];
         }
-      } else {
-        errorItems = [new ErrorItem(message)];
       }
 
       void reply.status(status).send(
@@ -73,8 +69,7 @@ export class ExceptionsFilter implements ExceptionFilter {
     void reply.status(CommonEx.InternalError.httpStatus).send(
       new BaseResponse({
         code: CommonEx.InternalError.code,
-        message: CommonEx.InternalError.message,
-        errors: [new ErrorItem(CommonEx.InternalError.message)],
+        message: exception instanceof Error ? exception.message : String(exception),
       }),
     );
   }

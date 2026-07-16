@@ -27,6 +27,7 @@ import { ForgotPasswordHandler } from './application/commands/forgot-password.ha
 import { ResetPasswordHandler } from './application/commands/reset-password.handler';
 import { IamEmailService } from './application/services/iam-email.service';
 import { QueueModule } from '../../shared/infrastructure/queue/queue.module';
+import { TypedConfigService } from '../../shared/infrastructure/config';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { QueueModule } from '../../shared/infrastructure/queue/queue.module';
       provide: USER_REPOSITORY,
       useClass: UserRepository,
     },
+    TypedConfigService,
   ],
 })
 export class IamModule {}
