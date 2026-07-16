@@ -48,6 +48,7 @@
     "fastify": "^5.10.0",
     "google-auth-library": "^10.9.0",
     "handlebars": "^4.7.9",
+    "ioredis": "^5.11.1",
     "joi": "^18.2.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

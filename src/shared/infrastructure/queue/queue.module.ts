@@ -1,16 +1,19 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Redis } from 'ioredis';
 import { EmailModule } from '../mail/email.module';
 import { MailProcessor } from './mail.processor';
-import RedisMock from 'ioredis-mock';
 
 @Module({
   imports: [
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        connection: new RedisMock() as any,
+        connection: new Redis(
+          configService.get<string>('infrastructure.redis.url')!,
+          { maxRetriesPerRequest: null }
+        ) as any,
         defaultJobOptions: {
           attempts: 2, // Limit retry attempts to save quota on Upstash Free tier
           backoff: {
