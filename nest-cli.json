@@ -6,7 +6,7 @@
     "deleteOutDir": true,
     "assets": [
       {
-        "include": "shared-kernel/email/templates/**/*.{html,css}",
+        "include": "shared/infrastructure/mail/templates/**/*.{html,css}",
         "outDir": "dist",
         "watchAssets": true
       }
