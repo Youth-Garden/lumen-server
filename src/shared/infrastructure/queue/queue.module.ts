@@ -10,7 +10,6 @@ import { MailProcessor } from './mail.processor';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         connection: new Redis(
           configService.get<string>('infrastructure.redis.url')!,
           { maxRetriesPerRequest: null },

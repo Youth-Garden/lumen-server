@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import fastifyCookie from '@fastify/cookie';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -24,6 +25,7 @@ async function bootstrap() {
   const cookieSecret = configService.app.cookieSecret;
   const port = configService.app.port;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   await app.register(fastifyCookie as any, {
     secret: cookieSecret,
   });
