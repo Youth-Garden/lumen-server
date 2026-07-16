@@ -54,3 +54,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.OWNER }}/lumen-server:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.OWNER }}/lumen-server:buildcache,mode=max
+
+      - name: Trigger Render Deploy
+        if: success()
+        run: |
+          curl -f "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
