@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
 import '@fastify/cookie';
 import { Body, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';

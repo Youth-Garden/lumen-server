@@ -1,6 +1,6 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
@@ -53,8 +53,7 @@ import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
     ]),
     CacheModule.registerAsync({
       isGlobal: true,
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
+      useFactory: () => {
         return {
           ttl: 30000,
         };

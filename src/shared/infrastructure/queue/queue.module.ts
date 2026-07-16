@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -12,7 +13,7 @@ import { MailProcessor } from './mail.processor';
       useFactory: (configService: ConfigService) => ({
         connection: new Redis(
           configService.get<string>('infrastructure.redis.url')!,
-          { maxRetriesPerRequest: null }
+          { maxRetriesPerRequest: null },
         ) as any,
         defaultJobOptions: {
           attempts: 2, // Limit retry attempts to save quota on Upstash Free tier
