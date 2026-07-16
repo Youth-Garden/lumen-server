@@ -45,10 +45,3 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/lumen-backend:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/lumen-backend:buildcache,mode=max
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Render Deploy
-        run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
