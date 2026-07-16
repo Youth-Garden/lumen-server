@@ -24,7 +24,7 @@ async function bootstrap() {
   const cookieSecret = configService.app.cookieSecret;
   const port = configService.app.port;
 
-  await app.register(fastifyCookie, {
+  await app.register(fastifyCookie as any, {
     secret: cookieSecret,
   });
 
