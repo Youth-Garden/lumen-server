@@ -42,7 +42,7 @@ async function bootstrap() {
   app.useGlobalPipes(createValidationPipe());
 
   const config = new DocumentBuilder()
-    .setTitle('Lumen Backend API')
+    .setTitle('Lumen Server API')
     .setDescription('Vocabulary Learning API documentation')
     .setVersion('1.0')
     .addBearerAuth()

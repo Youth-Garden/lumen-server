@@ -1,6 +1,6 @@
-# Lumen Backend
+# Lumen Server
 
-Lumen's backend is a Modular Monolith built with [NestJS](https://nestjs.com/) and [TypeORM](https://typeorm.io/), following Domain-Driven Design (DDD) principles.
+Lumen's server is a Modular Monolith built with [NestJS](https://nestjs.com/) and [TypeORM](https://typeorm.io/), following Domain-Driven Design (DDD) principles.
 
 ## Architecture Principles
 
@@ -18,17 +18,17 @@ Lumen's backend is a Modular Monolith built with [NestJS](https://nestjs.com/) a
 
 1. Install dependencies:
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Start the development server:
    ```bash
-   npm run start:dev
+   pnpm run start:dev
    ```
 
 3. Seed the database with mock data:
    ```bash
-   npm run seed
+   pnpm run seed
    ```
 
 ## Key Technologies
