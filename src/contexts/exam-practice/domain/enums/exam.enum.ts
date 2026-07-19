@@ -15,3 +15,9 @@ export enum ExamAttemptMode {
   PRACTICE = 'PRACTICE',
   RETEST = 'RETEST',
 }
+
+export enum WeaknessLevelEnum {
+  MASTERED = 'MASTERED',
+  MODERATE = 'MODERATE',
+  NEEDS_PRACTICE = 'NEEDS_PRACTICE',
+}

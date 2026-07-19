@@ -44,8 +44,8 @@ export class GrammarTopicRepository
 
     if (filter.search) {
       query.andWhere(
-        '(topic.title ILIKE :search OR topic.description ILIKE :search)',
-        { search: `%${filter.search}%` },
+        '(topic.title % :search OR topic.title ILIKE :searchPattern OR topic.description ILIKE :searchPattern)',
+        { search: filter.search, searchPattern: `%${filter.search}%` },
       );
     }
 

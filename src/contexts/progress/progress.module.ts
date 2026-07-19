@@ -18,6 +18,7 @@ import { GetRecentActivitiesHandler } from './application/queries/get-recent-act
 import { GetLeaderboardHandler } from './application/queries/get-leaderboard.handler';
 import { GetAllBadgesHandler } from './application/queries/get-all-badges.handler';
 import { GetHeatmapHandler } from './application/queries/get-heatmap.handler';
+import { BuyStreakFreezeHandler } from './application/commands/buy-streak-freeze.handler';
 import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
@@ -35,7 +36,7 @@ const QueryHandlers = [
   GetAllBadgesHandler,
   GetHeatmapHandler,
 ];
-const CommandHandlers = [UpdateProgressSettingsHandler];
+const CommandHandlers = [UpdateProgressSettingsHandler, BuyStreakFreezeHandler];
 
 @Module({
   imports: [

@@ -6,4 +6,9 @@ export const ProgressEx = {
     message: 'Learning profile not found',
     httpStatus: 404,
   },
+  InsufficientPoints: {
+    code: 'PROGRESS_INSUFFICIENT_POINTS',
+    message: 'Not enough XP points to purchase a streak freeze',
+    httpStatus: 400,
+  },
 } satisfies ExceptionMap;

@@ -31,4 +31,7 @@ export class MaterialEntity extends BaseEntity {
 
   @OneToMany(() => TranscriptEntity, (transcript) => transcript.material)
   transcripts: TranscriptEntity[];
+
+  @Column({ type: 'int', default: 0 })
+  viewCount: number;
 }

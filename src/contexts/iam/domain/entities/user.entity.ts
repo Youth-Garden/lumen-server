@@ -7,7 +7,6 @@ export class User extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _email: string,
-    private _password: string | null,
     private readonly _authProvider: AuthProvider,
     private readonly _providerId: string | null,
     private readonly _role: Role,
@@ -23,8 +22,7 @@ export class User extends AggregateRoot {
 
   static create(
     email: string,
-    password: string | null,
-    authProvider: AuthProvider = AuthProvider.LOCAL,
+    authProvider: AuthProvider = AuthProvider.EMAIL,
     providerId: string | null = null,
     role: Role = Role.USER,
     planId: string | null = null,
@@ -32,7 +30,6 @@ export class User extends AggregateRoot {
     const user = new User(
       randomUUID(),
       email,
-      password,
       authProvider,
       providerId,
       role,
@@ -47,7 +44,6 @@ export class User extends AggregateRoot {
   static restore(
     id: string,
     email: string,
-    password: string | null,
     authProvider: AuthProvider,
     providerId: string | null,
     role: Role,
@@ -61,7 +57,6 @@ export class User extends AggregateRoot {
     return new User(
       id,
       email,
-      password,
       authProvider,
       providerId,
       role,
@@ -79,9 +74,6 @@ export class User extends AggregateRoot {
   }
   get email(): string {
     return this._email;
-  }
-  get password(): string | null {
-    return this._password;
   }
   get authProvider(): AuthProvider {
     return this._authProvider;
@@ -115,9 +107,5 @@ export class User extends AggregateRoot {
     if (fullName !== undefined) this._fullName = fullName;
     if (avatarUrl !== undefined) this._avatarUrl = avatarUrl;
     if (phone !== undefined) this._phone = phone;
-  }
-
-  changePassword(hashedPassword: string): void {
-    this._password = hashedPassword;
   }
 }

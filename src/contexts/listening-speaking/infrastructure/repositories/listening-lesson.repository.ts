@@ -34,9 +34,13 @@ export class ListeningLessonRepository
     const query = this.repository.createQueryBuilder('lesson');
 
     if (filter.search) {
-      query.andWhere('lesson.title ILIKE :search', {
-        search: `%${filter.search}%`,
-      });
+      query.andWhere(
+        '(lesson.title % :search OR lesson.title ILIKE :searchPattern)',
+        {
+          search: filter.search,
+          searchPattern: `%${filter.search}%`,
+        },
+      );
     }
 
     if (filter.cefrLevel) {

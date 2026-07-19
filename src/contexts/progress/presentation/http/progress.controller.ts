@@ -1,25 +1,28 @@
-import { Body, Controller, Get, Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
-import { GetDashboardQuery } from '../../application/queries/get-dashboard.query';
-import { DashboardResponseDto } from '../../application/responses/dashboard.response.dto';
-import { UpdateProgressSettingsDto } from '../../application/dtos/update-progress-settings.dto';
+import { BuyStreakFreezeCommand } from '../../application/commands/buy-streak-freeze.command';
 import { UpdateProgressSettingsCommand } from '../../application/commands/update-progress-settings.command';
+import { UpdateProgressSettingsDto } from '../../application/dtos/update-progress-settings.dto';
+import { GetAllBadgesQuery } from '../../application/queries/get-all-badges.query';
+import { GetDashboardQuery } from '../../application/queries/get-dashboard.query';
+import { GetHeatmapQuery } from '../../application/queries/get-heatmap.query';
+import { GetLeaderboardQuery } from '../../application/queries/get-leaderboard.query';
 import { GetRecentActivitiesQuery } from '../../application/queries/get-recent-activities.query';
 import { ActivityResponseDto } from '../../application/responses/activity.response.dto';
-import { GetLeaderboardQuery } from '../../application/queries/get-leaderboard.query';
-import { LeaderboardResponseDto } from '../../application/responses/leaderboard.response.dto';
-import { GetAllBadgesQuery } from '../../application/queries/get-all-badges.query';
 import { BadgeResponseDto } from '../../application/responses/badge.response.dto';
-import { GetHeatmapQuery } from '../../application/queries/get-heatmap.query';
+import { DashboardResponseDto } from '../../application/responses/dashboard.response.dto';
 import { HeatmapItemDto } from '../../application/responses/heatmap.response.dto';
+import { LeaderboardResponseDto } from '../../application/responses/leaderboard.response.dto';
+import { LeaderboardPeriodEnum } from '../../domain/enums/progress.enum';
 
 @ApiTags('Progress')
 @ApiBearerAuth()
@@ -47,14 +50,22 @@ export class ProgressController {
 
   @Get('leaderboard')
   @ApiOperation({ summary: 'Get global leaderboard' })
+  @ApiQuery({ name: 'period', required: false, enum: LeaderboardPeriodEnum })
   @ApiResponse({
     status: 200,
     description: 'Leaderboard retrieved successfully.',
     type: LeaderboardResponseDto,
   })
-  async getLeaderboard(): Promise<LeaderboardResponseDto> {
+  async getLeaderboard(
+    @CurrentUser() userId: string,
+    @Query('period') period?: LeaderboardPeriodEnum,
+  ): Promise<LeaderboardResponseDto> {
     return this.queryBus.execute<GetLeaderboardQuery, LeaderboardResponseDto>(
-      new GetLeaderboardQuery(50),
+      new GetLeaderboardQuery(
+        50,
+        period || LeaderboardPeriodEnum.ALL_TIME,
+        userId,
+      ),
     );
   }
 
@@ -114,5 +125,15 @@ export class ProgressController {
     await this.commandBus.execute(
       new UpdateProgressSettingsCommand(userId, dto.dailyGoalMinutes),
     );
+  }
+
+  @Post('streak-freeze')
+  @ApiOperation({ summary: 'Buy a streak freeze with 500 XP points' })
+  @ApiResponse({
+    status: 200,
+    description: 'Streak freeze purchased successfully.',
+  })
+  async buyStreakFreeze(@CurrentUser() userId: string): Promise<void> {
+    await this.commandBus.execute(new BuyStreakFreezeCommand(userId));
   }
 }

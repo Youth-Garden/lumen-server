@@ -139,13 +139,15 @@ export class VocabularyWordRepository
     if (filter.search) {
       query.andWhere(
         `(
-          to_tsvector('simple', word.term) @@ plainto_tsquery('simple', :search)
+          word.term % :search
+          OR
+          word.term ILIKE :searchPattern
           OR
           to_tsvector('english', coalesce(definition.definition->>'en', '')) @@ plainto_tsquery('english', :search)
           OR
           to_tsvector('simple', coalesce(definition.definition->>'vi', '')) @@ plainto_tsquery('simple', :search)
         )`,
-        { search: filter.search },
+        { search: filter.search, searchPattern: `%${filter.search}%` },
       );
     }
 

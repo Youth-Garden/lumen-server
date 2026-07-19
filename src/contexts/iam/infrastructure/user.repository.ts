@@ -29,7 +29,6 @@ export class UserRepository
     return User.restore(
       ormEntity.id,
       ormEntity.email,
-      ormEntity.password,
       ormEntity.authProvider,
       ormEntity.providerId,
       ormEntity.role,
@@ -56,7 +55,6 @@ export class UserRepository
     const ormEntity = new UserEntity();
     ormEntity.id = user.id;
     ormEntity.email = user.email;
-    ormEntity.password = user.password;
     ormEntity.authProvider = user.authProvider;
     ormEntity.providerId = user.providerId;
     ormEntity.role = user.role;

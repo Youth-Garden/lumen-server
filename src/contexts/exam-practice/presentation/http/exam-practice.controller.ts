@@ -1,41 +1,42 @@
 import {
-  Controller,
-  Post,
   Body,
-  Param,
-  Put,
+  Controller,
   Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
   Query,
   UseGuards,
-  HttpCode,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
-  ApiTags,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiBearerAuth,
+  ApiTags,
 } from '@nestjs/swagger';
-
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../../shared/presentation/guards/jwt-auth.guard';
-
-import { StartExamAttemptDto } from '../../application/dtos/start-exam-attempt.dto';
-import { SubmitExamAnswerDto } from '../../application/dtos/submit-exam-answer.dto';
-import { GetMyAttemptsDto } from '../../application/dtos/get-my-attempts.dto';
-import { PauseExamAttemptDto } from '../../application/dtos/pause-exam-attempt.dto';
-import { ExamAttemptResponseDto } from '../../application/responses/exam-attempt.response.dto';
-import { AttemptSummaryResponseDto } from '../../application/responses/attempt-summary.response.dto';
-
-import { StartExamAttemptCommand } from '../../application/commands/start-exam-attempt.handler';
-import { SubmitExamAnswerCommand } from '../../application/commands/submit-exam-answer.handler';
+import { PagedData } from '../../../../shared/presentation/response/paging';
 import { FinishExamAttemptCommand } from '../../application/commands/finish-exam-attempt.handler';
 import { PauseExamAttemptCommand } from '../../application/commands/pause-exam-attempt.handler';
 import { ResumeExamAttemptCommand } from '../../application/commands/resume-exam-attempt.handler';
+import { StartExamAttemptCommand } from '../../application/commands/start-exam-attempt.handler';
+import { StartRetestAttemptCommand } from '../../application/commands/start-retest-attempt.handler';
+import { SubmitExamAnswerCommand } from '../../application/commands/submit-exam-answer.handler';
+import { GetMyAttemptsDto } from '../../application/dtos/get-my-attempts.dto';
+import { PauseExamAttemptDto } from '../../application/dtos/pause-exam-attempt.dto';
+import { StartExamAttemptDto } from '../../application/dtos/start-exam-attempt.dto';
+import { SubmitExamAnswerDto } from '../../application/dtos/submit-exam-answer.dto';
+import { GetAdaptiveDrillQuery } from '../../application/queries/get-adaptive-drill.handler';
 import { GetExamAttemptQuery } from '../../application/queries/get-exam-attempt.handler';
 import { GetMyAttemptsQuery } from '../../application/queries/get-my-attempts.handler';
-import { StartRetestAttemptCommand } from '../../application/commands/start-retest-attempt.handler';
-import { PagedData } from '../../../../shared/presentation/response/paging';
+import { GetWeaknessAnalysisQuery } from '../../application/queries/get-weakness-analysis.handler';
+import { AdaptiveDrillResponseDto } from '../../application/responses/adaptive-drill.response.dto';
+import { AttemptSummaryResponseDto } from '../../application/responses/attempt-summary.response.dto';
+import { ExamAttemptResponseDto } from '../../application/responses/exam-attempt.response.dto';
+import { WeaknessAnalysisResponseDto } from '../../application/responses/weakness-analysis.response.dto';
 
 @ApiTags('Exam Practice')
 @Controller('exam-practice/attempts')
@@ -165,6 +166,38 @@ export class ExamPracticeController {
       GetMyAttemptsQuery,
       PagedData<AttemptSummaryResponseDto>
     >(new GetMyAttemptsQuery(userId, dto.page, dto.limit));
+  }
+
+  @Get('weakness-analysis')
+  @ApiOperation({ summary: 'Get user TOEIC weakness analysis' })
+  @ApiResponse({
+    status: 200,
+    description: 'Weakness analysis breakdown',
+    type: WeaknessAnalysisResponseDto,
+  })
+  async getWeaknessAnalysis(
+    @CurrentUser() userId: string,
+  ): Promise<WeaknessAnalysisResponseDto> {
+    return this.queryBus.execute<
+      GetWeaknessAnalysisQuery,
+      WeaknessAnalysisResponseDto
+    >(new GetWeaknessAnalysisQuery(userId));
+  }
+
+  @Get('adaptive-drill')
+  @ApiOperation({ summary: 'Get personalized adaptive drill questions' })
+  @ApiResponse({
+    status: 200,
+    description: '5-question adaptive drill',
+    type: AdaptiveDrillResponseDto,
+  })
+  async getAdaptiveDrill(
+    @CurrentUser() userId: string,
+  ): Promise<AdaptiveDrillResponseDto> {
+    return this.queryBus.execute<
+      GetAdaptiveDrillQuery,
+      AdaptiveDrillResponseDto
+    >(new GetAdaptiveDrillQuery(userId));
   }
 
   @Get(':id')

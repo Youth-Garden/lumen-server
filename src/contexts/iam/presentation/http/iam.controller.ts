@@ -9,19 +9,17 @@ import { TypedConfigService } from '../../../../shared/infrastructure/config/typ
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { RefreshToken } from '../../../../shared/presentation/decorators/refresh-token.decorator';
-import { ForgotPasswordCommand } from '../../application/commands/forgot-password.command';
 import { GoogleLoginCommand } from '../../application/commands/google-login.command';
-import { LoginUserCommand } from '../../application/commands/login-user.command';
+import { VerifyEmailOtpCommand } from '../../application/commands/verify-email-otp.command';
+import { SendEmailOtpCommand } from '../../application/commands/send-email-otp.command';
 import { LogoutCommand } from '../../application/commands/logout.command';
 import { RefreshTokenCommand } from '../../application/commands/refresh-token.command';
-import { RegisterUserCommand } from '../../application/commands/register-user.command';
-import { ResetPasswordCommand } from '../../application/commands/reset-password.command';
 import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
-import { ForgotPasswordDto } from '../../application/dtos/forgot-password.dto';
 import { GoogleLoginDto } from '../../application/dtos/google-login.dto';
-import { LoginUserDto } from '../../application/dtos/login-user.dto';
-import { RegisterUserDto } from '../../application/dtos/register-user.dto';
-import { ResetPasswordDto } from '../../application/dtos/reset-password.dto';
+import {
+  SendEmailOtpDto,
+  VerifyEmailOtpDto,
+} from '../../application/dtos/email-otp.dto';
 import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
 import { GetMeQuery } from '../../application/queries/get-me.query';
 import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
@@ -43,51 +41,17 @@ export class IamController {
 
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
-  @Post('register')
+  @Post('email-otp/send')
   @ApiOperation({
-    summary: 'Register a new user',
-    description: 'Create a new local account with email and password.',
+    summary: 'Send email verification OTP',
+    description:
+      'Generates a 6-digit OTP, stores it (hashed) and emails it to the address. No password required.',
   })
-  @ApiBody({ type: RegisterUserDto })
-  @ApiResponse({ status: 201, description: 'User successfully registered.' })
-  @ApiResponse({
-    status: 400,
-    description: 'Email already exists or validation error.',
-  })
-  async register(@Body() dto: RegisterUserDto): Promise<void> {
-    await this.commandBus.execute<RegisterUserCommand, void>(
-      new RegisterUserCommand(dto.email, dto.password),
-    );
-  }
-
-  @Public()
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
-  @Post('forgot-password')
-  @ApiOperation({
-    summary: 'Request a password reset',
-    description: 'Generates a reset token and logs the reset link.',
-  })
-  @ApiBody({ type: ForgotPasswordDto })
-  @ApiResponse({ status: 201, description: 'Reset request processed.' })
-  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
-    await this.commandBus.execute<ForgotPasswordCommand, void>(
-      new ForgotPasswordCommand(dto.email),
-    );
-  }
-
-  @Public()
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
-  @Post('reset-password')
-  @ApiOperation({
-    summary: 'Reset password using token',
-    description: 'Resets the password using the token sent to the email.',
-  })
-  @ApiBody({ type: ResetPasswordDto })
-  @ApiResponse({ status: 201, description: 'Password successfully reset.' })
-  @ApiResponse({ status: 400, description: 'Invalid or expired token.' })
-  async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
-    await this.commandBus.execute<ResetPasswordCommand, void>(
-      new ResetPasswordCommand(dto.token, dto.newPassword),
+  @ApiBody({ type: SendEmailOtpDto })
+  @ApiResponse({ status: 201, description: 'OTP sent to the email address.' })
+  async sendEmailOtp(@Body() dto: SendEmailOtpDto): Promise<void> {
+    await this.commandBus.execute<SendEmailOtpCommand, void>(
+      new SendEmailOtpCommand(dto.email),
     );
   }
 
@@ -95,28 +59,28 @@ export class IamController {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
   @ApiOperation({
-    summary: 'Login with email & password',
+    summary: 'Verify email OTP and login',
     description:
-      'Authenticate with email and password. Returns access and refresh tokens.',
+      'Verifies the OTP sent to the email. Creates a new account on first use. Returns access and refresh tokens.',
   })
-  @ApiBody({ type: LoginUserDto })
+  @ApiBody({ type: VerifyEmailOtpDto })
   @ApiResponse({
     status: 201,
     description: 'Login successful. Returns access & refresh tokens.',
     type: AuthTokensResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Invalid email or password.' })
+  @ApiResponse({ status: 401, description: 'Invalid email or OTP.' })
   async login(
-    @Body() dto: LoginUserDto,
+    @Body() dto: VerifyEmailOtpDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthTokensResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
     const result = await this.commandBus.execute<
-      LoginUserCommand,
+      VerifyEmailOtpCommand,
       AuthTokensResponseDto
-    >(new LoginUserCommand(dto.email, dto.password, userAgent, ipAddress));
+    >(new VerifyEmailOtpCommand(dto.email, dto.otp, userAgent, ipAddress));
 
     this.setAuthCookies(res, result.accessToken, result.refreshToken);
     return result;

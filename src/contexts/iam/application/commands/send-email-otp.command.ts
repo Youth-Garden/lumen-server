@@ -1,3 +1,3 @@
-export class ForgotPasswordCommand {
+export class SendEmailOtpCommand {
   constructor(public readonly email: string) {}
 }

@@ -51,6 +51,9 @@ export class MaterialDto {
 
   @ApiProperty({ type: [TranscriptDto] })
   transcripts: TranscriptDto[];
+
+  @ApiProperty({ required: false })
+  viewCount?: number;
 }
 
 export class MaterialListDto {

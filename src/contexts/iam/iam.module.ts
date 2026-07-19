@@ -3,8 +3,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IamController } from './presentation/http/iam.controller';
-import { RegisterUserHandler } from './application/commands/register-user.handler';
-import { LoginUserHandler } from './application/commands/login-user.handler';
+import { SendEmailOtpHandler } from './application/commands/send-email-otp.handler';
+import { VerifyEmailOtpHandler } from './application/commands/verify-email-otp.handler';
 import { RefreshTokenHandler } from './application/commands/refresh-token.handler';
 import { GoogleLoginHandler } from './application/commands/google-login.handler';
 import { LogoutHandler } from './application/commands/logout.handler';
@@ -21,21 +21,16 @@ import {
 import { JwtStrategy } from '../../shared/infrastructure/strategies/jwt.strategy';
 import { UserEntity } from './infrastructure/entities/user.entity';
 import { SessionEntity } from './infrastructure/entities/session.entity';
-import { PasswordResetTokenEntity } from './infrastructure/entities/password-reset-token.entity';
 import { ConfigService } from '@nestjs/config';
-import { ForgotPasswordHandler } from './application/commands/forgot-password.handler';
-import { ResetPasswordHandler } from './application/commands/reset-password.handler';
 import { IamEmailService } from './application/services/iam-email.service';
 import { QueueModule } from '../../shared/infrastructure/queue/queue.module';
+import { CommonModule } from '../../shared/shared.module';
 import { TypedConfigService } from '../../shared/infrastructure/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      UserEntity,
-      SessionEntity,
-      PasswordResetTokenEntity,
-    ]),
+    CommonModule,
+    TypeOrmModule.forFeature([UserEntity, SessionEntity]),
     CqrsModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -50,16 +45,14 @@ import { TypedConfigService } from '../../shared/infrastructure/config';
   ],
   controllers: [IamController],
   providers: [
-    RegisterUserHandler,
-    LoginUserHandler,
+    SendEmailOtpHandler,
+    VerifyEmailOtpHandler,
     RefreshTokenHandler,
     GoogleLoginHandler,
     LogoutHandler,
     GetMeHandler,
     ListSessionsHandler,
     UpdateProfileHandler,
-    ForgotPasswordHandler,
-    ResetPasswordHandler,
     HashingService,
     TokenService,
     GoogleAuthService,

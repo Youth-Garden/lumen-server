@@ -14,6 +14,7 @@ interface RawLeaderboardRow {
   unlockedBadges: string | null;
   fullName: string | null;
   avatarUrl: string | null;
+  userRank: number | string;
 }
 
 @Injectable()
@@ -27,24 +28,52 @@ export class GetLeaderboardHandler implements IQueryHandler<
   async execute(query: GetLeaderboardQuery): Promise<LeaderboardResponseDto> {
     const limit = query.limit || 50;
 
-    // Use QueryBuilder to join learning_profiles and iam_users
-    // We sort by totalPoints DESC
     const rawResults: RawLeaderboardRow[] = await this.dataSource.query(
       `
-      SELECT 
-        lp."userId" AS "userId",
-        lp."totalPoints" AS "totalPoints",
-        lp."streak" AS "streak",
-        lp."unlockedBadges" AS "unlockedBadges",
-        u."fullName" AS "fullName",
-        u."avatarUrl" AS "avatarUrl"
-      FROM learning_profiles lp
-      JOIN iam_users u ON lp."userId" = u.id
-      ORDER BY lp."totalPoints" DESC, lp.streak DESC
+      WITH ranked_users AS (
+        SELECT 
+          lp."userId" AS "userId",
+          lp."totalPoints" AS "totalPoints",
+          lp."streak" AS "streak",
+          lp."unlockedBadges" AS "unlockedBadges",
+          u."fullName" AS "fullName",
+          u."avatarUrl" AS "avatarUrl",
+          RANK() OVER (ORDER BY lp."totalPoints" DESC, lp.streak DESC) AS "userRank"
+        FROM learning_profiles lp
+        JOIN iam_users u ON lp."userId" = u.id
+      )
+      SELECT * FROM ranked_users
+      ORDER BY "userRank" ASC
       LIMIT $1
     `,
       [limit],
     );
+
+    let currentUserRank: number | null = null;
+
+    if (query.userId) {
+      const foundInTop = rawResults.find((row) => row.userId === query.userId);
+      if (foundInTop) {
+        currentUserRank = Number(foundInTop.userRank);
+      } else {
+        const userRankResult: { userRank: number | string }[] =
+          await this.dataSource.query(
+            `
+          WITH ranked_users AS (
+            SELECT 
+              lp."userId" AS "userId",
+              RANK() OVER (ORDER BY lp."totalPoints" DESC, lp.streak DESC) AS "userRank"
+            FROM learning_profiles lp
+          )
+          SELECT "userRank" FROM ranked_users WHERE "userId" = $1
+        `,
+            [query.userId],
+          );
+        if (userRankResult.length > 0) {
+          currentUserRank = Number(userRankResult[0].userRank);
+        }
+      }
+    }
 
     const topUsers: LeaderboardUserDto[] = rawResults.map((row) => {
       let badges: string[] = [];
@@ -62,8 +91,6 @@ export class GetLeaderboardHandler implements IQueryHandler<
       );
     });
 
-    // For now, currentUserRank is not calculated to save DB performance,
-    // it can be calculated on the client side if the user is in the top 50
-    return new LeaderboardResponseDto(topUsers, null);
+    return new LeaderboardResponseDto(topUsers, currentUserRank);
   }
 }

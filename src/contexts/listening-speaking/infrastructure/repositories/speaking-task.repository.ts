@@ -34,8 +34,8 @@ export class SpeakingTaskRepository
 
     if (filter.search) {
       query.andWhere(
-        '(task.title ILIKE :search OR task.prompt ILIKE :search)',
-        { search: `%${filter.search}%` },
+        '(task.title % :search OR task.title ILIKE :searchPattern OR task.prompt ILIKE :searchPattern)',
+        { search: filter.search, searchPattern: `%${filter.search}%` },
       );
     }
 

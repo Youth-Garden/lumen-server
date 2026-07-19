@@ -1,47 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify Your Email</title>
-  <style>
-    {{{css}}}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>{{appName}}</h1>
-    </div>
-
-    <div class="content">
-      <p class="greeting">Hello {{capitalize name}},</p>
-
-      <p class="message">
-        Welcome to {{appName}}! Please verify your email address to complete your registration.
-      </p>
-
-      <div class="cta-container">
-        <a href="{{verificationLink}}" class="button">Verify Email</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your Email</title>
+    <style>
+      {{{css}}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>{{appName}}</h1>
       </div>
 
-      <div class="link-fallback">
-        <p>Or copy and paste this link into your browser:</p>
-        <a href="{{verificationLink}}">{{verificationLink}}</a>
+      <div class="content">
+        <p class="greeting">Hello {{capitalize name}},</p>
+
+        <p class="message">
+          Welcome to {{appName}}! Please verify your email address to complete
+          your registration.
+        </p>
+
+        <div class="cta-container">
+          <a href="{{verificationLink}}" class="button">Verify Email</a>
+        </div>
+
+        <div class="link-fallback">
+          <p>Or copy and paste this link into your browser:</p>
+          <a href="{{verificationLink}}">{{verificationLink}}</a>
+        </div>
+
+        <p class="expiration">
+          ⏰ This link will expire in
+          <strong>{{expiresInMinutes}} minutes</strong>.
+        </p>
       </div>
 
-      <p class="expiration">
-        ⏰ This link will expire in <strong>{{expiresInMinutes}} minutes</strong>.
-      </p>
-    </div>
-
-    <div class="footer">
-      <p>© {{currentYear}} {{appName}}. All rights reserved.</p>
-      <div class="footer-links">
-        <a href="#">Help Center</a>
-        <a href="mailto:{{supportEmail}}">Contact Support</a>
+      <div class="footer">
+        <p>© {{currentYear}} {{appName}}. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Help Center</a>
+          <a href="mailto:{{supportEmail}}">Contact Support</a>
+        </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

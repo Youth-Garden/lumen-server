@@ -72,10 +72,19 @@ export class LearningProfile {
     return false;
   }
 
-  public updateSettings(dailyGoalMinutes: number) {
+  public updateSettings(dailyGoalMinutes: number): void {
     if (dailyGoalMinutes > 0) {
       this._dailyGoalMinutes = dailyGoalMinutes;
     }
+  }
+
+  public buyStreakFreeze(cost: number = 500): boolean {
+    if (this.totalPoints < cost) {
+      return false;
+    }
+    this.totalPoints -= cost;
+    this._streakFreezes += 1;
+    return true;
   }
 
   public recordActivity(points: number, activityDate: Date = new Date()) {

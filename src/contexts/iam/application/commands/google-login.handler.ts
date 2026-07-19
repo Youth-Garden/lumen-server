@@ -40,7 +40,6 @@ export class GoogleLoginHandler implements ICommandHandler<
       // Auto register
       const newUser = User.create(
         email,
-        null,
         AuthProvider.GOOGLE,
         payload.sub,
         Role.USER,

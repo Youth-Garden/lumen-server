@@ -13,8 +13,10 @@ import { FinishExamAttemptHandler } from './application/commands/finish-exam-att
 import { StartRetestAttemptHandler } from './application/commands/start-retest-attempt.handler';
 import { PauseExamAttemptHandler } from './application/commands/pause-exam-attempt.handler';
 import { ResumeExamAttemptHandler } from './application/commands/resume-exam-attempt.handler';
+import { GetAdaptiveDrillHandler } from './application/queries/get-adaptive-drill.handler';
 import { GetExamAttemptHandler } from './application/queries/get-exam-attempt.handler';
 import { GetMyAttemptsHandler } from './application/queries/get-my-attempts.handler';
+import { GetWeaknessAnalysisHandler } from './application/queries/get-weakness-analysis.handler';
 
 const CommandHandlers = [
   StartExamAttemptHandler,
@@ -25,7 +27,12 @@ const CommandHandlers = [
   ResumeExamAttemptHandler,
 ];
 
-const QueryHandlers = [GetExamAttemptHandler, GetMyAttemptsHandler];
+const QueryHandlers = [
+  GetExamAttemptHandler,
+  GetMyAttemptsHandler,
+  GetWeaknessAnalysisHandler,
+  GetAdaptiveDrillHandler,
+];
 
 const Repositories = [
   {

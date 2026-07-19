@@ -8,7 +8,7 @@ export const AuthEx = {
   },
   InvalidCredentials: {
     code: 'AUTH_INVALID_CREDENTIALS',
-    message: 'Invalid email or password',
+    message: 'Invalid email or OTP',
     httpStatus: 401,
   },
   EmailAlreadyExists: (email: string) => ({

@@ -8,10 +8,7 @@ export class UserEntity extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  password: string | null;
-
-  @Column({ type: 'enum', enum: AuthProvider, default: AuthProvider.LOCAL })
+  @Column({ type: 'enum', enum: AuthProvider, default: AuthProvider.EMAIL })
   authProvider: AuthProvider;
 
   @Column({ type: 'varchar', nullable: true })

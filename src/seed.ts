@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { AppModule } from './app.module';
 import { GrammarExerciseEntity } from './contexts/grammar/infrastructure/entities/grammar-exercise.entity';
@@ -101,7 +100,6 @@ async function bootstrap() {
   for (const userDataItem of userData) {
     const user = new UserEntity();
     user.email = userDataItem.email;
-    user.password = await bcrypt.hash(userDataItem.password, 10);
     user.fullName = userDataItem.fullName;
     user.role =
       userDataItem.role as unknown as import('./contexts/iam/domain/enums/role.enum').Role;
