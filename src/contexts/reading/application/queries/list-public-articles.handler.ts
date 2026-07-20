@@ -24,19 +24,16 @@ export class ListPublicArticlesHandler implements IQueryHandler<
     const { page, limit } = query;
     const { items, total } = await this.articleRepo.findLatest(page, limit);
 
-    return {
-      items: items.map(
-        (article) =>
-          new ArticleResponseDto(
-            article.id,
-            article.title,
-            article.content,
-            article.createdAt,
-          ),
-      ),
-      total,
-      page,
-      limit,
-    };
+    const mappedItems = items.map(
+      (article) =>
+        new ArticleResponseDto(
+          article.id,
+          article.title,
+          article.content,
+          article.createdAt,
+        ),
+    );
+
+    return new ArticleListResponseDto(mappedItems, total, page, limit);
   }
 }

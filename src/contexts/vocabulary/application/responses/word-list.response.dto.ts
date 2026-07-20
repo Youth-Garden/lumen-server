@@ -1,8 +1,4 @@
 import { VocabularyWordResponseDto } from './vocabulary-word.response.dto';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 
-export class WordListResponseDto {
-  items: VocabularyWordResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export class WordListResponseDto extends PaginatedResponseDto<VocabularyWordResponseDto> {}

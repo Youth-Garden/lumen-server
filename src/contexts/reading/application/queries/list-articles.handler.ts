@@ -26,19 +26,16 @@ export class ListArticlesHandler implements IQueryHandler<
       limit,
     );
 
-    return {
-      items: items.map(
-        (article) =>
-          new ArticleResponseDto(
-            article.id,
-            article.title,
-            article.content,
-            article.createdAt,
-          ),
-      ),
-      total,
-      page,
-      limit,
-    };
+    const mappedItems = items.map(
+      (article) =>
+        new ArticleResponseDto(
+          article.id,
+          article.title,
+          article.content,
+          article.createdAt,
+        ),
+    );
+
+    return new ArticleListResponseDto(mappedItems, total, page, limit);
   }
 }

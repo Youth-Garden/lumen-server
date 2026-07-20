@@ -30,6 +30,11 @@ export class ListListeningLessonsHandler implements IQueryHandler<
       (lesson) => new ListeningLessonResponseDto(lesson),
     );
 
-    return new PaginatedResponseDto(items, result.total);
+    return new PaginatedResponseDto(
+      items,
+      result.total,
+      query.page,
+      query.limit,
+    );
   }
 }

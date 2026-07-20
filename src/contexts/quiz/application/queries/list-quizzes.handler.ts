@@ -22,17 +22,14 @@ export class ListQuizzesHandler implements IQueryHandler<
       query.limit,
     );
 
-    return {
-      items: items.map((quiz) => ({
-        id: quiz.id,
-        status: quiz.status,
-        score: quiz.score,
-        createdAt: quiz.createdAt,
-        completedAt: quiz.completedAt || undefined,
-      })),
-      total,
-      page: query.page,
-      limit: query.limit,
-    };
+    const mappedItems = items.map((quiz) => ({
+      id: quiz.id,
+      status: quiz.status,
+      score: quiz.score,
+      createdAt: quiz.createdAt,
+      completedAt: quiz.completedAt || undefined,
+    }));
+
+    return new QuizListResponseDto(mappedItems, total, query.page, query.limit);
   }
 }

@@ -1,3 +1,5 @@
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
+
 export class ArticleResponseDto {
   constructor(
     public readonly id: string,
@@ -7,14 +9,7 @@ export class ArticleResponseDto {
   ) {}
 }
 
-export class ArticleListResponseDto {
-  constructor(
-    public readonly items: ArticleResponseDto[],
-    public readonly total: number,
-    public readonly page: number,
-    public readonly limit: number,
-  ) {}
-}
+export class ArticleListResponseDto extends PaginatedResponseDto<ArticleResponseDto> {}
 
 export class CreateArticleResponseDto {
   constructor(public readonly id: string) {}

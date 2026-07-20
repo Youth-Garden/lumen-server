@@ -34,12 +34,6 @@ export class ListPresetQuizzesHandler implements IQueryHandler<
         }),
     );
 
-    return new PresetQuizListResponseDto({
-      items: mappedItems,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    });
+    return new PresetQuizListResponseDto(mappedItems, total, page, limit);
   }
 }

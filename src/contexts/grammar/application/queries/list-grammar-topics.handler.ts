@@ -29,6 +29,8 @@ export class ListGrammarTopicsHandler implements IQueryHandler<
     return new PaginatedResponseDto<GrammarTopicResponseDto>(
       result.items.map((item) => new GrammarTopicResponseDto(item)),
       result.total,
+      query.page,
+      query.limit,
     );
   }
 }

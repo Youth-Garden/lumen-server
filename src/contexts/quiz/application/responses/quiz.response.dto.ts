@@ -36,19 +36,9 @@ export class QuizListItemDto {
   completedAt?: Date;
 }
 
-export class QuizListResponseDto {
-  @ApiProperty({ type: [QuizListItemDto] })
-  items: QuizListItemDto[];
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  limit: number;
-}
+export class QuizListResponseDto extends PaginatedResponseDto<QuizListItemDto> {}
 
 export class QuestionDetailDto {
   @ApiProperty()
