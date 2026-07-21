@@ -4,5 +4,6 @@ export class ListGrammarTopicsQuery {
     public readonly limit: number,
     public readonly search?: string,
     public readonly cefrLevel?: string,
+    public readonly category?: string,
   ) {}
 }

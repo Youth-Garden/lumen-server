@@ -27,6 +27,7 @@ export class SpeakingTaskRepository
 
   async findAll(filter: {
     search?: string;
+    category?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<SpeakingTask>> {
@@ -37,6 +38,12 @@ export class SpeakingTaskRepository
         '(task.title % :search OR task.title ILIKE :searchPattern OR task.prompt ILIKE :searchPattern)',
         { search: filter.search, searchPattern: `%${filter.search}%` },
       );
+    }
+
+    if (filter.category) {
+      query.andWhere('task.category = :category', {
+        category: filter.category,
+      });
     }
 
     query.orderBy('task.createdAt', 'DESC');
@@ -64,6 +71,7 @@ export class SpeakingTaskRepository
       entity.prompt,
       entity.referenceAudioUrl,
       entity.keywords,
+      entity.category,
     );
   }
 
@@ -74,6 +82,7 @@ export class SpeakingTaskRepository
     entity.prompt = domain.prompt;
     entity.referenceAudioUrl = domain.referenceAudioUrl;
     entity.keywords = domain.keywords;
+    entity.category = domain.category;
     return entity;
   }
 }

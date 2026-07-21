@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fastifyCookie from '@fastify/cookie';
+import fastifyStatic from '@fastify/static';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import {
@@ -7,6 +8,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as path from 'path';
 import { AppModule } from './app.module';
 import { TypedConfigService } from './shared/infrastructure/config/typed-config.service';
 import { ExceptionsFilter } from './shared/presentation/filters/exception.filter';
@@ -28,6 +30,12 @@ async function bootstrap() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   await app.register(fastifyCookie as any, {
     secret: cookieSecret,
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  await app.register(fastifyStatic as any, {
+    root: path.join(process.cwd(), 'public'),
+    prefix: '/audio/',
   });
 
   app.enableCors({

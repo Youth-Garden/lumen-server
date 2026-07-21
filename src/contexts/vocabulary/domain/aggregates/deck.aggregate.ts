@@ -4,10 +4,11 @@ import { DeckCreatedEvent } from '../events/deck-created.event';
 
 export class Deck extends AggregateRoot {
   private constructor(
-    private readonly _id: string,
+    private _id: string,
     private _name: string,
     private _description: string | null,
-    private readonly _authorId: string,
+    private _authorId: string,
+    private _category: string | null = null,
   ) {
     super();
   }
@@ -16,8 +17,9 @@ export class Deck extends AggregateRoot {
     name: string,
     description: string | null,
     authorId: string,
+    category: string | null = null,
   ): Deck {
-    const deck = new Deck(randomUUID(), name, description, authorId);
+    const deck = new Deck(randomUUID(), name, description, authorId, category);
     deck.apply(new DeckCreatedEvent(deck.id));
     return deck;
   }
@@ -27,8 +29,9 @@ export class Deck extends AggregateRoot {
     name: string,
     description: string | null,
     authorId: string,
+    category: string | null = null,
   ): Deck {
-    return new Deck(id, name, description, authorId);
+    return new Deck(id, name, description, authorId, category);
   }
 
   get id(): string {
@@ -42,6 +45,9 @@ export class Deck extends AggregateRoot {
   }
   get authorId(): string {
     return this._authorId;
+  }
+  get category(): string | null {
+    return this._category;
   }
 
   update(name?: string, description?: string | null): void {

@@ -35,6 +35,7 @@ export class GrammarTopicRepository
   async findAll(filter: {
     search?: string;
     cefrLevel?: string;
+    category?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<GrammarTopic>> {
@@ -52,6 +53,12 @@ export class GrammarTopicRepository
     if (filter.cefrLevel) {
       query.andWhere('topic.cefrLevel = :cefrLevel', {
         cefrLevel: filter.cefrLevel,
+      });
+    }
+
+    if (filter.category) {
+      query.andWhere('topic.category = :category', {
+        category: filter.category,
       });
     }
 
@@ -90,6 +97,7 @@ export class GrammarTopicRepository
       entity.description,
       entity.cefrLevel,
       lessons,
+      entity.category,
     );
   }
 
@@ -99,6 +107,7 @@ export class GrammarTopicRepository
     entity.title = domain.title;
     entity.description = domain.description;
     entity.cefrLevel = domain.cefrLevel;
+    entity.category = domain.category;
     entity.lessons = domain.lessons.map((lesson: GrammarLesson) => {
       const lessonEntity = new GrammarLessonEntity();
       lessonEntity.id = lesson.id;

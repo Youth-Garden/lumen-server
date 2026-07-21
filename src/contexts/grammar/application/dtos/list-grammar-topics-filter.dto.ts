@@ -7,4 +7,9 @@ export class ListGrammarTopicsFilterDto extends BaseFilterDto {
   @IsOptional()
   @IsString()
   cefrLevel?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by topic category' })
+  @IsOptional()
+  @IsString()
+  category?: string;
 }

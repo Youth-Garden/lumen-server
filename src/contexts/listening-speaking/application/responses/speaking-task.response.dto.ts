@@ -17,6 +17,9 @@ export class SpeakingTaskResponseDto {
   @Expose()
   keywords: string[];
 
+  @Expose()
+  category: string | null;
+
   constructor(partial: Partial<SpeakingTaskResponseDto>) {
     Object.assign(this, partial);
   }

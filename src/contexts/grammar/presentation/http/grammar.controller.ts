@@ -50,6 +50,7 @@ export class GrammarController {
         filter.limit || 20,
         filter.search,
         filter.cefrLevel,
+        filter.category,
       ),
     );
   }

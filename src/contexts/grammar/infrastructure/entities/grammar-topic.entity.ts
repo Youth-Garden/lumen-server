@@ -13,6 +13,9 @@ export class GrammarTopicEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 10 })
   cefrLevel: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  category: string | null;
+
   @OneToMany(() => GrammarLessonEntity, (lesson) => lesson.topic, {
     cascade: true,
   })

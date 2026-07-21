@@ -7,6 +7,7 @@ export class SpeakingTask extends AggregateRoot {
     public readonly prompt: string,
     public readonly referenceAudioUrl: string | null,
     public readonly keywords: string[],
+    public readonly category: string | null = null,
   ) {
     super();
   }
@@ -17,8 +18,16 @@ export class SpeakingTask extends AggregateRoot {
     prompt: string,
     referenceAudioUrl: string | null,
     keywords: string[],
+    category: string | null = null,
   ): SpeakingTask {
-    return new SpeakingTask(id, title, prompt, referenceAudioUrl, keywords);
+    return new SpeakingTask(
+      id,
+      title,
+      prompt,
+      referenceAudioUrl,
+      keywords,
+      category,
+    );
   }
 
   static restore(
@@ -27,7 +36,15 @@ export class SpeakingTask extends AggregateRoot {
     prompt: string,
     referenceAudioUrl: string | null,
     keywords: string[],
+    category: string | null = null,
   ): SpeakingTask {
-    return new SpeakingTask(id, title, prompt, referenceAudioUrl, keywords);
+    return new SpeakingTask(
+      id,
+      title,
+      prompt,
+      referenceAudioUrl,
+      keywords,
+      category,
+    );
   }
 }

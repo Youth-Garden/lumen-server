@@ -7,6 +7,7 @@ export interface ISpeakingTaskRepository {
   findById(id: string): Promise<SpeakingTask | null>;
   findAll(filter: {
     search?: string;
+    category?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<SpeakingTask>>;

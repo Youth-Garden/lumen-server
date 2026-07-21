@@ -13,6 +13,9 @@ export class DeckEntity extends BaseEntity {
   @Column({ type: 'uuid', nullable: false })
   authorId: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  category: string | null;
+
   @OneToMany(() => FlashcardEntity, (flashcard) => flashcard.deck)
   flashcards: FlashcardEntity[];
 }

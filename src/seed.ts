@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { NestFactory } from '@nestjs/core';
+import * as fs from 'fs';
+import * as path from 'path';
 import { DataSource } from 'typeorm';
 import { AppModule } from './app.module';
 import { GrammarExerciseEntity } from './contexts/grammar/infrastructure/entities/grammar-exercise.entity';
@@ -10,7 +14,9 @@ import { SpeakingTaskEntity } from './contexts/listening-speaking/infrastructure
 import { SpeechRecordEntity } from './contexts/listening-speaking/infrastructure/entities/speech-record.entity';
 import { MaterialEntity } from './contexts/material/infrastructure/entities/material.entity';
 import { TranscriptEntity } from './contexts/material/infrastructure/entities/transcript.entity';
+import { ActivityEntity } from './contexts/progress/infrastructure/entities/activity.entity';
 import { BadgeEntity } from './contexts/progress/infrastructure/entities/badge.entity';
+import { LearningProfileEntity } from './contexts/progress/infrastructure/entities/learning-profile.entity';
 import { QuestionEntity as QuizQuestionEntity } from './contexts/quiz/infrastructure/entities/question.entity';
 import { QuizEntity } from './contexts/quiz/infrastructure/entities/quiz.entity';
 import { ArticleEntity } from './contexts/reading/infrastructure/entities/article.entity';
@@ -24,12 +30,39 @@ import { WordEntity } from './contexts/vocabulary/infrastructure/entities/word.e
 import { badgeData } from './seed/badge-data';
 import { grammarData } from './seed/grammar-data';
 import { materialMockData } from './seed/material-data';
+import { progressData } from './seed/progress-data';
 import { quizMockData } from './seed/quiz-data';
 import { articleData } from './seed/reading-data';
 import { listeningLessonData, speakingTaskData } from './seed/speaking-data';
 import { toeicMockData } from './seed/toeic-data';
 import { userData } from './seed/user-data';
 import { deckData } from './seed/vocabulary-data';
+
+// Dynamic load generated datasets from data-generator output if available
+const genDictationPath = path.join(
+  process.cwd(),
+  '../data-generator/output/dictation-data.json',
+);
+const genReadingPath = path.join(
+  process.cwd(),
+  '../data-generator/output/reading-data.json',
+);
+const genVocabPath = path.join(
+  process.cwd(),
+  '../data-generator/output/vocab-data.json',
+);
+
+const activeMaterialData = fs.existsSync(genDictationPath)
+  ? JSON.parse(fs.readFileSync(genDictationPath, 'utf8'))
+  : materialMockData;
+
+const activeArticleData = fs.existsSync(genReadingPath)
+  ? JSON.parse(fs.readFileSync(genReadingPath, 'utf8'))
+  : articleData;
+
+const activeDeckData = fs.existsSync(genVocabPath)
+  ? JSON.parse(fs.readFileSync(genVocabPath, 'utf8'))
+  : deckData;
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -49,6 +82,8 @@ async function bootstrap() {
   const quizRepo = dataSource.getRepository(QuizEntity);
   const quizQuestionRepo = dataSource.getRepository(QuizQuestionEntity);
   const badgeRepo = dataSource.getRepository(BadgeEntity);
+  const learningProfileRepo = dataSource.getRepository(LearningProfileEntity);
+  const activityRepo = dataSource.getRepository(ActivityEntity);
   const grammarTopicRepo = dataSource.getRepository(GrammarTopicEntity);
   const grammarLessonRepo = dataSource.getRepository(GrammarLessonEntity);
   const grammarExerciseRepo = dataSource.getRepository(GrammarExerciseEntity);
@@ -78,6 +113,8 @@ async function bootstrap() {
   await speechRecordRepo.createQueryBuilder().delete().execute();
   await speakingTaskRepo.createQueryBuilder().delete().execute();
   await listeningLessonRepo.createQueryBuilder().delete().execute();
+  await activityRepo.createQueryBuilder().delete().execute();
+  await learningProfileRepo.createQueryBuilder().delete().execute();
 
   await flashcardRepo.createQueryBuilder().delete().execute();
   await exampleRepo.createQueryBuilder().delete().execute();
@@ -121,6 +158,7 @@ async function bootstrap() {
     const savedTest = await testRepo.save(test);
     console.log(`Created Test: ${savedTest.title}`);
 
+    const questionsToSave = [];
     for (const questionData of testData.questions) {
       const question = new ToeicQuestionEntity();
       question.testId = savedTest.id;
@@ -140,10 +178,11 @@ async function bootstrap() {
             : '') || '',
       };
 
-      await questionRepo.save(question);
+      questionsToSave.push(question);
     }
+    await questionRepo.save(questionsToSave);
     console.log(
-      `Created ${testData.questions.length} questions for ${savedTest.title}`,
+      `Created ${questionsToSave.length} questions for ${savedTest.title}`,
     );
   }
 
@@ -153,6 +192,7 @@ async function bootstrap() {
     topic.title = topicData.title;
     topic.description = topicData.description;
     topic.cefrLevel = topicData.cefrLevel;
+    topic.category = topicData.category ?? null;
     const savedTopic = await grammarTopicRepo.save(topic);
 
     for (const lessonData of topicData.lessons) {
@@ -183,6 +223,7 @@ async function bootstrap() {
     task.prompt = taskData.prompt;
     task.referenceAudioUrl = taskData.referenceAudioUrl;
     task.keywords = taskData.keywords;
+    task.category = taskData.category ?? null;
     await speakingTaskRepo.save(task);
     console.log(`Created Speaking Task: ${task.title}`);
   }
@@ -202,12 +243,19 @@ async function bootstrap() {
   }
 
   console.log('--- Starting Material (Dictation) Database Seeding ---');
-  for (const materialData of materialMockData) {
+  for (const materialData of activeMaterialData) {
     const material = new MaterialEntity();
     material.title = materialData.title;
     material.description = materialData.description;
-    material.type = materialData.type;
-    material.level = materialData.level;
+    material.type =
+      materialData.type === 'PODCAST' ? 'AUDIO' : materialData.type;
+
+    let level = materialData.level;
+    if (level === 'BEGINNER') level = 'A1';
+    if (level === 'INTERMEDIATE') level = 'B1';
+    if (level === 'ADVANCED') level = 'C1';
+    material.level = level;
+
     material.mediaUrl = materialData.mediaUrl;
     material.thumbnailUrl = materialData.thumbnailUrl;
     material.tags = materialData.tags;
@@ -233,7 +281,7 @@ async function bootstrap() {
   }
 
   console.log('--- Starting Vocabulary Database Seeding ---');
-  for (const deckDataItem of deckData) {
+  for (const deckDataItem of activeDeckData) {
     const deck = new DeckEntity();
     deck.name = deckDataItem.name;
     deck.description = deckDataItem.description;
@@ -271,7 +319,7 @@ async function bootstrap() {
   }
 
   console.log('--- Starting Reading Database Seeding ---');
-  for (const articleDataItem of articleData) {
+  for (const articleDataItem of activeArticleData) {
     const article = new ArticleEntity();
     article.title = articleDataItem.title;
     article.content = articleDataItem.content;
@@ -325,6 +373,38 @@ async function bootstrap() {
         `Created Quiz (Status: ${quizData.status}, Score: ${quizData.score}): ${savedQuiz.id}`,
       );
     }
+  }
+
+  console.log('--- Starting Progress Database Seeding ---');
+  if (targetUserId) {
+    const profile = new LearningProfileEntity();
+    profile.userId = targetUserId;
+    profile.streak = progressData.learningProfile.streak;
+    profile.totalPoints = progressData.learningProfile.totalPoints;
+    profile.dailyGoalMinutes = progressData.learningProfile.dailyGoalMinutes;
+    profile.unlockedBadges = progressData.learningProfile.unlockedBadges;
+    profile.streakFreezes = progressData.learningProfile.streakFreezes;
+    profile.lastActivityDate = progressData.learningProfile.lastActivityDate;
+    await learningProfileRepo.save(profile);
+    console.log(`Created Learning Profile for target user.`);
+
+    let delay = 0;
+    for (const act of progressData.activities) {
+      const activity = new ActivityEntity();
+      activity.userId = targetUserId;
+      activity.type = act.type;
+      activity.title = act.title;
+      activity.description = act.description;
+      activity.xpEarned = act.xpEarned;
+      activity.durationMinutes = act.durationMinutes;
+      const timestamp = new Date(Date.now() - delay);
+      delay += 3600000; // minus 1 hour for each activity to show timeline
+      activity.timestamp = timestamp;
+      await activityRepo.save(activity);
+    }
+    console.log(
+      `Created ${progressData.activities.length} activities for target user.`,
+    );
   }
 
   console.log('--- Seeding Completed Successfully ---');

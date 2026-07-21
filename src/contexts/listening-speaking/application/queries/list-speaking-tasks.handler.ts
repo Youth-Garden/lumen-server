@@ -23,6 +23,7 @@ export class ListSpeakingTasksHandler implements IQueryHandler<
       page: query.page,
       limit: query.limit,
       search: query.search,
+      category: query.category,
     });
 
     const items = result.items.map((task) => new SpeakingTaskResponseDto(task));

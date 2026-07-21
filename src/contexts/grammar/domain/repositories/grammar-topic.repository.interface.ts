@@ -9,6 +9,7 @@ export interface IGrammarTopicRepository {
   findAll(filter: {
     search?: string;
     cefrLevel?: string;
+    category?: string;
     page: number;
     limit: number;
   }): Promise<PaginatedResult<GrammarTopic>>;

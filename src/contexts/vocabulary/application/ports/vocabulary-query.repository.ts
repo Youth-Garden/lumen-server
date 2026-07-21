@@ -14,5 +14,9 @@ export interface IVocabularyQueryRepository {
     id: string,
     userId: string,
   ): Promise<DeckDetailResponseDto | null>;
-  findDueFlashcards(userId: string): Promise<DueFlashcardResponseDto[]>;
+  findDueFlashcards(
+    userId: string,
+    deckId?: string,
+    limit?: number,
+  ): Promise<DueFlashcardResponseDto[]>;
 }

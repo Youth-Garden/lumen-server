@@ -105,6 +105,7 @@ export class ListeningSpeakingController {
         filter.page || 1,
         filter.limit || 10,
         filter.search,
+        filter.category,
       ),
     );
   }

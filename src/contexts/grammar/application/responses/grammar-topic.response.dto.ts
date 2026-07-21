@@ -34,6 +34,9 @@ export class GrammarTopicResponseDto {
   cefrLevel: string;
 
   @Expose()
+  category: string | null;
+
+  @Expose()
   @Type(() => GrammarLessonResponseDto)
   lessons?: GrammarLessonResponseDto[];
 

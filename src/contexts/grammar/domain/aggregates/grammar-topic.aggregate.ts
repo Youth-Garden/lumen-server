@@ -8,6 +8,7 @@ export class GrammarTopic extends AggregateRoot {
     private _description: string,
     private _cefrLevel: string,
     private _lessons: GrammarLesson[],
+    private _category: string | null = null,
   ) {
     super();
   }
@@ -18,8 +19,16 @@ export class GrammarTopic extends AggregateRoot {
     description: string,
     cefrLevel: string,
     lessons: GrammarLesson[] = [],
+    category: string | null = null,
   ): GrammarTopic {
-    return new GrammarTopic(id, title, description, cefrLevel, lessons);
+    return new GrammarTopic(
+      id,
+      title,
+      description,
+      cefrLevel,
+      lessons,
+      category,
+    );
   }
 
   static restore(
@@ -28,8 +37,16 @@ export class GrammarTopic extends AggregateRoot {
     description: string,
     cefrLevel: string,
     lessons: GrammarLesson[],
+    category: string | null = null,
   ): GrammarTopic {
-    return new GrammarTopic(id, title, description, cefrLevel, lessons);
+    return new GrammarTopic(
+      id,
+      title,
+      description,
+      cefrLevel,
+      lessons,
+      category,
+    );
   }
 
   get id(): string {
@@ -46,6 +63,10 @@ export class GrammarTopic extends AggregateRoot {
 
   get cefrLevel(): string {
     return this._cefrLevel;
+  }
+
+  get category(): string | null {
+    return this._category;
   }
 
   get lessons(): GrammarLesson[] {

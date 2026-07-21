@@ -18,6 +18,10 @@ export class ListDueFlashcardsHandler implements IQueryHandler<
   async execute(
     query: ListDueFlashcardsQuery,
   ): Promise<DueFlashcardResponseDto[]> {
-    return this.vocabularyQueryRepository.findDueFlashcards(query.userId);
+    return this.vocabularyQueryRepository.findDueFlashcards(
+      query.userId,
+      query.deckId,
+      query.limit,
+    );
   }
 }

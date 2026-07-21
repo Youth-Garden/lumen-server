@@ -14,4 +14,7 @@ export class SpeakingTaskEntity extends BaseEntity {
 
   @Column('simple-array')
   keywords: string[];
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  category: string | null;
 }

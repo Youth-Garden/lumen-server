@@ -255,11 +255,14 @@ export class VocabularyController {
   @ApiResponse({ type: [DueFlashcardResponseDto], status: 200 })
   async listDueFlashcards(
     @CurrentUser() userId: string,
+    @Query('deckId') deckId?: string,
+    @Query('limit') limit?: string,
   ): Promise<DueFlashcardResponseDto[]> {
+    const limitNum = limit ? parseInt(limit, 10) : undefined;
     return this.queryBus.execute<
       ListDueFlashcardsQuery,
       DueFlashcardResponseDto[]
-    >(new ListDueFlashcardsQuery(userId));
+    >(new ListDueFlashcardsQuery(userId, deckId, limitNum));
   }
 
   @Public()

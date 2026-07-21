@@ -24,6 +24,7 @@ export class ListGrammarTopicsHandler implements IQueryHandler<
       limit: query.limit,
       search: query.search,
       cefrLevel: query.cefrLevel,
+      category: query.category,
     });
 
     return new PaginatedResponseDto<GrammarTopicResponseDto>(

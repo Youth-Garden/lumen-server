@@ -1,7 +1,7 @@
 import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, Repository } from 'typeorm';
+import { FindOptionsWhere, LessThanOrEqual, Repository } from 'typeorm';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
 import {
   DeckDetailResponseDto,
@@ -77,12 +77,26 @@ export class VocabularyQueryRepository
     };
   }
 
-  async findDueFlashcards(userId: string): Promise<DueFlashcardResponseDto[]> {
+  async findDueFlashcards(
+    userId: string,
+    deckId?: string,
+    limit?: number,
+  ): Promise<DueFlashcardResponseDto[]> {
+    const where: FindOptionsWhere<UserProgressEntity> = {
+      userId,
+      due: LessThanOrEqual(new Date()),
+    };
+
+    if (deckId) {
+      where.flashcard = {
+        deck: {
+          id: deckId,
+        },
+      };
+    }
+
     const progresses = await this.progressRepo.find({
-      where: {
-        userId,
-        due: LessThanOrEqual(new Date()),
-      },
+      where,
       relations: {
         flashcard: {
           word: true,
@@ -90,6 +104,7 @@ export class VocabularyQueryRepository
         },
       },
       order: { due: 'ASC' },
+      take: limit,
     });
 
     return progresses.map((progress) => ({
