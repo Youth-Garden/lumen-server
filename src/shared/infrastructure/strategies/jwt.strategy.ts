@@ -1,20 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
 import type { FastifyRequest } from 'fastify';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { RequestUser } from '../../types/fastify';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService) {
     const extractors = [
-      (request: FastifyRequest) => {
-        let token = null;
-        if (request && (request as any).cookies) {
-          token = (request as any).cookies['jwta'] || null;
+      (request: FastifyRequest): string | null => {
+        if (request && request.cookies) {
+          return request.cookies['jwta'] || null;
         }
-        return token;
+        return null;
       },
       ExtractJwt.fromAuthHeaderAsBearerToken(),
     ];
@@ -26,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { sub: string; role: string }) {
+  validate(payload: { sub: string; role: string }): RequestUser {
     if (!payload.sub) {
       throw new UnauthorizedException();
     }

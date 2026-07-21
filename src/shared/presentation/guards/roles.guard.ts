@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { FastifyRequest } from 'fastify';
-import { AppException, CommonEx } from '../../domain/exceptions';
 import { Role } from '../../../contexts/iam/domain/enums/role.enum';
+import { AppException, CommonEx } from '../../domain/exceptions';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
@@ -20,13 +19,13 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<FastifyRequest>();
-    const user = (request as any).user;
+    const user = request.user;
 
     if (!user || !user.role) {
       throw new AppException(CommonEx.Forbidden);
     }
 
-    if (!requiredRoles.includes(user.role)) {
+    if (!requiredRoles.includes(user.role as Role)) {
       throw new AppException(CommonEx.Forbidden);
     }
 

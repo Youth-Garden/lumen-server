@@ -37,6 +37,7 @@ import { listeningLessonData, speakingTaskData } from './seed/speaking-data';
 import { toeicMockData } from './seed/toeic-data';
 import { userData } from './seed/user-data';
 import { deckData } from './seed/vocabulary-data';
+import { StorageService } from './shared/infrastructure/storage/storage.service';
 
 // Dynamic load generated datasets from data-generator output if available
 const genDictationPath = path.join(
@@ -243,6 +244,10 @@ async function bootstrap() {
   }
 
   console.log('--- Starting Material (Dictation) Database Seeding ---');
+  const storageService = app.get(StorageService);
+  const audioDir = path.join(process.cwd(), '../data-generator/output/audio');
+  const audioUrlMap = await storageService.uploadAudioDirectory(audioDir);
+
   for (const materialData of activeMaterialData) {
     const material = new MaterialEntity();
     material.title = materialData.title;
@@ -256,7 +261,9 @@ async function bootstrap() {
     if (level === 'ADVANCED') level = 'C1';
     material.level = level;
 
-    material.mediaUrl = materialData.mediaUrl;
+    const rawMediaUrl = String(materialData.mediaUrl || '');
+    const fileName = path.basename(rawMediaUrl);
+    material.mediaUrl = audioUrlMap[fileName] || rawMediaUrl;
     material.thumbnailUrl = materialData.thumbnailUrl;
     material.tags = materialData.tags;
     material.duration = materialData.duration;

@@ -2,6 +2,8 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class StorageService {
@@ -59,6 +61,63 @@ export class StorageService {
       this.logger.error(`Failed to upload file ${fileName} to R2`, error);
       throw error;
     }
+  }
+
+  async uploadStream(
+    fileStream: fs.ReadStream,
+    fileName: string,
+    contentType: string,
+  ): Promise<string> {
+    try {
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileName,
+        Body: fileStream,
+        ContentType: contentType,
+      });
+
+      await this.s3Client.send(command);
+      return `${this.publicUrl}/${fileName}`;
+    } catch (error) {
+      this.logger.error(`Failed to upload stream ${fileName} to R2`, error);
+      throw error;
+    }
+  }
+
+  async uploadAudioDirectory(
+    directoryPath: string,
+  ): Promise<Record<string, string>> {
+    const urlMap: Record<string, string> = {};
+
+    if (!fs.existsSync(directoryPath)) {
+      this.logger.warn(`Directory does not exist: ${directoryPath}`);
+      return urlMap;
+    }
+
+    const files = fs
+      .readdirSync(directoryPath)
+      .filter((f) => f.endsWith('.mp3'));
+    this.logger.log(`Uploading ${files.length} audio files to storage...`);
+
+    for (const file of files) {
+      const filePath = path.join(directoryPath, file);
+      const stream = fs.createReadStream(filePath);
+      const objectKey = `audio/${file}`;
+
+      try {
+        const publicUrl = await this.uploadStream(
+          stream,
+          objectKey,
+          'audio/mpeg',
+        );
+        urlMap[file] = publicUrl;
+        this.logger.log(`Uploaded ${file} -> ${publicUrl}`);
+      } catch (error) {
+        this.logger.error(`Error uploading ${file}:`, error);
+      }
+    }
+
+    return urlMap;
   }
 
   async getPresignedUploadUrl(
