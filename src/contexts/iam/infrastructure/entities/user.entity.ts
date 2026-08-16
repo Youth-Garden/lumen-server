@@ -1,5 +1,5 @@
+import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column } from 'typeorm';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
 
