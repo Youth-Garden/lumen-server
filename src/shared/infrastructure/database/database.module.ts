@@ -13,7 +13,7 @@ import { RequestContextMiddleware } from './request-context.middleware';
         type: 'postgres',
         url: config.get<string>('database.url'),
         autoLoadEntities: true,
-        synchronize: true, // Only for dev mode
+        synchronize: config.get<string>('nodeEnv') === 'development',
         subscribers: [BaseEntityListener],
       }),
     }),
