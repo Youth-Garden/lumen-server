@@ -1,7 +1,7 @@
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, LessThanOrEqual, Repository } from 'typeorm';
-import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
 import {
   DeckDetailResponseDto,
@@ -26,44 +26,56 @@ export class VocabularyQueryRepository
   }
 
   async findDecksByUserId(userId: string): Promise<DeckResponseDto[]> {
+    const validUserId = userId && userId !== 'undefined' ? userId : null;
+
     const queryBuilder = this.deckRepo
       .createQueryBuilder('deck')
       .leftJoin('deck.flashcards', 'flashcard')
-      .addSelect('COUNT(flashcard.id)', 'flashcardCount');
+      .select([
+        'deck.id AS id',
+        'deck.name AS name',
+        'deck.description AS description',
+        'deck.category AS category',
+        'deck.authorId AS "authorId"',
+        'COUNT(flashcard.id)::int AS "flashcardCount"',
+      ]);
 
-    if (userId) {
+    if (validUserId) {
       queryBuilder.where(
         'deck.authorId = :userId OR deck.category IS NOT NULL',
-        { userId },
+        { userId: validUserId },
       );
     } else {
       queryBuilder.where('deck.category IS NOT NULL');
     }
 
-    const { entities, raw } = await queryBuilder
+    const rawResults = await queryBuilder
       .groupBy('deck.id')
+      .addGroupBy('deck.name')
+      .addGroupBy('deck.description')
+      .addGroupBy('deck.category')
+      .addGroupBy('deck.authorId')
+      .addGroupBy('deck.createdAt')
       .orderBy('deck.createdAt', 'ASC')
-      .getRawAndEntities();
+      .getRawMany();
 
-    return entities.map((deck) => {
-      const rawMatch = (
-        raw as { deck_id: string; flashcardCount: string }[]
-      ).find((row) => row.deck_id === deck.id);
-
-      return {
-        id: deck.id,
-        name: deck.name,
-        description: deck.description,
-        category: deck.category || null,
-        flashcardCount: rawMatch ? parseInt(rawMatch.flashcardCount, 10) : 0,
-      };
-    });
+    return rawResults.map((row) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      category: row.category || null,
+      flashcardCount: parseInt(row.flashcardCount || '0', 10),
+    }));
   }
 
   async findDeckByIdAndUserId(
     id: string,
     userId: string,
   ): Promise<DeckDetailResponseDto | null> {
+    if (!id || id === 'undefined') return null;
+
+    const validUserId = userId && userId !== 'undefined' ? userId : null;
+
     const queryBuilder = this.deckRepo
       .createQueryBuilder('deck')
       .leftJoinAndSelect('deck.flashcards', 'flashcard')
@@ -71,10 +83,10 @@ export class VocabularyQueryRepository
       .leftJoinAndSelect('word.definitions', 'definition')
       .leftJoinAndSelect('definition.examples', 'example');
 
-    if (userId) {
+    if (validUserId) {
       queryBuilder.where(
         'deck.id = :id AND (deck.authorId = :userId OR deck.category IS NOT NULL)',
-        { id, userId },
+        { id, userId: validUserId },
       );
     } else {
       queryBuilder.where('deck.id = :id AND deck.category IS NOT NULL', {
@@ -116,15 +128,20 @@ export class VocabularyQueryRepository
     deckId?: string,
     limit?: number,
   ): Promise<DueFlashcardResponseDto[]> {
+    const validUserId = userId && userId !== 'undefined' ? userId : null;
+    const validDeckId = deckId && deckId !== 'undefined' ? deckId : null;
+
+    if (!validUserId) return [];
+
     const where: FindOptionsWhere<UserProgressEntity> = {
-      userId,
+      userId: validUserId,
       due: LessThanOrEqual(new Date()),
     };
 
-    if (deckId) {
+    if (validDeckId) {
       where.flashcard = {
         deck: {
-          id: deckId,
+          id: validDeckId,
         },
       };
     }
