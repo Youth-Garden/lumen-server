@@ -166,7 +166,9 @@ export class IamController {
   })
   @ApiResponse({ status: 201, description: 'Logged out successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async logout(@RefreshToken() token: string): Promise<void> {
+  async logout(
+    @RefreshToken({ required: false }) token: string | null,
+  ): Promise<void> {
     if (token) {
       await this.commandBus.execute<LogoutCommand, void>(
         new LogoutCommand(token),

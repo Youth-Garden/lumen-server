@@ -25,11 +25,13 @@ import { ConfigService } from '@nestjs/config';
 import { IamEmailService } from './application/services/iam-email.service';
 import { QueueModule } from '../../shared/infrastructure/queue/queue.module';
 import { CommonModule } from '../../shared/shared.module';
+import { StorageModule } from '../../shared/infrastructure/storage/storage.module';
 import { TypedConfigService } from '../../shared/infrastructure/config';
 
 @Module({
   imports: [
     CommonModule,
+    StorageModule,
     TypeOrmModule.forFeature([UserEntity, SessionEntity]),
     CqrsModule,
     JwtModule.registerAsync({

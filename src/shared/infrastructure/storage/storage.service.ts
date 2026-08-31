@@ -13,22 +13,33 @@ export class StorageService {
   private publicUrl: string;
 
   constructor(private readonly configService: ConfigService) {
-    const accessKeyId = this.configService.get<string>(
-      'infrastructure.r2.accessKey',
-    )!;
-    const secretAccessKey = this.configService.get<string>(
-      'infrastructure.r2.secretKey',
-    )!;
-    const endpoint = this.configService.get<string>(
-      'infrastructure.r2.endpoint',
-    )!;
+    const accessKeyId =
+      this.configService.get<string>('R2_ACCESS_KEY') ||
+      this.configService.get<string>('infrastructure.r2.accessKey') ||
+      process.env.R2_ACCESS_KEY ||
+      '';
+    const secretAccessKey =
+      this.configService.get<string>('R2_SECRET_KEY') ||
+      this.configService.get<string>('infrastructure.r2.secretKey') ||
+      process.env.R2_SECRET_KEY ||
+      '';
+    const endpoint =
+      this.configService.get<string>('R2_ENDPOINT') ||
+      this.configService.get<string>('infrastructure.r2.endpoint') ||
+      process.env.R2_ENDPOINT ||
+      '';
 
-    this.bucketName = this.configService.get<string>(
-      'infrastructure.r2.bucket',
-    )!;
-    this.publicUrl = this.configService.get<string>(
-      'infrastructure.r2.publicUrl',
-    )!;
+    this.bucketName =
+      this.configService.get<string>('R2_BUCKET_NAME') ||
+      this.configService.get<string>('infrastructure.r2.bucket') ||
+      process.env.R2_BUCKET_NAME ||
+      'lumen-bucket';
+
+    this.publicUrl =
+      this.configService.get<string>('R2_PUBLIC_URL') ||
+      this.configService.get<string>('infrastructure.r2.publicUrl') ||
+      process.env.R2_PUBLIC_URL ||
+      'https://f005.backblazeb2.com/file/lumen-bucket';
 
     this.s3Client = new S3Client({
       region: 'auto',

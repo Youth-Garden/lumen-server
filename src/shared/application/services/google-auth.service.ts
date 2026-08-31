@@ -39,14 +39,16 @@ export class GoogleAuthService {
         throw new UnauthorizedException('Invalid Google credentials');
       }
 
+      const picture = payload.picture || (payload as any).avatar_url || '';
+
       return {
         sub: payload.sub,
         email: payload.email,
         email_verified: payload.email_verified,
-        name: payload.name,
-        picture: payload.picture,
-        given_name: payload.given_name,
-        family_name: payload.family_name,
+        name: payload.name || '',
+        picture,
+        given_name: payload.given_name || '',
+        family_name: payload.family_name || '',
       };
     } catch {
       throw new UnauthorizedException('Invalid Google credentials');

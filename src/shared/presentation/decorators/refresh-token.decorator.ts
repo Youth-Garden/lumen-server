@@ -3,8 +3,13 @@ import type { FastifyRequest } from 'fastify';
 import { AuthEx } from '../../../contexts/iam/domain/exceptions/auth.exception';
 import { AppException } from '../../domain/exceptions/app.exception';
 
+export interface RefreshTokenOptions {
+  required?: boolean;
+}
+
 export const RefreshToken = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): string => {
+  (options: RefreshTokenOptions | undefined, ctx: ExecutionContext): string | null => {
+    const isRequired = options?.required ?? true;
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
     const refreshTokenHeader = request.headers['x-refresh-token'];
     const headerToken = Array.isArray(refreshTokenHeader)
@@ -14,9 +19,9 @@ export const RefreshToken = createParamDecorator(
 
     const token = bodyToken || headerToken || request.cookies?.jwtr || '';
 
-    if (!token) {
+    if (!token && isRequired) {
       throw new AppException(AuthEx.MissingRefreshToken);
     }
-    return token;
+    return token || null;
   },
 );
