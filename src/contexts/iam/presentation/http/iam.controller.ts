@@ -193,8 +193,17 @@ export class IamController {
       );
     }
 
-    (res as any).clearCookie('jwta', { path: '/' });
-    (res as any).clearCookie('jwtr', { path: '/' });
+    const isProd = this.configService.app.nodeEnv === 'production';
+    (res as any).clearCookie('jwta', {
+      path: '/',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+    });
+    (res as any).clearCookie('jwtr', {
+      path: '/',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+    });
   }
 
   private setAuthCookies(
@@ -202,18 +211,19 @@ export class IamController {
     accessToken: string,
     refreshToken: string,
   ) {
+    const isProd = this.configService.app.nodeEnv === 'production';
     (res as any).cookie('jwta', accessToken, {
       httpOnly: true,
-      secure: this.configService.app.nodeEnv === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       path: '/',
       maxAge: this.configService.jwt.expiresIn,
     });
 
     (res as any).cookie('jwtr', refreshToken, {
       httpOnly: true,
-      secure: this.configService.app.nodeEnv === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       path: '/',
       maxAge: this.configService.jwt.refreshExpiresIn,
     });
