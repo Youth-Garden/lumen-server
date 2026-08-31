@@ -1,7 +1,7 @@
-import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, LessThanOrEqual, Repository } from 'typeorm';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
 import {
   DeckDetailResponseDto,
@@ -113,7 +113,8 @@ export class VocabularyQueryRepository
         definitions: (flashcard.word.definitions || []).map((def) => ({
           id: def.id,
           partOfSpeech: def.partOfSpeech,
-          definition: (def.definition as unknown as Record<string, string>) || {},
+          definition:
+            (def.definition as unknown as Record<string, string>) || {},
           examples: (def.examples || []).map((ex) => ({
             id: ex.id,
             sentence: (ex.sentence as unknown as Record<string, string>) || {},
