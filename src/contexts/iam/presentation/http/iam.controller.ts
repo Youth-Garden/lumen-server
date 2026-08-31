@@ -1,25 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
-import '@fastify/cookie';
-import { Body, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { TypedConfigService } from '../../../../shared/infrastructure/config/typed-config.service';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { RefreshToken } from '../../../../shared/presentation/decorators/refresh-token.decorator';
 import { GoogleLoginCommand } from '../../application/commands/google-login.command';
-import { VerifyEmailOtpCommand } from '../../application/commands/verify-email-otp.command';
-import { SendEmailOtpCommand } from '../../application/commands/send-email-otp.command';
 import { LogoutCommand } from '../../application/commands/logout.command';
 import { RefreshTokenCommand } from '../../application/commands/refresh-token.command';
+import { SendEmailOtpCommand } from '../../application/commands/send-email-otp.command';
 import { UpdateProfileCommand } from '../../application/commands/update-profile.command';
-import { GoogleLoginDto } from '../../application/dtos/google-login.dto';
+import { VerifyEmailOtpCommand } from '../../application/commands/verify-email-otp.command';
 import {
   SendEmailOtpDto,
   VerifyEmailOtpDto,
 } from '../../application/dtos/email-otp.dto';
+import { GoogleLoginDto } from '../../application/dtos/google-login.dto';
 import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
 import { GetMeQuery } from '../../application/queries/get-me.query';
 import { ListSessionsQuery } from '../../application/queries/list-sessions.query';
@@ -73,17 +71,13 @@ export class IamController {
   async login(
     @Body() dto: VerifyEmailOtpDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthTokensResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
-    const result = await this.commandBus.execute<
+    return this.commandBus.execute<
       VerifyEmailOtpCommand,
       AuthTokensResponseDto
     >(new VerifyEmailOtpCommand(dto.email, dto.otp, userAgent, ipAddress));
-
-    this.setAuthCookies(res, result.accessToken, result.refreshToken);
-    return result;
   }
 
   @Public()
@@ -105,18 +99,13 @@ export class IamController {
   async refresh(
     @RefreshToken() token: string,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<AuthTokensResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
 
-    const result = await this.commandBus.execute<
-      RefreshTokenCommand,
-      AuthTokensResponseDto
-    >(new RefreshTokenCommand(token, userAgent, ipAddress));
-
-    this.setAuthCookies(res, result.accessToken, result.refreshToken);
-    return result;
+    return this.commandBus.execute<RefreshTokenCommand, AuthTokensResponseDto>(
+      new RefreshTokenCommand(token, userAgent, ipAddress),
+    );
   }
 
   @Public()
@@ -139,17 +128,12 @@ export class IamController {
   async googleLogin(
     @Body() dto: GoogleLoginDto,
     @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<GoogleLoginResponseDto> {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
-    const result = await this.commandBus.execute<
-      GoogleLoginCommand,
-      GoogleLoginResponseDto
-    >(new GoogleLoginCommand(dto.idToken, userAgent, ipAddress));
-
-    this.setAuthCookies(res, result.accessToken, result.refreshToken);
-    return result;
+    return this.commandBus.execute<GoogleLoginCommand, GoogleLoginResponseDto>(
+      new GoogleLoginCommand(dto.idToken, userAgent, ipAddress),
+    );
   }
 
   @Get('me')
@@ -182,51 +166,12 @@ export class IamController {
   })
   @ApiResponse({ status: 201, description: 'Logged out successfully.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async logout(
-    @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<void> {
-    const token = (req as any).cookies?.jwtr || '';
+  async logout(@RefreshToken() token: string): Promise<void> {
     if (token) {
       await this.commandBus.execute<LogoutCommand, void>(
         new LogoutCommand(token),
       );
     }
-
-    const isProd = this.configService.app.nodeEnv === 'production';
-    (res as any).clearCookie('jwta', {
-      path: '/',
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-    });
-    (res as any).clearCookie('jwtr', {
-      path: '/',
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-    });
-  }
-
-  private setAuthCookies(
-    res: FastifyReply,
-    accessToken: string,
-    refreshToken: string,
-  ) {
-    const isProd = this.configService.app.nodeEnv === 'production';
-    (res as any).cookie('jwta', accessToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      path: '/',
-      maxAge: this.configService.jwt.expiresIn,
-    });
-
-    (res as any).cookie('jwtr', refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      path: '/',
-      maxAge: this.configService.jwt.refreshExpiresIn,
-    });
   }
 
   @Get('sessions')

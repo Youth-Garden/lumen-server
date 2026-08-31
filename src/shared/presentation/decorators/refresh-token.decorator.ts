@@ -10,8 +10,9 @@ export const RefreshToken = createParamDecorator(
     const headerToken = Array.isArray(refreshTokenHeader)
       ? refreshTokenHeader[0]
       : refreshTokenHeader;
+    const bodyToken = (request.body as any)?.refreshToken;
 
-    const token = request.cookies?.jwtr || headerToken || '';
+    const token = bodyToken || headerToken || request.cookies?.jwtr || '';
 
     if (!token) {
       throw new AppException(AuthEx.MissingRefreshToken);
