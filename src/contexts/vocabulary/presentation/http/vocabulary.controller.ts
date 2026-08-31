@@ -144,24 +144,28 @@ export class VocabularyController {
     );
   }
 
+  @Public()
   @Get('decks')
-  @ApiOperation({ summary: 'List user decks' })
+  @ApiOperation({ summary: 'List decks' })
   @ApiResponse({ type: [DeckResponseDto], status: 200 })
-  async listDecks(@CurrentUser() userId: string): Promise<DeckResponseDto[]> {
+  async listDecks(
+    @CurrentUser() userId?: string,
+  ): Promise<DeckResponseDto[]> {
     return this.queryBus.execute<ListDecksQuery, DeckResponseDto[]>(
-      new ListDecksQuery(userId),
+      new ListDecksQuery(userId || ''),
     );
   }
 
+  @Public()
   @Get('decks/:id')
   @ApiOperation({ summary: 'Get deck details with flashcards' })
   @ApiResponse({ type: DeckDetailResponseDto, status: 200 })
   async getDeckById(
     @Param('id') id: string,
-    @CurrentUser() userId: string,
+    @CurrentUser() userId?: string,
   ): Promise<DeckDetailResponseDto> {
     return this.queryBus.execute<GetDeckByIdQuery, DeckDetailResponseDto>(
-      new GetDeckByIdQuery(id, userId),
+      new GetDeckByIdQuery(id, userId || ''),
     );
   }
 

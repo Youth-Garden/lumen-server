@@ -1,7 +1,7 @@
-import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, LessThanOrEqual, Repository } from 'typeorm';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
 import {
   DeckDetailResponseDto,
@@ -26,13 +26,23 @@ export class VocabularyQueryRepository
   }
 
   async findDecksByUserId(userId: string): Promise<DeckResponseDto[]> {
-    const { entities, raw } = await this.deckRepo
+    const queryBuilder = this.deckRepo
       .createQueryBuilder('deck')
       .leftJoin('deck.flashcards', 'flashcard')
-      .addSelect('COUNT(flashcard.id)', 'flashcardCount')
-      .where('deck.authorId = :userId', { userId })
+      .addSelect('COUNT(flashcard.id)', 'flashcardCount');
+
+    if (userId) {
+      queryBuilder.where(
+        'deck.authorId = :userId OR deck.category IS NOT NULL',
+        { userId },
+      );
+    } else {
+      queryBuilder.where('deck.category IS NOT NULL');
+    }
+
+    const { entities, raw } = await queryBuilder
       .groupBy('deck.id')
-      .orderBy('deck.createdAt', 'DESC')
+      .orderBy('deck.createdAt', 'ASC')
       .getRawAndEntities();
 
     return entities.map((deck) => {
@@ -44,6 +54,7 @@ export class VocabularyQueryRepository
         id: deck.id,
         name: deck.name,
         description: deck.description,
+        category: deck.category || null,
         flashcardCount: rawMatch ? parseInt(rawMatch.flashcardCount, 10) : 0,
       };
     });
@@ -53,14 +64,25 @@ export class VocabularyQueryRepository
     id: string,
     userId: string,
   ): Promise<DeckDetailResponseDto | null> {
-    const deck = await this.deckRepo.findOne({
-      where: { id, authorId: userId },
-      relations: {
-        flashcards: {
-          word: true,
-        },
-      },
-    });
+    const queryBuilder = this.deckRepo
+      .createQueryBuilder('deck')
+      .leftJoinAndSelect('deck.flashcards', 'flashcard')
+      .leftJoinAndSelect('flashcard.word', 'word')
+      .leftJoinAndSelect('word.definitions', 'definition')
+      .leftJoinAndSelect('definition.examples', 'example');
+
+    if (userId) {
+      queryBuilder.where(
+        'deck.id = :id AND (deck.authorId = :userId OR deck.category IS NOT NULL)',
+        { id, userId },
+      );
+    } else {
+      queryBuilder.where('deck.id = :id AND deck.category IS NOT NULL', {
+        id,
+      });
+    }
+
+    const deck = await queryBuilder.getOne();
 
     if (!deck) return null;
 
@@ -68,11 +90,23 @@ export class VocabularyQueryRepository
       id: deck.id,
       name: deck.name,
       description: deck.description,
-      flashcards: deck.flashcards.map((flashcard) => ({
+      category: deck.category || null,
+      flashcards: (deck.flashcards || []).map((flashcard) => ({
         id: flashcard.id,
         wordId: flashcard.word.id,
         term: flashcard.word.term,
+        phonetic: flashcard.word.phonetic,
+        audioUrl: flashcard.word.audioUrl,
         cefrLevel: flashcard.word.cefrLevel,
+        definitions: (flashcard.word.definitions || []).map((def) => ({
+          id: def.id,
+          partOfSpeech: def.partOfSpeech,
+          definition: (def.definition as unknown as Record<string, string>) || {},
+          examples: (def.examples || []).map((ex) => ({
+            id: ex.id,
+            sentence: (ex.sentence as unknown as Record<string, string>) || {},
+          })),
+        })),
       })),
     };
   }

@@ -21,6 +21,7 @@ import { materialMockData } from './seed/material-data';
 import { progressData } from './seed/progress-data';
 import { userData } from './seed/user-data';
 import { deckData } from './seed/vocabulary-data';
+import { seedToeicVocabulary } from './seed-toeic';
 import { StorageService } from './shared/infrastructure/storage/storage.service';
 
 const genDictationPath = path.join(
@@ -146,42 +147,7 @@ async function bootstrap() {
   }
 
   console.log('--- Starting Vocabulary Database Seeding ---');
-  for (const deckDataItem of activeDeckData) {
-    const deck = new DeckEntity();
-    deck.name = deckDataItem.name;
-    deck.description = deckDataItem.description;
-    deck.authorId = targetUserId;
-
-    const savedDeck = await deckRepo.save(deck);
-    console.log(`Created Deck: ${savedDeck.name}`);
-
-    for (const wordData of deckDataItem.words) {
-      const word = new WordEntity();
-      word.term = wordData.term;
-      word.phonetic = wordData.phonetic;
-      word.cefrLevel = wordData.cefrLevel;
-      const savedWord = await wordRepo.save(word);
-
-      const definition = new DefinitionEntity();
-      definition.wordId = savedWord.id;
-      definition.partOfSpeech = wordData.partOfSpeech;
-      definition.definition = { en: wordData.definition };
-      const savedDef = await definitionRepo.save(definition);
-
-      const example = new ExampleEntity();
-      example.definitionId = savedDef.id;
-      example.sentence = { en: wordData.example };
-      await exampleRepo.save(example);
-
-      const flashcard = new FlashcardEntity();
-      flashcard.deckId = savedDeck.id;
-      flashcard.wordId = savedWord.id;
-      await flashcardRepo.save(flashcard);
-    }
-    console.log(
-      `Created ${deckDataItem.words.length} words for ${savedDeck.name}`,
-    );
-  }
+  await seedToeicVocabulary(dataSource);
 
   console.log('--- Starting Progress Database Seeding ---');
   if (targetUserId) {
