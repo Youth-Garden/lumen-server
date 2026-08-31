@@ -9,10 +9,6 @@ import { BadgeEntity } from './infrastructure/entities/badge.entity';
 import { ActivityRepository } from './infrastructure/repositories/activity.repository';
 import { ACTIVITY_REPOSITORY } from './domain/repositories/activity.repository.interface';
 import { FlashcardReviewedListener } from './application/event-handlers/flashcard-reviewed.listener';
-import { QuizCompletedListener } from './application/event-handlers/quiz-completed.listener';
-import { GrammarExerciseCompletedListener } from './application/event-handlers/grammar-exercise-completed.listener';
-import { SpeakingTaskCompletedListener } from './application/event-handlers/speaking-task-completed.listener';
-import { ExamAttemptCompletedListener } from './application/event-handlers/exam-attempt-completed.listener';
 import { GetDashboardHandler } from './application/queries/get-dashboard.handler';
 import { GetRecentActivitiesHandler } from './application/queries/get-recent-activities.handler';
 import { GetLeaderboardHandler } from './application/queries/get-leaderboard.handler';
@@ -24,10 +20,6 @@ import { ProgressController } from './presentation/http/progress.controller';
 
 const EventHandlers = [
   FlashcardReviewedListener,
-  QuizCompletedListener,
-  GrammarExerciseCompletedListener,
-  SpeakingTaskCompletedListener,
-  ExamAttemptCompletedListener,
 ];
 const QueryHandlers = [
   GetDashboardHandler,

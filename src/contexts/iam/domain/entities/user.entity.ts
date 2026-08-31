@@ -26,6 +26,8 @@ export class User extends AggregateRoot {
     providerId: string | null = null,
     role: Role = Role.USER,
     planId: string | null = null,
+    fullName: string | null = null,
+    avatarUrl: string | null = null,
   ): User {
     const user = new User(
       randomUUID(),
@@ -36,8 +38,9 @@ export class User extends AggregateRoot {
       planId,
       new Date(),
       new Date(),
+      fullName,
+      avatarUrl,
     );
-    // user.apply(new UserRegisteredEvent(user.id, email)); // Optional, if events are needed
     return user;
   }
 

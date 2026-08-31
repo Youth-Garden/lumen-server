@@ -5,17 +5,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ExamPracticeModule } from './contexts/exam-practice/exam-practice.module';
-import { GrammarModule } from './contexts/grammar/grammar.module';
 import { IamModule } from './contexts/iam/iam.module';
-import { ListeningSpeakingModule } from './contexts/listening-speaking/listening-speaking.module';
 import { MaterialModule } from './contexts/material/material.module';
 import { NotificationModule } from './contexts/notification/notification.module';
 import { AdminModule } from './contexts/admin/admin.module';
 import { ProgressModule } from './contexts/progress/progress.module';
-import { QuizModule } from './contexts/quiz/quiz.module';
-import { ReadingModule } from './contexts/reading/reading.module';
-import { ToeicModule } from './contexts/toeic/toeic.module';
 import { VocabularyModule } from './contexts/vocabulary/vocabulary.module';
 import {
   appConfig,
@@ -64,14 +58,8 @@ import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
     IamModule,
     VocabularyModule,
     DatabaseModule,
-    QuizModule,
     ProgressModule,
-    ReadingModule,
-    ToeicModule,
     MaterialModule,
-    GrammarModule,
-    ListeningSpeakingModule,
-    ExamPracticeModule,
     NotificationModule,
     AdminModule,
   ],

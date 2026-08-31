@@ -27,10 +27,7 @@ export class GetAdminDashboardHandler implements IQueryHandler<
     );
     const totalUsers = parseInt(usersResult[0]?.count || '0', 10);
 
-    const attemptsResult: { count: string }[] = await this.dataSource.query(
-      `SELECT COUNT(*) as count FROM exam_attempts WHERE status = 'COMPLETED'`,
-    );
-    const testsCompleted = parseInt(attemptsResult[0]?.count || '0', 10);
+    const testsCompleted = 0;
 
     // Mock active now since we don't have socket presence yet
     const activeNow = Math.floor(Math.random() * 50) + 10;

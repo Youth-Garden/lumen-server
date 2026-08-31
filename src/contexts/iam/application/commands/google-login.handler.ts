@@ -33,19 +33,33 @@ export class GoogleLoginHandler implements ICommandHandler<
       throw new AppException(AuthEx.InvalidCredentials);
     }
     const email = payload.email;
+    const googleName = payload.name || null;
+    const googlePicture = payload.picture || null;
 
     let user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      // Auto register
+      // Auto register with Google avatar and full name
       const newUser = User.create(
         email,
         AuthProvider.GOOGLE,
         payload.sub,
         Role.USER,
         null,
+        googleName,
+        googlePicture,
       );
       user = await this.userRepository.save(newUser);
+    } else if (
+      (googlePicture && !user.avatarUrl) ||
+      (googleName && !user.fullName)
+    ) {
+      // Sync Google avatar/name if not set yet
+      user.updateProfile(
+        user.fullName || googleName || undefined,
+        user.avatarUrl || googlePicture || undefined,
+      );
+      user = await this.userRepository.save(user);
     }
 
     const accessToken = this.tokenService.generateAccessToken(
