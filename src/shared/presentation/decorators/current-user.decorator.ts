@@ -12,3 +12,11 @@ export const CurrentUser = createParamDecorator(
     return user.userId;
   },
 );
+
+export const OptionalUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): string | undefined => {
+    const request = ctx.switchToHttp().getRequest<FastifyRequest>();
+    const user = request.user;
+    return user?.userId;
+  },
+);
