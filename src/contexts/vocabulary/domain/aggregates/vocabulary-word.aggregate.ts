@@ -10,6 +10,7 @@ export class VocabularyWord extends AggregateRoot {
     private _audioUrl: string | null,
     private _cefrLevel: string | null,
     private _definitions: VocabularyDefinition[] = [],
+    private _imageUrl: string | null = null,
   ) {
     super();
   }
@@ -20,6 +21,7 @@ export class VocabularyWord extends AggregateRoot {
     audioUrl: string | null,
     cefrLevel: string | null,
     definitions: VocabularyDefinition[],
+    imageUrl: string | null = null,
   ): VocabularyWord {
     return new VocabularyWord(
       randomUUID(),
@@ -28,6 +30,7 @@ export class VocabularyWord extends AggregateRoot {
       audioUrl,
       cefrLevel,
       definitions,
+      imageUrl,
     );
   }
 
@@ -38,6 +41,7 @@ export class VocabularyWord extends AggregateRoot {
     audioUrl: string | null,
     cefrLevel: string | null,
     definitions: VocabularyDefinition[],
+    imageUrl: string | null = null,
   ): VocabularyWord {
     return new VocabularyWord(
       id,
@@ -46,6 +50,7 @@ export class VocabularyWord extends AggregateRoot {
       audioUrl,
       cefrLevel,
       definitions,
+      imageUrl,
     );
   }
 
@@ -73,17 +78,23 @@ export class VocabularyWord extends AggregateRoot {
     return this._definitions;
   }
 
+  get imageUrl(): string | null {
+    return this._imageUrl;
+  }
+
   update(
     term?: string,
     phonetic?: string | null,
     audioUrl?: string | null,
     cefrLevel?: string | null,
     definitions?: VocabularyDefinition[],
+    imageUrl?: string | null,
   ): void {
     if (term !== undefined) this._term = term;
     if (phonetic !== undefined) this._phonetic = phonetic;
     if (audioUrl !== undefined) this._audioUrl = audioUrl;
     if (cefrLevel !== undefined) this._cefrLevel = cefrLevel;
     if (definitions !== undefined) this._definitions = definitions;
+    if (imageUrl !== undefined) this._imageUrl = imageUrl;
   }
 }

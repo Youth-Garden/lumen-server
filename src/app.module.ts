@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { IamModule } from './contexts/iam/iam.module';
 import { MaterialModule } from './contexts/material/material.module';
 import { NotificationModule } from './contexts/notification/notification.module';
-import { AdminModule } from './contexts/admin/admin.module';
 import { ProgressModule } from './contexts/progress/progress.module';
 import { VocabularyModule } from './contexts/vocabulary/vocabulary.module';
 import {
@@ -61,7 +60,6 @@ import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
     ProgressModule,
     MaterialModule,
     NotificationModule,
-    AdminModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,4 +1,4 @@
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
 
 export class VocabularyExampleResponseDto {
@@ -47,6 +47,9 @@ export class VocabularyWordResponseDto {
 
   @Expose()
   cefrLevel: string | null;
+
+  @Expose()
+  imageUrl: string | null;
 
   @Expose()
   @Type(() => VocabularyDefinitionResponseDto)

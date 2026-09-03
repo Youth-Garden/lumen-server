@@ -75,6 +75,7 @@ export class VocabularyWordRepository
     wordEntity.phonetic = word.phonetic;
     wordEntity.audioUrl = word.audioUrl;
     wordEntity.cefrLevel = word.cefrLevel;
+    wordEntity.imageUrl = word.imageUrl;
 
     wordEntity.definitions = word.definitions.map(
       (def: VocabularyDefinition) => {
@@ -119,6 +120,7 @@ export class VocabularyWordRepository
       entity.audioUrl,
       entity.cefrLevel,
       definitions,
+      entity.imageUrl,
     );
   }
 

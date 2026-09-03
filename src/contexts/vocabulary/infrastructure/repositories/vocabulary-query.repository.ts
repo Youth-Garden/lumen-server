@@ -49,6 +49,14 @@ export class VocabularyQueryRepository
       queryBuilder.where('deck.category IS NOT NULL');
     }
 
+    interface RawDeckRow {
+      id: string;
+      name: string;
+      description: string | null;
+      category: string | null;
+      flashcardCount: number | string;
+    }
+
     const rawResults = await queryBuilder
       .groupBy('deck.id')
       .addGroupBy('deck.name')
@@ -57,14 +65,17 @@ export class VocabularyQueryRepository
       .addGroupBy('deck.authorId')
       .addGroupBy('deck.createdAt')
       .orderBy('deck.createdAt', 'ASC')
-      .getRawMany();
+      .getRawMany<RawDeckRow>();
 
     return rawResults.map((row) => ({
       id: row.id,
       name: row.name,
       description: row.description,
       category: row.category || null,
-      flashcardCount: parseInt(row.flashcardCount || '0', 10),
+      flashcardCount:
+        typeof row.flashcardCount === 'number'
+          ? row.flashcardCount
+          : parseInt(row.flashcardCount || '0', 10),
     }));
   }
 
@@ -110,6 +121,7 @@ export class VocabularyQueryRepository
         phonetic: flashcard.word.phonetic,
         audioUrl: flashcard.word.audioUrl,
         cefrLevel: flashcard.word.cefrLevel,
+        imageUrl: flashcard.word.imageUrl,
         definitions: (flashcard.word.definitions || []).map((def) => ({
           id: def.id,
           partOfSpeech: def.partOfSpeech,

@@ -17,9 +17,9 @@ export class KeepAliveService implements OnModuleInit {
       return;
     }
 
-    const intervalMs = 15 * 60 * 1000; // Ping every 15 minutes
+    const intervalMs = 10 * 60 * 1000; // Ping every 10 minutes
     this.logger.log(
-      `Keep-alive service started. Pinging ${backendUrl}/api every 15 minutes.`,
+      `Keep-alive service started. Pinging ${backendUrl}/api every 10 minutes.`,
     );
 
     // Perform initial ping after 1 minute to avoid blocking bootstrap

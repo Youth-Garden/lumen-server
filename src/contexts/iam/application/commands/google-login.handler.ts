@@ -1,18 +1,18 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { GoogleLoginCommand } from './google-login.command';
 import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import axios from 'axios';
-import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
-import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import {
-  TokenService,
   GoogleAuthService,
+  TokenService,
 } from '../../../../shared/application/services';
+import { AppException } from '../../../../shared/domain/exceptions';
 import { StorageService } from '../../../../shared/infrastructure/storage/storage.service';
 import { AuthProvider } from '../../domain/enums/auth-provider.enum';
 import { Role } from '../../domain/enums/role.enum';
-import { AppException } from '../../../../shared/domain/exceptions';
 import { AuthEx } from '../../domain/exceptions/auth.exception';
+import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
+import { USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
+import { GoogleLoginCommand } from './google-login.command';
 
 import { User } from '../../domain/entities/user.entity';
 import { GoogleLoginResponseDto } from '../responses/auth-tokens.response.dto';
@@ -54,10 +54,11 @@ export class GoogleLoginHandler implements ICommandHandler<
         contentType,
       );
       return uploadedUrl;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error(
         'Failed to download/upload Google avatar to storage:',
-        err?.message || err,
+        errorMessage,
       );
       return googlePictureUrl;
     }
@@ -105,8 +106,7 @@ export class GoogleLoginHandler implements ICommandHandler<
     );
     const refreshToken = this.tokenService.generateRefreshToken(user.id);
 
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    const expiresAt = this.tokenService.getRefreshTokenExpiresAt();
 
     await this.userRepository.createSession(
       user.id,

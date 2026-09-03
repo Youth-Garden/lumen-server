@@ -10,6 +10,12 @@ export interface InfrastructureConfig {
     endpoint?: string;
     publicUrl?: string;
   };
+  cloudinary: {
+    cloudName?: string;
+    apiKey?: string;
+    apiSecret?: string;
+    url?: string;
+  };
 }
 
 export default registerAs('infrastructure', (): InfrastructureConfig => ({
@@ -25,5 +31,11 @@ export default registerAs('infrastructure', (): InfrastructureConfig => ({
     bucket: process.env.R2_BUCKET_NAME,
     endpoint: process.env.R2_ENDPOINT,
     publicUrl: process.env.R2_PUBLIC_URL,
+  },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+    url: process.env.CLOUDINARY_URL,
   },
 }));

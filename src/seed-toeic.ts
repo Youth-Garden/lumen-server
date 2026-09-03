@@ -51,7 +51,7 @@ function parseCSV(text: string): ToeicRecord[] {
     row.push(field.trim());
 
     if (row.length >= header.length) {
-      const obj: any = {};
+      const obj: Record<string, string> = {};
       header.forEach((h, idx) => {
         let val = row[idx] || '';
         if (val.startsWith('"') && val.endsWith('"')) {
@@ -59,13 +59,15 @@ function parseCSV(text: string): ToeicRecord[] {
         }
         obj[h] = val;
       });
-      rows.push(obj as ToeicRecord);
+      rows.push(obj as unknown as ToeicRecord);
     }
   }
   return rows;
 }
 
-export async function seedToeicVocabulary(dataSource: DataSource): Promise<void> {
+export async function seedToeicVocabulary(
+  dataSource: DataSource,
+): Promise<void> {
   const userRepo = dataSource.getRepository(UserEntity);
   const deckRepo = dataSource.getRepository(DeckEntity);
   const wordRepo = dataSource.getRepository(WordEntity);
@@ -76,7 +78,9 @@ export async function seedToeicVocabulary(dataSource: DataSource): Promise<void>
   console.log('--- Bulk Seeding 600 TOEIC Vocabulary Dataset ---');
 
   // 1. Ensure System Admin User exists
-  let systemUser = await userRepo.findOne({ where: { email: 'system@lumen.com' } });
+  let systemUser = await userRepo.findOne({
+    where: { email: 'system@lumen.com' },
+  });
   if (!systemUser) {
     systemUser = new UserEntity();
     systemUser.email = 'system@lumen.com';
@@ -141,8 +145,9 @@ export async function seedToeicVocabulary(dataSource: DataSource): Promise<void>
     console.log(`Bulk saved ${saved.length} Decks.`);
   }
 
-  // 2. Bulk Create Words
+  // 2. Bulk Create & Update Words
   const newWordsToSave: WordEntity[] = [];
+  const wordsToUpdate: WordEntity[] = [];
   const wordRecordPairs: { word: WordEntity; record: ToeicRecord }[] = [];
 
   for (const topicName of topics) {
@@ -150,15 +155,20 @@ export async function seedToeicVocabulary(dataSource: DataSource): Promise<void>
       const term = item.english.trim();
       if (!term) continue;
 
-      if (!wordMapByTerm.has(term)) {
+      const existingWord = wordMapByTerm.get(term);
+      if (!existingWord) {
         const w = new WordEntity();
         w.term = term;
         w.phonetic = item.pronounce || null;
         w.audioUrl = item.audio_url || null;
         w.cefrLevel = 'B1';
+        w.imageUrl = item.image_url || null;
         newWordsToSave.push(w);
         wordRecordPairs.push({ word: w, record: item });
         wordMapByTerm.set(term, w); // temporary map
+      } else if (!existingWord.imageUrl && item.image_url) {
+        existingWord.imageUrl = item.image_url;
+        wordsToUpdate.push(existingWord);
       }
     }
   }
@@ -169,6 +179,11 @@ export async function seedToeicVocabulary(dataSource: DataSource): Promise<void>
     console.log(`Bulk saved ${savedWords.length} Words.`);
   }
 
+  if (wordsToUpdate.length > 0) {
+    await wordRepo.save(wordsToUpdate, { chunk: 100 });
+    console.log(`Updated imageUrl for ${wordsToUpdate.length} existing Words.`);
+  }
+
   // 3. Bulk Create Definitions & Examples
   const definitionsToSave: DefinitionEntity[] = [];
   const examplesToSave: ExampleEntity[] = [];
@@ -176,7 +191,9 @@ export async function seedToeicVocabulary(dataSource: DataSource): Promise<void>
 
   const existingFlashcards = await flashcardRepo.find();
   const flashcardSet = new Set<string>();
-  existingFlashcards.forEach((f) => flashcardSet.add(`${f.deckId}_${f.wordId}`));
+  existingFlashcards.forEach((f) =>
+    flashcardSet.add(`${f.deckId}_${f.wordId}`),
+  );
 
   const existingDefs = await definitionRepo.find();
   const defWordSet = new Set<string>();
@@ -227,12 +244,16 @@ export async function seedToeicVocabulary(dataSource: DataSource): Promise<void>
   }
 
   if (definitionsToSave.length > 0) {
-    const savedDefs = await definitionRepo.save(definitionsToSave, { chunk: 100 });
+    const savedDefs = await definitionRepo.save(definitionsToSave, {
+      chunk: 100,
+    });
     console.log(`Bulk saved ${savedDefs.length} Definitions.`);
   }
 
   if (examplesToSave.length > 0) {
-    const savedExamples = await exampleRepo.save(examplesToSave, { chunk: 100 });
+    const savedExamples = await exampleRepo.save(examplesToSave, {
+      chunk: 100,
+    });
     console.log(`Bulk saved ${savedExamples.length} Examples.`);
   }
 
@@ -258,5 +279,5 @@ async function bootstrap() {
 }
 
 if (require.main === module) {
-  bootstrap();
+  void bootstrap();
 }

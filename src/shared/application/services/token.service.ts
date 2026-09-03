@@ -32,6 +32,13 @@ export class TokenService {
     });
   }
 
+  getRefreshTokenExpiresAt(): Date {
+    const refreshExpiresIn = this.configService.getOrThrow<number>(
+      'jwt.refreshExpiresIn',
+    );
+    return new Date(Date.now() + refreshExpiresIn * 1000);
+  }
+
   verifyRefreshToken(token: string): TokenPayload {
     const refreshSecret =
       this.configService.getOrThrow<string>('jwt.refreshSecret');

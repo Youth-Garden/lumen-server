@@ -53,6 +53,9 @@ export class FlashcardSummaryDto {
   @ApiProperty({ nullable: true })
   cefrLevel: string | null;
 
+  @ApiProperty({ nullable: true, required: false })
+  imageUrl?: string | null;
+
   @ApiProperty({ type: [FlashcardDefinitionDto], required: false })
   definitions?: FlashcardDefinitionDto[];
 }

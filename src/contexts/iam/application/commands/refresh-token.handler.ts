@@ -40,8 +40,7 @@ export class RefreshTokenHandler implements ICommandHandler<
       session.userId,
     );
 
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    const expiresAt = this.tokenService.getRefreshTokenExpiresAt();
 
     await this.userRepository.revokeSession(command.refreshToken);
     await this.userRepository.createSession(

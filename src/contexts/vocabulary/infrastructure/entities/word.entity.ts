@@ -17,6 +17,9 @@ export class WordEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   cefrLevel: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  imageUrl: string | null;
+
   @OneToMany(() => DefinitionEntity, (definition) => definition.word)
   definitions: DefinitionEntity[];
 

@@ -26,4 +26,9 @@ export const validationSchema = Joi.object({
   R2_BUCKET_NAME: Joi.string().required(),
   R2_ENDPOINT: Joi.string().uri().required(),
   R2_PUBLIC_URL: Joi.string().uri().required(),
+
+  CLOUDINARY_CLOUD_NAME: Joi.string().optional(),
+  CLOUDINARY_API_KEY: Joi.string().optional(),
+  CLOUDINARY_API_SECRET: Joi.string().optional(),
+  CLOUDINARY_URL: Joi.string().optional(),
 });
