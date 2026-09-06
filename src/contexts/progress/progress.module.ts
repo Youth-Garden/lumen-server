@@ -18,9 +18,7 @@ import { BuyStreakFreezeHandler } from './application/commands/buy-streak-freeze
 import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
-const EventHandlers = [
-  FlashcardReviewedListener,
-];
+const EventHandlers = [FlashcardReviewedListener];
 const QueryHandlers = [
   GetDashboardHandler,
   GetRecentActivitiesHandler,

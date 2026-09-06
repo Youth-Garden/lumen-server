@@ -21,22 +21,24 @@ export class FlashcardRepository
   async findById(id: string): Promise<Flashcard | null> {
     const entity = await this.repo.findOne({ where: { id } });
     if (!entity) return null;
-    return Flashcard.restore(entity.id, entity.deckId, entity.wordId);
+    return Flashcard.restore(entity.id, entity.folderId, entity.wordId);
   }
 
-  async findByDeckAndWord(
-    deckId: string,
+  async findByFolderAndWord(
+    folderId: string,
     wordId: string,
   ): Promise<Flashcard | null> {
-    const entity = await this.repo.findOne({ where: { deckId, wordId } });
+    const entity = await this.repo.findOne({
+      where: { folderId, wordId },
+    });
     if (!entity) return null;
-    return Flashcard.restore(entity.id, entity.deckId, entity.wordId);
+    return Flashcard.restore(entity.id, entity.folderId, entity.wordId);
   }
 
   async save(flashcard: Flashcard): Promise<void> {
     const entity = new FlashcardEntity();
     entity.id = flashcard.id;
-    entity.deckId = flashcard.deckId;
+    entity.folderId = flashcard.folderId;
     entity.wordId = flashcard.wordId;
     await this.repo.save(entity);
   }

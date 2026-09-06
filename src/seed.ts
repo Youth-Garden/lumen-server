@@ -11,7 +11,7 @@ import { TranscriptEntity } from './contexts/material/infrastructure/entities/tr
 import { ActivityEntity } from './contexts/progress/infrastructure/entities/activity.entity';
 import { BadgeEntity } from './contexts/progress/infrastructure/entities/badge.entity';
 import { LearningProfileEntity } from './contexts/progress/infrastructure/entities/learning-profile.entity';
-import { DeckEntity } from './contexts/vocabulary/infrastructure/entities/deck.entity';
+import { FolderEntity } from './contexts/vocabulary/infrastructure/entities/folder.entity';
 import { DefinitionEntity } from './contexts/vocabulary/infrastructure/entities/definition.entity';
 import { ExampleEntity } from './contexts/vocabulary/infrastructure/entities/example.entity';
 import { FlashcardEntity } from './contexts/vocabulary/infrastructure/entities/flashcard.entity';
@@ -20,7 +20,6 @@ import { badgeData } from './seed/badge-data';
 import { materialMockData } from './seed/material-data';
 import { progressData } from './seed/progress-data';
 import { userData } from './seed/user-data';
-import { deckData } from './seed/vocabulary-data';
 import { seedToeicVocabulary } from './seed-toeic';
 import { StorageService } from './shared/infrastructure/storage/storage.service';
 
@@ -28,18 +27,10 @@ const genDictationPath = path.join(
   process.cwd(),
   '../data-generator/output/dictation-data.json',
 );
-const genVocabPath = path.join(
-  process.cwd(),
-  '../data-generator/output/vocab-data.json',
-);
 
 const activeMaterialData = fs.existsSync(genDictationPath)
   ? JSON.parse(fs.readFileSync(genDictationPath, 'utf8'))
   : materialMockData;
-
-const activeDeckData = fs.existsSync(genVocabPath)
-  ? JSON.parse(fs.readFileSync(genVocabPath, 'utf8'))
-  : deckData;
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -48,7 +39,7 @@ async function bootstrap() {
   const materialRepo = dataSource.getRepository(MaterialEntity);
   const transcriptRepo = dataSource.getRepository(TranscriptEntity);
   const userRepo = dataSource.getRepository(UserEntity);
-  const deckRepo = dataSource.getRepository(DeckEntity);
+  const folderRepo = dataSource.getRepository(FolderEntity);
   const wordRepo = dataSource.getRepository(WordEntity);
   const definitionRepo = dataSource.getRepository(DefinitionEntity);
   const exampleRepo = dataSource.getRepository(ExampleEntity);
@@ -78,7 +69,7 @@ async function bootstrap() {
   await exampleRepo.createQueryBuilder().delete().execute();
   await definitionRepo.createQueryBuilder().delete().execute();
   await wordRepo.createQueryBuilder().delete().execute();
-  await deckRepo.createQueryBuilder().delete().execute();
+  await folderRepo.createQueryBuilder().delete().execute();
   await transcriptRepo.createQueryBuilder().delete().execute();
   await materialRepo.createQueryBuilder().delete().execute();
   await dataSource.query('DELETE FROM "iam_sessions"');

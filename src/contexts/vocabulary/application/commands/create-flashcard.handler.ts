@@ -3,8 +3,8 @@ import { Inject } from '@nestjs/common';
 import { CreateFlashcardCommand } from './create-flashcard.command';
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
-import type { IDeckRepository } from '../../domain/repositories/deck.repository.interface';
-import { DECK_REPOSITORY } from '../../domain/repositories/deck.repository.interface';
+import type { IFolderRepository } from '../../domain/repositories/folder.repository.interface';
+import { FOLDER_REPOSITORY } from '../../domain/repositories/folder.repository.interface';
 import type { IVocabularyWordRepository } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { VOCABULARY_WORD_REPOSITORY } from '../../domain/repositories/vocabulary-word.repository.interface';
 import { Flashcard } from '../../domain/aggregates/flashcard.aggregate';
@@ -19,18 +19,18 @@ export class CreateFlashcardHandler implements ICommandHandler<
   constructor(
     @Inject(FLASHCARD_REPOSITORY)
     private readonly flashcardRepo: IFlashcardRepository,
-    @Inject(DECK_REPOSITORY)
-    private readonly deckRepo: IDeckRepository,
+    @Inject(FOLDER_REPOSITORY)
+    private readonly folderRepo: IFolderRepository,
     @Inject(VOCABULARY_WORD_REPOSITORY)
     private readonly wordRepo: IVocabularyWordRepository,
   ) {}
 
   async execute(command: CreateFlashcardCommand): Promise<string> {
-    const { deckId, wordId } = command;
+    const { folderId, wordId } = command;
 
-    const deck = await this.deckRepo.findById(deckId);
-    if (!deck) {
-      throw new AppException(VocabEx.FlashcardNotFound);
+    const folder = await this.folderRepo.findById(folderId);
+    if (!folder) {
+      throw new AppException(VocabEx.FolderNotFound);
     }
 
     const word = await this.wordRepo.findById(wordId);
@@ -38,12 +38,15 @@ export class CreateFlashcardHandler implements ICommandHandler<
       throw new AppException(VocabEx.WordNotFound);
     }
 
-    const existing = await this.flashcardRepo.findByDeckAndWord(deckId, wordId);
+    const existing = await this.flashcardRepo.findByFolderAndWord(
+      folderId,
+      wordId,
+    );
     if (existing) {
       throw new AppException(VocabEx.FlashcardAlreadyExists);
     }
 
-    const flashcard = Flashcard.create(deckId, wordId);
+    const flashcard = Flashcard.create(folderId, wordId);
 
     await this.flashcardRepo.save(flashcard);
     return flashcard.id;

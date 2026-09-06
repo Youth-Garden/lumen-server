@@ -4,30 +4,30 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { WordEntity } from './infrastructure/entities/word.entity';
 import { DefinitionEntity } from './infrastructure/entities/definition.entity';
 import { ExampleEntity } from './infrastructure/entities/example.entity';
-import { DeckEntity } from './infrastructure/entities/deck.entity';
+import { FolderEntity } from './infrastructure/entities/folder.entity';
 import { FlashcardEntity } from './infrastructure/entities/flashcard.entity';
 import { UserProgressEntity } from './infrastructure/entities/user-progress.entity';
 import { VocabularyController } from './presentation/http/vocabulary.controller';
 import { CreateVocabularyWordHandler } from './application/commands/create-vocabulary-word.handler';
-import { CreateDeckHandler } from './application/commands/create-deck.handler';
+import { CreateFolderHandler } from './application/commands/create-folder.handler';
 import { CreateFlashcardHandler } from './application/commands/create-flashcard.handler';
 import { ReviewFlashcardHandler } from './application/commands/review-flashcard.handler';
 import { GetVocabularyWordByIdHandler } from './application/queries/get-vocabulary-word-by-id.handler';
 import { ListWordsHandler } from './application/queries/list-words.handler';
-import { ListDecksHandler } from './application/queries/list-decks.handler';
-import { GetDeckByIdHandler } from './application/queries/get-deck-by-id.handler';
+import { ListFoldersHandler } from './application/queries/list-folders.handler';
+import { GetFolderByIdHandler } from './application/queries/get-folder-by-id.handler';
 import { ListDueFlashcardsHandler } from './application/queries/list-due-flashcards.handler';
 import { UpdateVocabularyWordHandler } from './application/commands/update-vocabulary-word.handler';
 import { DeleteVocabularyWordHandler } from './application/commands/delete-vocabulary-word.handler';
-import { UpdateDeckHandler } from './application/commands/update-deck.handler';
-import { DeleteDeckHandler } from './application/commands/delete-deck.handler';
+import { UpdateFolderHandler } from './application/commands/update-folder.handler';
+import { DeleteFolderHandler } from './application/commands/delete-folder.handler';
 import { DeleteFlashcardHandler } from './application/commands/delete-flashcard.handler';
 import { VOCABULARY_WORD_REPOSITORY } from './domain/repositories/vocabulary-word.repository.interface';
-import { DECK_REPOSITORY } from './domain/repositories/deck.repository.interface';
+import { FOLDER_REPOSITORY } from './domain/repositories/folder.repository.interface';
 import { FLASHCARD_REPOSITORY } from './domain/repositories/flashcard.repository.interface';
 import { USER_PROGRESS_REPOSITORY } from './domain/repositories/user-progress.repository.interface';
 import { VocabularyWordRepository } from './infrastructure/repositories/vocabulary-word.repository';
-import { DeckRepository } from './infrastructure/repositories/deck.repository';
+import { FolderRepository } from './infrastructure/repositories/folder.repository';
 import { FlashcardRepository } from './infrastructure/repositories/flashcard.repository';
 import { UserProgressRepository } from './infrastructure/repositories/user-progress.repository';
 import { VOCABULARY_QUERY_REPOSITORY } from './application/ports/vocabulary-query.repository';
@@ -40,7 +40,7 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
       WordEntity,
       DefinitionEntity,
       ExampleEntity,
-      DeckEntity,
+      FolderEntity,
       FlashcardEntity,
       UserProgressEntity,
     ]),
@@ -48,26 +48,26 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
   controllers: [VocabularyController],
   providers: [
     CreateVocabularyWordHandler,
-    CreateDeckHandler,
+    CreateFolderHandler,
     CreateFlashcardHandler,
     ReviewFlashcardHandler,
     GetVocabularyWordByIdHandler,
     ListWordsHandler,
-    ListDecksHandler,
-    GetDeckByIdHandler,
+    ListFoldersHandler,
+    GetFolderByIdHandler,
     ListDueFlashcardsHandler,
     UpdateVocabularyWordHandler,
     DeleteVocabularyWordHandler,
-    UpdateDeckHandler,
-    DeleteDeckHandler,
+    UpdateFolderHandler,
+    DeleteFolderHandler,
     DeleteFlashcardHandler,
     {
       provide: VOCABULARY_WORD_REPOSITORY,
       useClass: VocabularyWordRepository,
     },
     {
-      provide: DECK_REPOSITORY,
-      useClass: DeckRepository,
+      provide: FOLDER_REPOSITORY,
+      useClass: FolderRepository,
     },
     {
       provide: FLASHCARD_REPOSITORY,

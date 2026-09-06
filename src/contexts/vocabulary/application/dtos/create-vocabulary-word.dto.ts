@@ -57,10 +57,30 @@ export class CreateVocabularyWordDto {
   @IsOptional()
   phonetic: string | null;
 
+  @ApiPropertyOptional({ example: '/ˈæpəl/' })
+  @IsString()
+  @IsOptional()
+  phoneticUs?: string | null;
+
+  @ApiPropertyOptional({ example: '/ˈæp.əl/' })
+  @IsString()
+  @IsOptional()
+  phoneticUk?: string | null;
+
   @ApiPropertyOptional({ example: 'https://audio.com/apple.mp3' })
   @IsString()
   @IsOptional()
   audioUrl: string | null;
+
+  @ApiPropertyOptional({ example: 'https://audio.com/apple-us.mp3' })
+  @IsString()
+  @IsOptional()
+  audioUsUrl?: string | null;
+
+  @ApiPropertyOptional({ example: 'https://audio.com/apple-uk.mp3' })
+  @IsString()
+  @IsOptional()
+  audioUkUrl?: string | null;
 
   @IsString()
   @IsOptional()

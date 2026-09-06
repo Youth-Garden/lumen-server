@@ -11,14 +11,14 @@ export const VocabEx = {
     message: 'Word already exists',
     httpStatus: 400,
   },
-  DeckNotFound: {
-    code: 'VOCAB_DECK_NOT_FOUND',
-    message: 'Deck not found',
+  FolderNotFound: {
+    code: 'VOCAB_FOLDER_NOT_FOUND',
+    message: 'Folder not found',
     httpStatus: 404,
   },
   FlashcardAlreadyExists: {
     code: 'VOCAB_FLASHCARD_ALREADY_EXISTS',
-    message: 'Flashcard already exists in this deck',
+    message: 'Flashcard already exists in this folder',
     httpStatus: 400,
   },
   FlashcardNotFound: {
@@ -26,9 +26,9 @@ export const VocabEx = {
     message: 'Flashcard not found',
     httpStatus: 404,
   },
-  NotDeckOwner: {
-    code: 'VOCAB_NOT_DECK_OWNER',
-    message: 'Not authorized to modify this deck',
+  NotFolderOwner: {
+    code: 'VOCAB_NOT_FOLDER_OWNER',
+    message: 'Not authorized to modify this folder',
     httpStatus: 403,
   },
   InvalidReviewQuality: {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ErrorItem } from '../../presentation/response/error-item';
 
 export interface ErrorDefinition {
@@ -10,7 +9,7 @@ export interface ErrorDefinition {
 
 export type ExceptionMap = Record<
   string,
-  ErrorDefinition | ((...args: any[]) => ErrorDefinition)
+  ErrorDefinition | ((...args: unknown[]) => ErrorDefinition)
 >;
 
 export class AppException extends Error {

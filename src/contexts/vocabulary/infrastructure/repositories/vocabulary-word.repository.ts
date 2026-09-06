@@ -73,7 +73,11 @@ export class VocabularyWordRepository
     wordEntity.id = word.id;
     wordEntity.term = word.term;
     wordEntity.phonetic = word.phonetic;
+    wordEntity.phoneticUs = word.phoneticUs;
+    wordEntity.phoneticUk = word.phoneticUk;
     wordEntity.audioUrl = word.audioUrl;
+    wordEntity.audioUsUrl = word.audioUsUrl;
+    wordEntity.audioUkUrl = word.audioUkUrl;
     wordEntity.cefrLevel = word.cefrLevel;
     wordEntity.imageUrl = word.imageUrl;
 
@@ -121,6 +125,10 @@ export class VocabularyWordRepository
       entity.cefrLevel,
       definitions,
       entity.imageUrl,
+      entity.audioUsUrl,
+      entity.audioUkUrl,
+      entity.phoneticUs,
+      entity.phoneticUk,
     );
   }
 

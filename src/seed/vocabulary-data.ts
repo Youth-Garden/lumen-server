@@ -1,4 +1,4 @@
-export const deckData = [
+export const folderData = [
   {
     name: 'Essential TOEIC Vocabulary 1',
     description: 'Core vocabulary for TOEIC listening and reading.',

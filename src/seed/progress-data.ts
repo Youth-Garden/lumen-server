@@ -9,10 +9,10 @@ export const progressData = {
   },
   activities: [
     {
-      type: 'VOCABULARY_DECK_COMPLETED',
-      title: 'Completed Vocabulary Deck',
+      type: 'VOCABULARY_FOLDER_COMPLETED',
+      title: 'Completed Vocabulary Folder',
       description:
-        'You completed the "Basic Greetings" deck with 95% accuracy.',
+        'You completed the "Basic Greetings" folder with 95% accuracy.',
       xpEarned: 50,
       durationMinutes: 10,
     },

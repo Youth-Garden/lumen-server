@@ -13,5 +13,9 @@ export class CreateVocabularyWordCommand {
         translationVi: string;
       }>;
     }>,
+    public readonly audioUsUrl?: string | null,
+    public readonly audioUkUrl?: string | null,
+    public readonly phoneticUs?: string | null,
+    public readonly phoneticUk?: string | null,
   ) {}
 }

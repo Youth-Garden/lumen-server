@@ -4,52 +4,52 @@ import { FindOptionsWhere, LessThanOrEqual, Repository } from 'typeorm';
 import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
 import {
-  DeckDetailResponseDto,
-  DeckResponseDto,
-} from '../../application/responses/deck.response.dto';
+  FolderDetailResponseDto,
+  FolderResponseDto,
+} from '../../application/responses/folder.response.dto';
 import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
-import { DeckEntity } from '../entities/deck.entity';
+import { FolderEntity } from '../entities/folder.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
 @Injectable()
 export class VocabularyQueryRepository
-  extends BaseRepository<DeckEntity>
+  extends BaseRepository<FolderEntity>
   implements IVocabularyQueryRepository
 {
   constructor(
-    @InjectRepository(DeckEntity)
-    private readonly deckRepo: Repository<DeckEntity>,
+    @InjectRepository(FolderEntity)
+    private readonly folderRepo: Repository<FolderEntity>,
     @InjectRepository(UserProgressEntity)
     private readonly progressRepo: Repository<UserProgressEntity>,
   ) {
-    super(deckRepo);
+    super(folderRepo);
   }
 
-  async findDecksByUserId(userId: string): Promise<DeckResponseDto[]> {
+  async findFoldersByUserId(userId: string): Promise<FolderResponseDto[]> {
     const validUserId = userId && userId !== 'undefined' ? userId : null;
 
-    const queryBuilder = this.deckRepo
-      .createQueryBuilder('deck')
-      .leftJoin('deck.flashcards', 'flashcard')
+    const queryBuilder = this.folderRepo
+      .createQueryBuilder('folder')
+      .leftJoin('folder.flashcards', 'flashcard')
       .select([
-        'deck.id AS id',
-        'deck.name AS name',
-        'deck.description AS description',
-        'deck.category AS category',
-        'deck.authorId AS "authorId"',
+        'folder.id AS id',
+        'folder.name AS name',
+        'folder.description AS description',
+        'folder.category AS category',
+        'folder.authorId AS "authorId"',
         'COUNT(flashcard.id)::int AS "flashcardCount"',
       ]);
 
     if (validUserId) {
       queryBuilder.where(
-        'deck.authorId = :userId OR deck.category IS NOT NULL',
+        'folder.authorId = :userId OR folder.category IS NOT NULL',
         { userId: validUserId },
       );
     } else {
-      queryBuilder.where('deck.category IS NOT NULL');
+      queryBuilder.where('folder.category IS NOT NULL');
     }
 
-    interface RawDeckRow {
+    interface RawFolderRow {
       id: string;
       name: string;
       description: string | null;
@@ -58,14 +58,14 @@ export class VocabularyQueryRepository
     }
 
     const rawResults = await queryBuilder
-      .groupBy('deck.id')
-      .addGroupBy('deck.name')
-      .addGroupBy('deck.description')
-      .addGroupBy('deck.category')
-      .addGroupBy('deck.authorId')
-      .addGroupBy('deck.createdAt')
-      .orderBy('deck.createdAt', 'ASC')
-      .getRawMany<RawDeckRow>();
+      .groupBy('folder.id')
+      .addGroupBy('folder.name')
+      .addGroupBy('folder.description')
+      .addGroupBy('folder.category')
+      .addGroupBy('folder.authorId')
+      .addGroupBy('folder.createdAt')
+      .orderBy('folder.createdAt', 'ASC')
+      .getRawMany<RawFolderRow>();
 
     return rawResults.map((row) => ({
       id: row.id,
@@ -79,47 +79,51 @@ export class VocabularyQueryRepository
     }));
   }
 
-  async findDeckByIdAndUserId(
+  async findFolderByIdAndUserId(
     id: string,
     userId: string,
-  ): Promise<DeckDetailResponseDto | null> {
+  ): Promise<FolderDetailResponseDto | null> {
     if (!id || id === 'undefined') return null;
 
     const validUserId = userId && userId !== 'undefined' ? userId : null;
 
-    const queryBuilder = this.deckRepo
-      .createQueryBuilder('deck')
-      .leftJoinAndSelect('deck.flashcards', 'flashcard')
+    const queryBuilder = this.folderRepo
+      .createQueryBuilder('folder')
+      .leftJoinAndSelect('folder.flashcards', 'flashcard')
       .leftJoinAndSelect('flashcard.word', 'word')
       .leftJoinAndSelect('word.definitions', 'definition')
       .leftJoinAndSelect('definition.examples', 'example');
 
     if (validUserId) {
       queryBuilder.where(
-        'deck.id = :id AND (deck.authorId = :userId OR deck.category IS NOT NULL)',
+        'folder.id = :id AND (folder.authorId = :userId OR folder.category IS NOT NULL)',
         { id, userId: validUserId },
       );
     } else {
-      queryBuilder.where('deck.id = :id AND deck.category IS NOT NULL', {
+      queryBuilder.where('folder.id = :id AND folder.category IS NOT NULL', {
         id,
       });
     }
 
-    const deck = await queryBuilder.getOne();
+    const folder = await queryBuilder.getOne();
 
-    if (!deck) return null;
+    if (!folder) return null;
 
     return {
-      id: deck.id,
-      name: deck.name,
-      description: deck.description,
-      category: deck.category || null,
-      flashcards: (deck.flashcards || []).map((flashcard) => ({
+      id: folder.id,
+      name: folder.name,
+      description: folder.description,
+      category: folder.category || null,
+      flashcards: (folder.flashcards || []).map((flashcard) => ({
         id: flashcard.id,
         wordId: flashcard.word.id,
         term: flashcard.word.term,
         phonetic: flashcard.word.phonetic,
+        phoneticUs: flashcard.word.phoneticUs,
+        phoneticUk: flashcard.word.phoneticUk,
         audioUrl: flashcard.word.audioUrl,
+        audioUsUrl: flashcard.word.audioUsUrl,
+        audioUkUrl: flashcard.word.audioUkUrl,
         cefrLevel: flashcard.word.cefrLevel,
         imageUrl: flashcard.word.imageUrl,
         definitions: (flashcard.word.definitions || []).map((def) => ({
@@ -138,11 +142,12 @@ export class VocabularyQueryRepository
 
   async findDueFlashcards(
     userId: string,
-    deckId?: string,
+    folderId?: string,
     limit?: number,
   ): Promise<DueFlashcardResponseDto[]> {
     const validUserId = userId && userId !== 'undefined' ? userId : null;
-    const validDeckId = deckId && deckId !== 'undefined' ? deckId : null;
+    const validFolderId =
+      folderId && folderId !== 'undefined' ? folderId : null;
 
     if (!validUserId) return [];
 
@@ -151,10 +156,10 @@ export class VocabularyQueryRepository
       due: LessThanOrEqual(new Date()),
     };
 
-    if (validDeckId) {
+    if (validFolderId) {
       where.flashcard = {
-        deck: {
-          id: validDeckId,
+        folder: {
+          id: validFolderId,
         },
       };
     }
@@ -164,7 +169,7 @@ export class VocabularyQueryRepository
       relations: {
         flashcard: {
           word: true,
-          deck: true,
+          folder: true,
         },
       },
       order: { due: 'ASC' },
@@ -175,8 +180,8 @@ export class VocabularyQueryRepository
       flashcardId: progress.flashcard.id,
       wordId: progress.flashcard.word.id,
       term: progress.flashcard.word.term,
-      deckId: progress.flashcard.deck.id,
-      deckName: progress.flashcard.deck.name,
+      folderId: progress.flashcard.folder.id,
+      folderName: progress.flashcard.folder.name,
       due: progress.due,
       state: progress.state,
       reps: progress.reps,

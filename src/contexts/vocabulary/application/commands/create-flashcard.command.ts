@@ -1,6 +1,6 @@
 export class CreateFlashcardCommand {
   constructor(
-    public readonly deckId: string,
+    public readonly folderId: string,
     public readonly wordId: string,
   ) {}
 }

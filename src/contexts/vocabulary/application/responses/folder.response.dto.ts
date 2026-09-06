@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DeckResponseDto {
+export class FolderResponseDto {
   @ApiProperty()
   id: string;
 
@@ -47,8 +47,20 @@ export class FlashcardSummaryDto {
   @ApiProperty({ nullable: true })
   phonetic: string | null;
 
+  @ApiProperty({ nullable: true, required: false })
+  phoneticUs?: string | null;
+
+  @ApiProperty({ nullable: true, required: false })
+  phoneticUk?: string | null;
+
   @ApiProperty({ nullable: true })
   audioUrl: string | null;
+
+  @ApiProperty({ nullable: true, required: false })
+  audioUsUrl?: string | null;
+
+  @ApiProperty({ nullable: true, required: false })
+  audioUkUrl?: string | null;
 
   @ApiProperty({ nullable: true })
   cefrLevel: string | null;
@@ -60,7 +72,7 @@ export class FlashcardSummaryDto {
   definitions?: FlashcardDefinitionDto[];
 }
 
-export class DeckDetailResponseDto {
+export class FolderDetailResponseDto {
   @ApiProperty()
   id: string;
 

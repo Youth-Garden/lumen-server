@@ -12,7 +12,19 @@ export class WordEntity extends BaseEntity {
   phonetic: string | null;
 
   @Column({ type: 'varchar', nullable: true })
+  phoneticUs: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  phoneticUk: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
   audioUrl: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  audioUsUrl: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  audioUkUrl: string | null;
 
   @Column({ type: 'varchar', nullable: true })
   cefrLevel: string | null;

@@ -1,8 +1,8 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
-import { DeckCreatedEvent } from '../events/deck-created.event';
+import { FolderCreatedEvent } from '../events/folder-created.event';
 
-export class Deck extends AggregateRoot {
+export class Folder extends AggregateRoot {
   private constructor(
     private _id: string,
     private _name: string,
@@ -18,10 +18,16 @@ export class Deck extends AggregateRoot {
     description: string | null,
     authorId: string,
     category: string | null = null,
-  ): Deck {
-    const deck = new Deck(randomUUID(), name, description, authorId, category);
-    deck.apply(new DeckCreatedEvent(deck.id));
-    return deck;
+  ): Folder {
+    const folder = new Folder(
+      randomUUID(),
+      name,
+      description,
+      authorId,
+      category,
+    );
+    folder.apply(new FolderCreatedEvent(folder.id));
+    return folder;
   }
 
   static restore(
@@ -30,8 +36,8 @@ export class Deck extends AggregateRoot {
     description: string | null,
     authorId: string,
     category: string | null = null,
-  ): Deck {
-    return new Deck(id, name, description, authorId, category);
+  ): Folder {
+    return new Folder(id, name, description, authorId, category);
   }
 
   get id(): string {

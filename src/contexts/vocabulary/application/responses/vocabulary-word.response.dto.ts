@@ -43,7 +43,19 @@ export class VocabularyWordResponseDto {
   phonetic: string | null;
 
   @Expose()
+  phoneticUs: string | null;
+
+  @Expose()
+  phoneticUk: string | null;
+
+  @Expose()
   audioUrl: string | null;
+
+  @Expose()
+  audioUsUrl: string | null;
+
+  @Expose()
+  audioUkUrl: string | null;
 
   @Expose()
   cefrLevel: string | null;

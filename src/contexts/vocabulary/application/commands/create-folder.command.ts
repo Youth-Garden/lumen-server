@@ -1,4 +1,4 @@
-export class CreateDeckCommand {
+export class CreateFolderCommand {
   constructor(
     public readonly name: string,
     public readonly description: string | null,

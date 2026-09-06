@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,36 +18,35 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateVocabularyWordDto } from '../../application/dtos/create-vocabulary-word.dto';
 import {
-  CreateDeckDto,
+  CreateFolderDto,
   CreateFlashcardDto,
-} from '../../application/dtos/deck-flashcard.dto';
+} from '../../application/dtos/folder-flashcard.dto';
 import { UpdateVocabularyWordDto } from '../../application/dtos/update-vocabulary-word.dto';
-import { UpdateDeckDto } from '../../application/dtos/update-deck.dto';
+import { UpdateFolderDto } from '../../application/dtos/update-folder.dto';
 import { ReviewFlashcardDto } from '../../application/dtos/review-flashcard.dto';
 import { CreateVocabularyWordCommand } from '../../application/commands/create-vocabulary-word.command';
-import { CreateDeckCommand } from '../../application/commands/create-deck.command';
+import { CreateFolderCommand } from '../../application/commands/create-folder.command';
 import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
 import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
 import { UpdateVocabularyWordCommand } from '../../application/commands/update-vocabulary-word.command';
 import { DeleteVocabularyWordCommand } from '../../application/commands/delete-vocabulary-word.command';
-import { UpdateDeckCommand } from '../../application/commands/update-deck.command';
-import { DeleteDeckCommand } from '../../application/commands/delete-deck.command';
+import { UpdateFolderCommand } from '../../application/commands/update-folder.command';
+import { DeleteFolderCommand } from '../../application/commands/delete-folder.command';
 import { DeleteFlashcardCommand } from '../../application/commands/delete-flashcard.command';
 import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
 import { ListWordsQuery } from '../../application/queries/list-words.query';
-import { ListDecksQuery } from '../../application/queries/list-decks.query';
-import { GetDeckByIdQuery } from '../../application/queries/get-deck-by-id.query';
+import { ListFoldersQuery } from '../../application/queries/list-folders.query';
+import { GetFolderByIdQuery } from '../../application/queries/get-folder-by-id.query';
 import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
 import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
 import {
-  DeckDetailResponseDto,
-  DeckResponseDto,
-} from '../../application/responses/deck.response.dto';
+  FolderDetailResponseDto,
+  FolderResponseDto,
+} from '../../application/responses/folder.response.dto';
 import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
-import { Query } from '@nestjs/common';
 import { ListWordsFilterDto } from '../../application/dtos/list-words-filter.dto';
 
 @ApiTags('Vocabulary')
@@ -144,82 +144,84 @@ export class VocabularyController {
     );
   }
 
-  @Get('decks')
-  @ApiOperation({ summary: 'List decks' })
-  @ApiResponse({ type: [DeckResponseDto], status: 200 })
-  async listDecks(@CurrentUser() userId: string): Promise<DeckResponseDto[]> {
-    return this.queryBus.execute<ListDecksQuery, DeckResponseDto[]>(
-      new ListDecksQuery(userId),
+  @Get('folders')
+  @ApiOperation({ summary: 'List folders' })
+  @ApiResponse({ type: [FolderResponseDto], status: 200 })
+  async listFolders(
+    @CurrentUser() userId: string,
+  ): Promise<FolderResponseDto[]> {
+    return this.queryBus.execute<ListFoldersQuery, FolderResponseDto[]>(
+      new ListFoldersQuery(userId),
     );
   }
 
-  @Get('decks/:id')
-  @ApiOperation({ summary: 'Get deck details with flashcards' })
-  @ApiResponse({ type: DeckDetailResponseDto, status: 200 })
-  async getDeckById(
+  @Get('folders/:id')
+  @ApiOperation({ summary: 'Get folder details with flashcards' })
+  @ApiResponse({ type: FolderDetailResponseDto, status: 200 })
+  async getFolderById(
     @Param('id') id: string,
     @CurrentUser() userId: string,
-  ): Promise<DeckDetailResponseDto> {
-    return this.queryBus.execute<GetDeckByIdQuery, DeckDetailResponseDto>(
-      new GetDeckByIdQuery(id, userId),
+  ): Promise<FolderDetailResponseDto> {
+    return this.queryBus.execute<GetFolderByIdQuery, FolderDetailResponseDto>(
+      new GetFolderByIdQuery(id, userId),
     );
   }
 
-  @Post('decks')
+  @Post('folders')
   @ApiOperation({
-    summary: 'Create a flashcard deck',
+    summary: 'Create a flashcard folder',
     description:
-      'Create a new personal deck to organize flashcards. The deck is owned by the authenticated user.',
+      'Create a new personal folder to organize flashcards. The folder is owned by the authenticated user.',
   })
-  @ApiBody({ type: CreateDeckDto })
+  @ApiBody({ type: CreateFolderDto })
   @ApiResponse({
     status: 201,
-    description: 'Deck created successfully. Returns the new deck ID.',
+    description: 'Folder created successfully. Returns the new folder ID.',
     schema: { example: { id: 'uuid-string' } },
   })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async createDeck(
-    @Body() dto: CreateDeckDto,
+  async createFolder(
+    @Body() dto: CreateFolderDto,
     @CurrentUser() userId: string,
   ): Promise<{ id: string }> {
-    const id = await this.commandBus.execute<CreateDeckCommand, string>(
-      new CreateDeckCommand(dto.name, dto.description, userId),
+    const id = await this.commandBus.execute<CreateFolderCommand, string>(
+      new CreateFolderCommand(dto.name, dto.description, userId),
     );
     return { id };
   }
 
-  @Put('decks/:id')
-  @ApiOperation({ summary: 'Update a deck' })
-  @ApiParam({ name: 'id', description: 'The UUID of the deck' })
-  @ApiBody({ type: UpdateDeckDto })
-  @ApiResponse({ status: 200, description: 'Deck updated successfully.' })
-  async updateDeck(
+  @Put('folders/:id')
+  @ApiOperation({ summary: 'Update a folder' })
+  @ApiParam({ name: 'id', description: 'The UUID of the folder' })
+  @ApiBody({ type: UpdateFolderDto })
+  @ApiResponse({ status: 200, description: 'Folder updated successfully.' })
+  async updateFolder(
     @Param('id') id: string,
-    @Body() dto: UpdateDeckDto,
+    @Body() dto: UpdateFolderDto,
     @CurrentUser() userId: string,
   ): Promise<void> {
     await this.commandBus.execute(
-      new UpdateDeckCommand(id, userId, dto.name, dto.description),
+      new UpdateFolderCommand(id, userId, dto.name, dto.description),
     );
   }
 
-  @Delete('decks/:id')
-  @ApiOperation({ summary: 'Delete a deck' })
-  @ApiParam({ name: 'id', description: 'The UUID of the deck' })
-  @ApiResponse({ status: 200, description: 'Deck deleted successfully.' })
-  async deleteDeck(
+  @Delete('folders/:id')
+  @ApiOperation({ summary: 'Delete a folder' })
+  @ApiParam({ name: 'id', description: 'The UUID of the folder' })
+  @ApiResponse({ status: 200, description: 'Folder deleted successfully.' })
+  async deleteFolder(
     @Param('id') id: string,
     @CurrentUser() userId: string,
   ): Promise<void> {
-    await this.commandBus.execute(new DeleteDeckCommand(id, userId));
+    await this.commandBus.execute(new DeleteFolderCommand(id, userId));
   }
 
   @Post('flashcards')
   @ApiOperation({
-    summary: 'Add a flashcard to a deck',
+    summary: 'Add a flashcard to a folder',
     description:
-      'Link a vocabulary word to a deck as a flashcard. The flashcard will be initialized with SM-2 algorithm defaults for spaced repetition.',
+      'Link a vocabulary word to a folder as a flashcard. The flashcard will be initialized with SM-2 algorithm defaults for spaced repetition.',
   })
   @ApiBody({ type: CreateFlashcardDto })
   @ApiResponse({
@@ -234,7 +236,7 @@ export class VocabularyController {
     @Body() dto: CreateFlashcardDto,
   ): Promise<{ id: string }> {
     const id = await this.commandBus.execute<CreateFlashcardCommand, string>(
-      new CreateFlashcardCommand(dto.deckId, dto.wordId),
+      new CreateFlashcardCommand(dto.folderId, dto.wordId),
     );
     return { id };
   }
@@ -255,14 +257,14 @@ export class VocabularyController {
   @ApiResponse({ type: [DueFlashcardResponseDto], status: 200 })
   async listDueFlashcards(
     @CurrentUser() userId: string,
-    @Query('deckId') deckId?: string,
+    @Query('folderId') folderId?: string,
     @Query('limit') limit?: string,
   ): Promise<DueFlashcardResponseDto[]> {
     const limitNum = limit ? parseInt(limit, 10) : undefined;
     return this.queryBus.execute<
       ListDueFlashcardsQuery,
       DueFlashcardResponseDto[]
-    >(new ListDueFlashcardsQuery(userId, deckId, limitNum));
+    >(new ListDueFlashcardsQuery(userId, folderId, limitNum));
   }
 
   @Public()
@@ -274,16 +276,17 @@ export class VocabularyController {
   })
   @ApiParam({
     name: 'id',
-    description: 'The UUID of the vocabulary word',
-    example: 'uuid-string',
+    description: 'The UUID of the vocabulary word to retrieve.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Returns the vocabulary word details.',
+    description: 'Returns the full details of the vocabulary word.',
     type: VocabularyWordResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Word not found.' })
-  async getWord(@Param('id') id: string): Promise<VocabularyWordResponseDto> {
+  async getWordById(
+    @Param('id') id: string,
+  ): Promise<VocabularyWordResponseDto> {
     return this.queryBus.execute<
       GetVocabularyWordByIdQuery,
       VocabularyWordResponseDto
@@ -292,26 +295,26 @@ export class VocabularyController {
 
   @Post('flashcards/review')
   @ApiOperation({
-    summary: 'Review a flashcard (FSRS)',
+    summary: 'Submit a flashcard review (SM-2 spaced repetition)',
     description:
-      'Submit a review quality (1–4) for a flashcard. The FSRS spaced repetition algorithm will calculate the next review date and update the card metrics.',
+      'Record a review result for a flashcard. Quality is an integer between 1 and 4. Returns the updated schedule.',
   })
   @ApiBody({ type: ReviewFlashcardDto })
   @ApiResponse({
-    status: 201,
-    description: 'Review submitted. Next review date calculated.',
+    status: 200,
+    description: 'Flashcard review recorded and next due date updated.',
   })
-  @ApiResponse({ status: 400, description: 'Validation error.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({
-    status: 404,
-    description: 'Flashcard not found or does not belong to this user.',
+    status: 400,
+    description: 'Validation error or invalid review quality.',
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 404, description: 'Flashcard not found.' })
   async reviewFlashcard(
     @Body() dto: ReviewFlashcardDto,
     @CurrentUser() userId: string,
   ): Promise<void> {
-    await this.commandBus.execute<ReviewFlashcardCommand, void>(
+    await this.commandBus.execute(
       new ReviewFlashcardCommand(dto.flashcardId, dto.quality, userId),
     );
   }

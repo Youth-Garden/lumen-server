@@ -8,14 +8,19 @@ export interface RefreshTokenOptions {
 }
 
 export const RefreshToken = createParamDecorator(
-  (options: RefreshTokenOptions | undefined, ctx: ExecutionContext): string | null => {
+  (
+    options: RefreshTokenOptions | undefined,
+    ctx: ExecutionContext,
+  ): string | null => {
     const isRequired = options?.required ?? true;
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
     const refreshTokenHeader = request.headers['x-refresh-token'];
     const headerToken = Array.isArray(refreshTokenHeader)
       ? refreshTokenHeader[0]
       : refreshTokenHeader;
-    const bodyToken = (request.body as any)?.refreshToken;
+    const body = request.body as Record<string, unknown> | null | undefined;
+    const bodyToken =
+      typeof body?.refreshToken === 'string' ? body.refreshToken : undefined;
 
     const token = bodyToken || headerToken || request.cookies?.jwtr || '';
 

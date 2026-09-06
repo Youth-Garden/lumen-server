@@ -9,6 +9,7 @@ export interface GoogleAuthPayload {
   email_verified: boolean;
   name: string;
   picture: string;
+  avatar_url?: string;
   given_name: string;
   family_name: string;
 }
@@ -39,7 +40,7 @@ export class GoogleAuthService {
         throw new UnauthorizedException('Invalid Google credentials');
       }
 
-      const picture = payload.picture || (payload as any).avatar_url || '';
+      const picture = payload.picture || payload.avatar_url || '';
 
       return {
         sub: payload.sub,

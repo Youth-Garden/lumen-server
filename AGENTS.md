@@ -559,3 +559,10 @@ The src/shared directory is the single source of truth for cross-cutting concern
 ## 12. Code Commenting Convention
 
 - **No Unnecessary Comments**: Do not add comments for normal, self-explanatory information or clearly written code. Only add comments if a function involves multiple steps, contains complex logic, or is highly complicated.
+
+## 13. Strict Prohibition on Workarounds and Aliases
+
+- **NEVER use temporary workarounds, re-export aliases, or type shims**: Do NOT create bridge aliases like `export const DECK_REPOSITORY = FOLDER_REPOSITORY;`, `export type Deck = Folder;`, or wrapper functions to avoid refactoring callers.
+- **Complete Refactoring**: When renaming or removing a concept or entity, you MUST refactor 100% of its usages cleanly across all layers (Domain, Application, Infrastructure, Presentation, Tests).
+- **Zero Compatibility Shims**: Do not leave legacy variable names, method names, or DTO wrappers behind to avoid updating caller code.
+

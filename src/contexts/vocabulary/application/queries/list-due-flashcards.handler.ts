@@ -18,12 +18,14 @@ export class ListDueFlashcardsHandler implements IQueryHandler<
   async execute(
     query: ListDueFlashcardsQuery,
   ): Promise<DueFlashcardResponseDto[]> {
-    const validDeckId =
-      query.deckId && query.deckId !== 'undefined' ? query.deckId : undefined;
+    const validFolderId =
+      query.folderId && query.folderId !== 'undefined'
+        ? query.folderId
+        : undefined;
 
     return this.vocabularyQueryRepository.findDueFlashcards(
       query.userId,
-      validDeckId,
+      validFolderId,
       query.limit,
     );
   }

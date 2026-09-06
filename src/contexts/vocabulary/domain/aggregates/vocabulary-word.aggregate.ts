@@ -11,6 +11,10 @@ export class VocabularyWord extends AggregateRoot {
     private _cefrLevel: string | null,
     private _definitions: VocabularyDefinition[] = [],
     private _imageUrl: string | null = null,
+    private _audioUsUrl: string | null = null,
+    private _audioUkUrl: string | null = null,
+    private _phoneticUs: string | null = null,
+    private _phoneticUk: string | null = null,
   ) {
     super();
   }
@@ -22,6 +26,10 @@ export class VocabularyWord extends AggregateRoot {
     cefrLevel: string | null,
     definitions: VocabularyDefinition[],
     imageUrl: string | null = null,
+    audioUsUrl: string | null = null,
+    audioUkUrl: string | null = null,
+    phoneticUs: string | null = null,
+    phoneticUk: string | null = null,
   ): VocabularyWord {
     return new VocabularyWord(
       randomUUID(),
@@ -31,6 +39,10 @@ export class VocabularyWord extends AggregateRoot {
       cefrLevel,
       definitions,
       imageUrl,
+      audioUsUrl,
+      audioUkUrl,
+      phoneticUs,
+      phoneticUk,
     );
   }
 
@@ -42,6 +54,10 @@ export class VocabularyWord extends AggregateRoot {
     cefrLevel: string | null,
     definitions: VocabularyDefinition[],
     imageUrl: string | null = null,
+    audioUsUrl: string | null = null,
+    audioUkUrl: string | null = null,
+    phoneticUs: string | null = null,
+    phoneticUk: string | null = null,
   ): VocabularyWord {
     return new VocabularyWord(
       id,
@@ -51,6 +67,10 @@ export class VocabularyWord extends AggregateRoot {
       cefrLevel,
       definitions,
       imageUrl,
+      audioUsUrl,
+      audioUkUrl,
+      phoneticUs,
+      phoneticUk,
     );
   }
 
@@ -66,8 +86,24 @@ export class VocabularyWord extends AggregateRoot {
     return this._phonetic;
   }
 
+  get phoneticUs(): string | null {
+    return this._phoneticUs;
+  }
+
+  get phoneticUk(): string | null {
+    return this._phoneticUk;
+  }
+
   get audioUrl(): string | null {
     return this._audioUrl;
+  }
+
+  get audioUsUrl(): string | null {
+    return this._audioUsUrl;
+  }
+
+  get audioUkUrl(): string | null {
+    return this._audioUkUrl;
   }
 
   get cefrLevel(): string | null {
@@ -89,6 +125,10 @@ export class VocabularyWord extends AggregateRoot {
     cefrLevel?: string | null,
     definitions?: VocabularyDefinition[],
     imageUrl?: string | null,
+    audioUsUrl?: string | null,
+    audioUkUrl?: string | null,
+    phoneticUs?: string | null,
+    phoneticUk?: string | null,
   ): void {
     if (term !== undefined) this._term = term;
     if (phonetic !== undefined) this._phonetic = phonetic;
@@ -96,5 +136,9 @@ export class VocabularyWord extends AggregateRoot {
     if (cefrLevel !== undefined) this._cefrLevel = cefrLevel;
     if (definitions !== undefined) this._definitions = definitions;
     if (imageUrl !== undefined) this._imageUrl = imageUrl;
+    if (audioUsUrl !== undefined) this._audioUsUrl = audioUsUrl;
+    if (audioUkUrl !== undefined) this._audioUkUrl = audioUkUrl;
+    if (phoneticUs !== undefined) this._phoneticUs = phoneticUs;
+    if (phoneticUk !== undefined) this._phoneticUk = phoneticUk;
   }
 }

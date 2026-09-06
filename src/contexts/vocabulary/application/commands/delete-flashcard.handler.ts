@@ -3,8 +3,8 @@ import { Inject } from '@nestjs/common';
 import { DeleteFlashcardCommand } from './delete-flashcard.command';
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
-import type { IDeckRepository } from '../../domain/repositories/deck.repository.interface';
-import { DECK_REPOSITORY } from '../../domain/repositories/deck.repository.interface';
+import type { IFolderRepository } from '../../domain/repositories/folder.repository.interface';
+import { FOLDER_REPOSITORY } from '../../domain/repositories/folder.repository.interface';
 import { AppException } from '../../../../shared/domain/exceptions';
 import { VocabEx } from '../../domain/exceptions/vocabulary.exception';
 
@@ -16,8 +16,8 @@ export class DeleteFlashcardHandler implements ICommandHandler<
   constructor(
     @Inject(FLASHCARD_REPOSITORY)
     private readonly repo: IFlashcardRepository,
-    @Inject(DECK_REPOSITORY)
-    private readonly deckRepo: IDeckRepository,
+    @Inject(FOLDER_REPOSITORY)
+    private readonly folderRepo: IFolderRepository,
   ) {}
 
   async execute(command: DeleteFlashcardCommand): Promise<void> {
@@ -26,10 +26,10 @@ export class DeleteFlashcardHandler implements ICommandHandler<
       throw new AppException(VocabEx.FlashcardNotFound);
     }
 
-    // Verify ownership via Deck
-    const deck = await this.deckRepo.findById(flashcard.deckId);
-    if (!deck || deck.authorId !== command.userId) {
-      throw new AppException(VocabEx.NotDeckOwner);
+    // Verify ownership via Folder
+    const folder = await this.folderRepo.findById(flashcard.folderId);
+    if (!folder || folder.authorId !== command.userId) {
+      throw new AppException(VocabEx.NotFolderOwner);
     }
 
     await this.repo.delete(flashcard.id);
