@@ -40,6 +40,15 @@ export class VocabularyWordResponseDto {
   term: string;
 
   @Expose()
+  topic: string | null;
+
+  @Expose()
+  topicVi: string | null;
+
+  @Expose()
+  topicImageUrl: string | null;
+
+  @Expose()
   phonetic: string | null;
 
   @Expose()

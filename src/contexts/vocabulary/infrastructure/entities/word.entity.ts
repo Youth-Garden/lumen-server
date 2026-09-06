@@ -9,6 +9,15 @@ export class WordEntity extends BaseEntity {
   term: string;
 
   @Column({ type: 'varchar', nullable: true })
+  topic: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  topicVi: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  topicImageUrl: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
   phonetic: string | null;
 
   @Column({ type: 'varchar', nullable: true })

@@ -6,12 +6,265 @@ import { AppModule } from './app.module';
 import { AuthProvider } from './contexts/iam/domain/enums/auth-provider.enum';
 import { Role } from './contexts/iam/domain/enums/role.enum';
 import { UserEntity } from './contexts/iam/infrastructure/entities/user.entity';
-import { FolderEntity } from './contexts/vocabulary/infrastructure/entities/folder.entity';
 import { DefinitionEntity } from './contexts/vocabulary/infrastructure/entities/definition.entity';
 import { ExampleEntity } from './contexts/vocabulary/infrastructure/entities/example.entity';
 import { FlashcardEntity } from './contexts/vocabulary/infrastructure/entities/flashcard.entity';
+import { FolderEntity } from './contexts/vocabulary/infrastructure/entities/folder.entity';
 import { WordEntity } from './contexts/vocabulary/infrastructure/entities/word.entity';
 import { fetchDictionaryPronunciations } from './contexts/vocabulary/infrastructure/helpers/dictionary-audio.helper';
+
+const TOPICS_METADATA: Record<string, { vi: string; image: string }> = {
+  Contracts: {
+    vi: 'Hợp Đồng',
+    image:
+      'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=200&h=200&fit=crop&q=80',
+  },
+  Marketing: {
+    vi: 'Thị Trường',
+    image:
+      'https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=200&h=200&fit=crop&q=80',
+  },
+  Warranties: {
+    vi: 'Sự Bảo Hành',
+    image:
+      'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=200&h=200&fit=crop&q=80',
+  },
+  'Business Planning': {
+    vi: 'Kế Hoạch Kinh Doanh',
+    image:
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200&h=200&fit=crop&q=80',
+  },
+  Conference: {
+    vi: 'Hội Nghị',
+    image:
+      'https://images.unsplash.com/photo-1511578314322-379afb476865?w=200&h=200&fit=crop&q=80',
+  },
+  'Computers and the Internet': {
+    vi: 'Máy Vi Tính',
+    image:
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=200&h=200&fit=crop&q=80',
+  },
+  'Office Technology': {
+    vi: 'Công Nghệ Cho Công Sở',
+    image:
+      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=200&h=200&fit=crop&q=80',
+  },
+  'Office Procedures': {
+    vi: 'Các Quy Trình Trong Công Sở',
+    image:
+      'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=200&h=200&fit=crop&q=80',
+  },
+  Electronics: {
+    vi: 'Điện Tử',
+    image:
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=200&fit=crop&q=80',
+  },
+  Correspondence: {
+    vi: 'Thư Tín',
+    image:
+      'https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=200&h=200&fit=crop&q=80',
+  },
+  'Job Ads & Recruitment': {
+    vi: 'Quảng Cáo Việc Làm & Tuyển Dụng',
+    image:
+      'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=200&h=200&fit=crop&q=80',
+  },
+  'Apply and Interviewing': {
+    vi: 'Ứng Tuyển và Phỏng Vấn',
+    image:
+      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&q=80',
+  },
+  'Hiring and Training': {
+    vi: 'Tuyển Dụng và Đào Tạo',
+    image:
+      'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=200&h=200&fit=crop&q=80',
+  },
+  'Salaries & Benefits': {
+    vi: 'Lương và Các Chế Độ Đãi Ngộ',
+    image:
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=200&h=200&fit=crop&q=80',
+  },
+  'Promotions, Pensions & Award': {
+    vi: 'Thăng Chức, Lương Hưu và Thưởng',
+    image:
+      'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=200&h=200&fit=crop&q=80',
+  },
+  Shopping: {
+    vi: 'Mua Sắm',
+    image:
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop&q=80',
+  },
+  'Ordering Supplies': {
+    vi: 'Đặt Hàng Nhà Cung Cấp',
+    image:
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=200&h=200&fit=crop&q=80',
+  },
+  Shipping: {
+    vi: 'Vận Chuyển Hàng Hóa',
+    image:
+      'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=200&h=200&fit=crop&q=80',
+  },
+  Invoice: {
+    vi: 'Hóa Đơn',
+    image:
+      'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=200&h=200&fit=crop&q=80',
+  },
+  Inventory: {
+    vi: 'Kiểm Kê Hàng Hóa',
+    image:
+      'https://images.unsplash.com/photo-1553413077-190dd305871c?w=200&h=200&fit=crop&q=80',
+  },
+  Banking: {
+    vi: 'Ngân Hàng',
+    image:
+      'https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?w=200&h=200&fit=crop&q=80',
+  },
+  Accounting: {
+    vi: 'Kế Toán',
+    image:
+      'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=200&h=200&fit=crop&q=80',
+  },
+  Investment: {
+    vi: 'Đầu Tư',
+    image:
+      'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=200&h=200&fit=crop&q=80',
+  },
+  Taxes: {
+    vi: 'Thuế',
+    image:
+      'https://images.unsplash.com/photo-1554224154-22dec7ec8818?w=200&h=200&fit=crop&q=80',
+  },
+  'Financial Statements': {
+    vi: 'Báo Cáo Tài Chính',
+    image:
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=200&fit=crop&q=80',
+  },
+  'Property & Departments': {
+    vi: 'Bất Động Sản & Các Phòng Ban',
+    image:
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop&q=80',
+  },
+  'Board Meeting & Committees': {
+    vi: 'Họp Hội Đồng & Ủy Ban',
+    image:
+      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200&h=200&fit=crop&q=80',
+  },
+  'Quality Control': {
+    vi: 'Kiểm Soát Chất Lượng',
+    image:
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=200&fit=crop&q=80',
+  },
+  'Product Development': {
+    vi: 'Phát Triển Sản Phẩm',
+    image:
+      'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=200&h=200&fit=crop&q=80',
+  },
+  'Renting and Leasing': {
+    vi: 'Thuê và Cho Thuê',
+    image:
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=200&fit=crop&q=80',
+  },
+  'Selecting A Restaurant': {
+    vi: 'Chọn Nhà Hàng',
+    image:
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=200&fit=crop&q=80',
+  },
+  'Eating Out': {
+    vi: 'Ăn Ngoài',
+    image:
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&h=200&fit=crop&q=80',
+  },
+  'Ordering Lunch': {
+    vi: 'Đặt Cơm Trưa',
+    image:
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop&q=80',
+  },
+  'Cooking As A Career': {
+    vi: 'Nghề Đầu Bếp',
+    image:
+      'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=200&h=200&fit=crop&q=80',
+  },
+  Events: {
+    vi: 'Sự Kiện',
+    image:
+      'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=200&h=200&fit=crop&q=80',
+  },
+  'General Travel': {
+    vi: 'Du Lịch Tổng Hợp',
+    image:
+      'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200&h=200&fit=crop&q=80',
+  },
+  Airlines: {
+    vi: 'Hãng Hàng Không',
+    image:
+      'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=200&h=200&fit=crop&q=80',
+  },
+  Trains: {
+    vi: 'Tàu Hỏa',
+    image:
+      'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=200&h=200&fit=crop&q=80',
+  },
+  Hotels: {
+    vi: 'Khách Sạn',
+    image:
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&h=200&fit=crop&q=80',
+  },
+  'Car Rentals': {
+    vi: 'Thuê Xe Hơi',
+    image:
+      'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=200&h=200&fit=crop&q=80',
+  },
+  Movies: {
+    vi: 'Rạp Chiếu Phim',
+    image:
+      'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&h=200&fit=crop&q=80',
+  },
+  Theater: {
+    vi: 'Nhà Hát',
+    image:
+      'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=200&h=200&fit=crop&q=80',
+  },
+  Music: {
+    vi: 'Âm Nhạc',
+    image:
+      'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&h=200&fit=crop&q=80',
+  },
+  Museums: {
+    vi: 'Bảo Tàng',
+    image:
+      'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=200&h=200&fit=crop&q=80',
+  },
+  Media: {
+    vi: 'Truyền Thông',
+    image:
+      'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&h=200&fit=crop&q=80',
+  },
+  "Doctor's Office": {
+    vi: 'Phòng Khám Bác Sĩ',
+    image:
+      'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=200&h=200&fit=crop&q=80',
+  },
+  "Dentist's Office": {
+    vi: 'Phòng Khám Nha Sĩ',
+    image:
+      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=200&h=200&fit=crop&q=80',
+  },
+  Health: {
+    vi: 'Sức Khỏe',
+    image:
+      'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=200&h=200&fit=crop&q=80',
+  },
+  Hospitals: {
+    vi: 'Bệnh Viện',
+    image:
+      'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=200&h=200&fit=crop&q=80',
+  },
+  Pharmacy: {
+    vi: 'Hiệu Thuốc',
+    image:
+      'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=200&h=200&fit=crop&q=80',
+  },
+};
 
 interface ToeicRecord {
   english: string;
@@ -166,6 +419,9 @@ export async function seedToeicVocabulary(
         w.audioUsUrl = item.audio_url || null;
         w.cefrLevel = 'B1';
         w.imageUrl = item.image_url || null;
+        w.topic = topicName;
+        w.topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
+        w.topicImageUrl = TOPICS_METADATA[topicName]?.image || null;
         newWordsToSave.push(w);
         wordRecordPairs.push({ word: w, record: item });
         wordMapByTerm.set(term, w); // temporary map
