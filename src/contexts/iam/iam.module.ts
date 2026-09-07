@@ -23,7 +23,7 @@ import { UserEntity } from './infrastructure/entities/user.entity';
 import { SessionEntity } from './infrastructure/entities/session.entity';
 import { ConfigService } from '@nestjs/config';
 import { IamEmailService } from './application/services/iam-email.service';
-import { QueueModule } from '../../shared/infrastructure/queue/queue.module';
+import { EmailModule } from '../../shared/infrastructure/mail/email.module';
 import { CommonModule } from '../../shared/shared.module';
 import { StorageModule } from '../../shared/infrastructure/storage/storage.module';
 import { TypedConfigService } from '../../shared/infrastructure/config';
@@ -43,7 +43,7 @@ import { TypedConfigService } from '../../shared/infrastructure/config';
         },
       }),
     }),
-    QueueModule,
+    EmailModule,
   ],
   controllers: [IamController],
   providers: [

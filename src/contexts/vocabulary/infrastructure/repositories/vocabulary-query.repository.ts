@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, LessThanOrEqual, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
+import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
 import {
   FolderDetailResponseDto,
   FolderResponseDto,
 } from '../../application/responses/folder.response.dto';
-import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
+import { FlashcardEntity } from '../entities/flashcard.entity';
 import { FolderEntity } from '../entities/folder.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
@@ -21,6 +22,8 @@ export class VocabularyQueryRepository
     private readonly folderRepo: Repository<FolderEntity>,
     @InjectRepository(UserProgressEntity)
     private readonly progressRepo: Repository<UserProgressEntity>,
+    @InjectRepository(FlashcardEntity)
+    private readonly flashcardRepo: Repository<FlashcardEntity>,
   ) {
     super(folderRepo);
   }
@@ -154,40 +157,55 @@ export class VocabularyQueryRepository
 
     if (!validUserId) return [];
 
-    const where: FindOptionsWhere<UserProgressEntity> = {
-      userId: validUserId,
-      due: LessThanOrEqual(new Date()),
-    };
+    // Query flashcards, LEFT JOIN user progress for this specific user
+    const qb = this.flashcardRepo
+      .createQueryBuilder('flashcard')
+      .leftJoinAndSelect('flashcard.word', 'word')
+      .leftJoinAndSelect('flashcard.folder', 'folder')
+      .leftJoinAndSelect(
+        'vocab_user_progress',
+        'progress',
+        'progress."flashcardId" = flashcard.id AND progress."userId" = :userId',
+        { userId: validUserId },
+      );
 
     if (validFolderId) {
-      where.flashcard = {
-        folder: {
-          id: validFolderId,
-        },
-      };
+      qb.andWhere('folder.id = :folderId', { folderId: validFolderId });
     }
 
-    const progresses = await this.progressRepo.find({
-      where,
-      relations: {
-        flashcard: {
-          word: true,
-          folder: true,
-        },
-      },
-      order: { due: 'ASC' },
-      take: limit,
+    // A flashcard is due if:
+    // 1. It has NO progress (new word)
+    // OR 2. It has progress and nextReviewAt <= NOW
+    qb.andWhere('(progress.id IS NULL OR progress."nextReviewAt" <= :now)', {
+      now: new Date(),
     });
 
-    return progresses.map((progress) => ({
-      flashcardId: progress.flashcard.id,
-      wordId: progress.flashcard.word.id,
-      term: progress.flashcard.word.term,
-      folderId: progress.flashcard.folder.id,
-      folderName: progress.flashcard.folder.name,
-      due: progress.due,
-      state: progress.state,
-      reps: progress.reps,
+    // Order by new words first, then by earliest due date
+    qb.orderBy('progress.id', 'ASC', 'NULLS FIRST').addOrderBy(
+      'progress."nextReviewAt"',
+      'ASC',
+      'NULLS FIRST',
+    );
+
+    if (limit) {
+      qb.limit(limit);
+    }
+
+    const rawResults = await qb.getRawMany();
+
+    return rawResults.map((row) => ({
+      flashcardId: row.flashcard_id,
+      wordId: row.word_id,
+      term: row.word_term,
+      folderId: row.folder_id,
+      folderName: row.folder_name,
+      masteryScore: row.progress_masteryScore ?? 0,
+      level: row.progress_level ?? 0,
+      isWilted: row.progress_isWilted ?? false,
+      learningStep: row.progress_learningStep ?? 0,
+      reviewCountAtCurrentLevel: row.progress_reviewCountAtCurrentLevel ?? 0,
+      intervalDays: row.progress_intervalDays ?? 0,
+      nextReviewAt: row.progress_nextReviewAt || null,
     }));
   }
 }

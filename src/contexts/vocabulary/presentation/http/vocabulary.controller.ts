@@ -315,7 +315,13 @@ export class VocabularyController {
     @CurrentUser() userId: string,
   ): Promise<void> {
     await this.commandBus.execute(
-      new ReviewFlashcardCommand(dto.flashcardId, dto.quality, userId),
+      new ReviewFlashcardCommand(
+        dto.flashcardId,
+        dto.isCorrect,
+        dto.isFastTrackKnown,
+        dto.isFastTrackTempMemory,
+        userId,
+      ),
     );
   }
 }

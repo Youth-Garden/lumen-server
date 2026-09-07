@@ -1,15 +1,19 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
-import { AppException } from '../../../../shared/domain/exceptions/app.exception';
-import { VocabEx } from '../exceptions/vocabulary.exception';
-import { Card, Rating, createEmptyCard, fsrs } from 'ts-fsrs';
 
 export class UserProgress extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _userId: string,
     private readonly _flashcardId: string,
-    private _card: Card,
+    private _masteryScore: number,
+    private _level: number,
+    private _isWilted: boolean,
+    private _learningStep: number,
+    private _reviewCountAtCurrentLevel: number,
+    private _intervalDays: number,
+    private _lastReviewedAt: Date | null,
+    private _nextReviewAt: Date | null,
   ) {
     super();
   }
@@ -19,7 +23,14 @@ export class UserProgress extends AggregateRoot {
       randomUUID(),
       userId,
       flashcardId,
-      createEmptyCard(),
+      0, // masteryScore
+      0, // level
+      false, // isWilted
+      0, // learningStep
+      0, // reviewCountAtCurrentLevel
+      0, // intervalDays
+      null, // lastReviewedAt
+      null, // nextReviewAt
     );
   }
 
@@ -27,54 +38,143 @@ export class UserProgress extends AggregateRoot {
     id: string,
     userId: string,
     flashcardId: string,
-    card: Card,
+    masteryScore: number,
+    level: number,
+    isWilted: boolean,
+    learningStep: number,
+    reviewCountAtCurrentLevel: number,
+    intervalDays: number,
+    lastReviewedAt: Date | null,
+    nextReviewAt: Date | null,
   ): UserProgress {
-    return new UserProgress(id, userId, flashcardId, card);
+    return new UserProgress(
+      id,
+      userId,
+      flashcardId,
+      masteryScore,
+      level,
+      isWilted,
+      learningStep,
+      reviewCountAtCurrentLevel,
+      intervalDays,
+      lastReviewedAt,
+      nextReviewAt,
+    );
   }
 
-  get id(): string {
-    return this._id;
+  get id(): string { return this._id; }
+  get userId(): string { return this._userId; }
+  get flashcardId(): string { return this._flashcardId; }
+  get masteryScore(): number { return this._masteryScore; }
+  get level(): number { return this._level; }
+  get isWilted(): boolean { return this._isWilted; }
+  get learningStep(): number { return this._learningStep; }
+  get reviewCountAtCurrentLevel(): number { return this._reviewCountAtCurrentLevel; }
+  get intervalDays(): number { return this._intervalDays; }
+  get lastReviewedAt(): Date | null { return this._lastReviewedAt; }
+  get nextReviewAt(): Date | null { return this._nextReviewAt; }
+
+  private addHours(date: Date, hours: number): Date {
+    return new Date(date.getTime() + hours * 60 * 60 * 1000);
   }
-  get userId(): string {
-    return this._userId;
+
+  private addDays(date: Date, days: number): Date {
+    return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
   }
-  get flashcardId(): string {
-    return this._flashcardId;
+
+  checkAndSetWilted(): void {
+    if (this._nextReviewAt && new Date() >= this._nextReviewAt) {
+      this._isWilted = true;
+    }
   }
-  get card(): Card {
-    return this._card;
-  }
-  /**
-   * Reviews the flashcard using ts-fsrs.
-   * @param quality 1 (Again), 2 (Hard), 3 (Good), 4 (Easy)
-   */
-  review(quality: number): void {
-    if (quality < 1 || quality > 4) {
-      throw new AppException(VocabEx.InvalidReviewQuality);
+
+  reviewCorrect(isFastTrackKnown = false, isFastTrackTempMemory = false): void {
+    this._lastReviewedAt = new Date();
+    this._isWilted = false;
+
+    if (isFastTrackKnown) {
+      this._level = 5;
+      this._masteryScore = 100;
+      this._intervalDays = 30;
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, 30);
+      return;
     }
 
-    const f = fsrs();
-    const schedulingCards = f.repeat(this._card, new Date());
-
-    let rating: Rating;
-    switch (quality) {
-      case 1:
-        rating = Rating.Again;
-        break;
-      case 2:
-        rating = Rating.Hard;
-        break;
-      case 3:
-        rating = Rating.Good;
-        break;
-      case 4:
-        rating = Rating.Easy;
-        break;
-      default:
-        rating = Rating.Good;
+    if (isFastTrackTempMemory) {
+      this._level = 2;
+      this._masteryScore = 40;
+      this._intervalDays = 1;
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, 1);
+      return;
     }
 
-    const record = schedulingCards[rating];
-    this._card = record.card;
+    if (this._level === 0) {
+      this._learningStep += 1;
+      this._masteryScore = Math.min(20, this._learningStep * (20 / 6));
+      if (this._learningStep >= 6) {
+        this._level = 1;
+        this._masteryScore = 20;
+        this._intervalDays = 0.16; // 4 hours approximately
+        this._reviewCountAtCurrentLevel = 0;
+        this._nextReviewAt = this.addHours(this._lastReviewedAt, 4);
+      }
+      return;
+    }
+
+    this._reviewCountAtCurrentLevel += 1;
+
+    if (this._level === 1 && this._reviewCountAtCurrentLevel >= 2) {
+      this._level = 2;
+      this._masteryScore = 40;
+      this._intervalDays = 1;
+      this._reviewCountAtCurrentLevel = 0;
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, 1);
+      return;
+    }
+
+    if (this._level === 2 && this._reviewCountAtCurrentLevel >= 2) {
+      this._level = 3;
+      this._masteryScore = 60;
+      this._intervalDays = 3;
+      this._reviewCountAtCurrentLevel = 0;
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, 3);
+      return;
+    }
+
+    if (this._level === 3 && this._reviewCountAtCurrentLevel >= 1) {
+      this._level = 4;
+      this._masteryScore = 80;
+      this._intervalDays = 7;
+      this._reviewCountAtCurrentLevel = 0;
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, 7);
+      return;
+    }
+
+    if (this._level === 4 && this._reviewCountAtCurrentLevel >= 1) {
+      this._level = 5;
+      this._masteryScore = 100;
+      this._intervalDays = 30;
+      this._reviewCountAtCurrentLevel = 0;
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, 30);
+      return;
+    }
+
+    if (this._level === 5) {
+      this._intervalDays = Math.min(180, this._intervalDays * 2);
+      this._nextReviewAt = this.addDays(this._lastReviewedAt, this._intervalDays);
+      return;
+    }
+  }
+
+  reviewWrong(): void {
+    this._lastReviewedAt = new Date();
+    
+    // Always decrease mastery by 20% but keep at least 0
+    this._masteryScore = Math.max(0, this._masteryScore - 20);
+    this._level = Math.floor(this._masteryScore / 20);
+    
+    this._intervalDays = 0.16;
+    this._reviewCountAtCurrentLevel = 0;
+    this._nextReviewAt = this.addHours(this._lastReviewedAt, 4);
   }
 }

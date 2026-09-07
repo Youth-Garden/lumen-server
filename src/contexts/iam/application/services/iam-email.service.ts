@@ -1,12 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { EmailService } from '../../../../shared/infrastructure/mail/email.service';
 
 @Injectable()
 export class IamEmailService {
   private readonly logger = new Logger(IamEmailService.name);
 
-  constructor(@InjectQueue('mail') private readonly mailQueue: Queue) {}
+  constructor(private readonly emailService: EmailService) {}
 
   async sendOtpEmail(
     email: string,
@@ -14,19 +13,28 @@ export class IamEmailService {
     otp: string,
     expiresInMinutes = 5,
   ): Promise<void> {
-    await this.mailQueue.add(
-      'send',
-      {
+    // Non-blocking asynchronous email delivery via Resend
+    void this.emailService
+      .send({
         to: email,
-        templateName: 'verify-email', // the OTP/Verify template
+        templateName: 'verify-email',
         subject: 'Your Lumen Verification Code',
-        data: { name, verificationLink: otp, expiresInMinutes }, // We reuse verify-email template and pass OTP as link for now, ideally create otp.html
-      },
-      {
-        jobId: `otp-${email}-${Date.now()}`,
-      },
-    );
+        data: { name, verificationLink: otp, expiresInMinutes },
+      })
+      .then((result) => {
+        if (result.success) {
+          this.logger.log(`✓ OTP email successfully sent to ${email}`);
+        } else {
+          this.logger.error(
+            `✗ Failed to send OTP email to ${email}: ${result.error}`,
+          );
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`✗ Error sending OTP email to ${email}: ${message}`);
+      });
 
-    this.logger.log(`Queued OTP email for ${email}`);
+    this.logger.log(`Dispatched async OTP email for ${email}`);
   }
 }

@@ -10,35 +10,31 @@ export class UserProgressEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   flashcardId: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  due: Date;
+
 
   @Column({ type: 'float', default: 0 })
-  stability: number;
+  masteryScore: number;
+
+  @Column({ type: 'int', default: 0 })
+  level: number;
+
+  @Column({ type: 'boolean', default: false })
+  isWilted: boolean;
+
+  @Column({ type: 'int', default: 0 })
+  learningStep: number;
+
+  @Column({ type: 'int', default: 0 })
+  reviewCountAtCurrentLevel: number;
 
   @Column({ type: 'float', default: 0 })
-  difficulty: number;
-
-  @Column({ type: 'int', default: 0 })
-  elapsed_days: number;
-
-  @Column({ type: 'int', default: 0 })
-  scheduled_days: number;
-
-  @Column({ type: 'int', default: 0 })
-  learning_steps: number;
-
-  @Column({ type: 'int', default: 0 })
-  reps: number;
-
-  @Column({ type: 'int', default: 0 })
-  lapses: number;
-
-  @Column({ type: 'int', default: 0 })
-  state: number;
+  intervalDays: number;
 
   @Column({ type: 'timestamp', nullable: true })
-  last_review: Date | null;
+  nextReviewAt: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastReviewedAt: Date | null;
 
   @ManyToOne(() => FlashcardEntity, (flashcard) => flashcard.progresses, {
     onDelete: 'CASCADE',

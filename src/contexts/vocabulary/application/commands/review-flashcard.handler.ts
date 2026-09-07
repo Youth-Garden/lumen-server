@@ -24,7 +24,7 @@ export class ReviewFlashcardHandler implements ICommandHandler<
   ) {}
 
   async execute(command: ReviewFlashcardCommand): Promise<void> {
-    const { flashcardId, quality, userId } = command;
+    const { flashcardId, isCorrect, isFastTrackKnown, isFastTrackTempMemory, userId } = command;
 
     const flashcard = await this.flashcardRepo.findById(flashcardId);
     if (!flashcard) {
@@ -40,13 +40,18 @@ export class ReviewFlashcardHandler implements ICommandHandler<
       progress = UserProgress.create(userId, flashcardId);
     }
 
-    // Apply Domain Logic (SM-2 Algorithm)
-    progress.review(quality);
+    // Apply Domain Logic (Custom SRS Algorithm)
+    if (isCorrect || isFastTrackKnown || isFastTrackTempMemory) {
+      progress.reviewCorrect(isFastTrackKnown, isFastTrackTempMemory);
+    } else {
+      progress.reviewWrong();
+    }
 
     await this.progressRepo.save(progress);
 
+    // Using isCorrect instead of quality as the 3rd param for the event
     this.eventBus.publish(
-      new FlashcardReviewedEvent(userId, flashcardId, quality),
+      new FlashcardReviewedEvent(userId, flashcardId, isCorrect ? 1 : 0),
     );
   }
 }

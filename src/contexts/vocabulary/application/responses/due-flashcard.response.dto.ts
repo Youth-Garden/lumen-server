@@ -4,7 +4,12 @@ export class DueFlashcardResponseDto {
   term: string;
   folderId: string;
   folderName: string;
-  due: Date;
-  state: number;
-  reps: number;
+  
+  masteryScore: number;
+  level: number;
+  isWilted: boolean;
+  learningStep: number;
+  reviewCountAtCurrentLevel: number;
+  intervalDays: number;
+  nextReviewAt: Date | null;
 }

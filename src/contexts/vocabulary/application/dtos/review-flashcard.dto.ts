@@ -1,5 +1,5 @@
-import { IsInt, Min, Max, IsUUID, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsUUID, IsNotEmpty, IsBoolean, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ReviewFlashcardDto {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
@@ -8,12 +8,26 @@ export class ReviewFlashcardDto {
   flashcardId: string;
 
   @ApiProperty({
-    example: 3,
-    description:
-      'Quality from 1 to 4 based on FSRS algorithm (1=Again, 2=Hard, 3=Good, 4=Easy)',
+    example: true,
+    description: 'Whether the user answered correctly',
   })
-  @IsInt()
-  @Min(1)
-  @Max(4)
-  quality: number;
+  @IsBoolean()
+  @IsNotEmpty()
+  isCorrect: boolean;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether the user marked the word as Known (Fast-track to level 5)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isFastTrackKnown?: boolean;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'Whether the user marked the word as Temp Memory (Fast-track to level 2)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isFastTrackTempMemory?: boolean;
 }
