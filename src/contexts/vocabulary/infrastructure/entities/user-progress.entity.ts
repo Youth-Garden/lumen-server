@@ -10,8 +10,6 @@ export class UserProgressEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   flashcardId: string;
 
-
-
   @Column({ type: 'float', default: 0 })
   masteryScore: number;
 

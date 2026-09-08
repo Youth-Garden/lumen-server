@@ -1,5 +1,9 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
+import {
+  LEVEL_PROMOTION_RULES,
+  SRS_CONFIG,
+} from '../constants/user-progress.constants';
 
 export class UserProgress extends AggregateRoot {
   private constructor(
@@ -23,14 +27,14 @@ export class UserProgress extends AggregateRoot {
       randomUUID(),
       userId,
       flashcardId,
-      0, // masteryScore
-      0, // level
-      false, // isWilted
-      0, // learningStep
-      0, // reviewCountAtCurrentLevel
-      0, // intervalDays
-      null, // lastReviewedAt
-      null, // nextReviewAt
+      SRS_CONFIG.MIN_MASTERY_SCORE,
+      0,
+      false,
+      0,
+      0,
+      0,
+      null,
+      null,
     );
   }
 
@@ -62,17 +66,39 @@ export class UserProgress extends AggregateRoot {
     );
   }
 
-  get id(): string { return this._id; }
-  get userId(): string { return this._userId; }
-  get flashcardId(): string { return this._flashcardId; }
-  get masteryScore(): number { return this._masteryScore; }
-  get level(): number { return this._level; }
-  get isWilted(): boolean { return this._isWilted; }
-  get learningStep(): number { return this._learningStep; }
-  get reviewCountAtCurrentLevel(): number { return this._reviewCountAtCurrentLevel; }
-  get intervalDays(): number { return this._intervalDays; }
-  get lastReviewedAt(): Date | null { return this._lastReviewedAt; }
-  get nextReviewAt(): Date | null { return this._nextReviewAt; }
+  get id(): string {
+    return this._id;
+  }
+  get userId(): string {
+    return this._userId;
+  }
+  get flashcardId(): string {
+    return this._flashcardId;
+  }
+  get masteryScore(): number {
+    return this._masteryScore;
+  }
+  get level(): number {
+    return this._level;
+  }
+  get isWilted(): boolean {
+    return this._isWilted;
+  }
+  get learningStep(): number {
+    return this._learningStep;
+  }
+  get reviewCountAtCurrentLevel(): number {
+    return this._reviewCountAtCurrentLevel;
+  }
+  get intervalDays(): number {
+    return this._intervalDays;
+  }
+  get lastReviewedAt(): Date | null {
+    return this._lastReviewedAt;
+  }
+  get nextReviewAt(): Date | null {
+    return this._nextReviewAt;
+  }
 
   private addHours(date: Date, hours: number): Date {
     return new Date(date.getTime() + hours * 60 * 60 * 1000);
@@ -93,88 +119,110 @@ export class UserProgress extends AggregateRoot {
     this._isWilted = false;
 
     if (isFastTrackKnown) {
-      this._level = 5;
-      this._masteryScore = 100;
-      this._intervalDays = 30;
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, 30);
+      this.applyFastTrack(SRS_CONFIG.FAST_TRACK.KNOWN);
       return;
     }
 
     if (isFastTrackTempMemory) {
-      this._level = 2;
-      this._masteryScore = 40;
-      this._intervalDays = 1;
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, 1);
+      this.applyFastTrack(SRS_CONFIG.FAST_TRACK.TEMP_MEMORY);
       return;
     }
 
-    if (this._level === 0) {
-      this._learningStep += 1;
-      this._masteryScore = Math.min(20, this._learningStep * (20 / 6));
-      if (this._learningStep >= 6) {
-        this._level = 1;
-        this._masteryScore = 20;
-        this._intervalDays = 0.16; // 4 hours approximately
-        this._reviewCountAtCurrentLevel = 0;
-        this._nextReviewAt = this.addHours(this._lastReviewedAt, 4);
-      }
-      return;
-    }
-
-    this._reviewCountAtCurrentLevel += 1;
-
-    if (this._level === 1 && this._reviewCountAtCurrentLevel >= 2) {
-      this._level = 2;
-      this._masteryScore = 40;
-      this._intervalDays = 1;
-      this._reviewCountAtCurrentLevel = 0;
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, 1);
-      return;
-    }
-
-    if (this._level === 2 && this._reviewCountAtCurrentLevel >= 2) {
-      this._level = 3;
-      this._masteryScore = 60;
-      this._intervalDays = 3;
-      this._reviewCountAtCurrentLevel = 0;
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, 3);
-      return;
-    }
-
-    if (this._level === 3 && this._reviewCountAtCurrentLevel >= 1) {
-      this._level = 4;
-      this._masteryScore = 80;
-      this._intervalDays = 7;
-      this._reviewCountAtCurrentLevel = 0;
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, 7);
-      return;
-    }
-
-    if (this._level === 4 && this._reviewCountAtCurrentLevel >= 1) {
-      this._level = 5;
-      this._masteryScore = 100;
-      this._intervalDays = 30;
-      this._reviewCountAtCurrentLevel = 0;
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, 30);
-      return;
-    }
-
-    if (this._level === 5) {
-      this._intervalDays = Math.min(180, this._intervalDays * 2);
-      this._nextReviewAt = this.addDays(this._lastReviewedAt, this._intervalDays);
-      return;
+    switch (this._level) {
+      case 0:
+        this.progressLearningStep();
+        break;
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+        this.progressGraduation(this._level);
+        break;
+      case 5:
+        this.progressMasteredReview();
+        break;
+      default:
+        break;
     }
   }
 
   reviewWrong(): void {
     this._lastReviewedAt = new Date();
-    
-    // Always decrease mastery by 20% but keep at least 0
-    this._masteryScore = Math.max(0, this._masteryScore - 20);
-    this._level = Math.floor(this._masteryScore / 20);
-    
-    this._intervalDays = 0.16;
+
+    this._masteryScore = Math.max(
+      SRS_CONFIG.MIN_MASTERY_SCORE,
+      this._masteryScore - SRS_CONFIG.WRONG_ANSWER_SCORE_PENALTY,
+    );
+    this._level = Math.floor(this._masteryScore / SRS_CONFIG.SCORE_PER_LEVEL);
+
+    this._intervalDays = SRS_CONFIG.DEFAULT_HOURLY_INTERVAL_DAYS;
     this._reviewCountAtCurrentLevel = 0;
-    this._nextReviewAt = this.addHours(this._lastReviewedAt, 4);
+    this._nextReviewAt = this.addHours(
+      this._lastReviewedAt,
+      SRS_CONFIG.DEFAULT_REVIEW_INTERVAL_HOURS,
+    );
+  }
+
+  private applyFastTrack(target: {
+    readonly level: number;
+    readonly masteryScore: number;
+    readonly intervalDays: number;
+  }): void {
+    this._level = target.level;
+    this._masteryScore = target.masteryScore;
+    this._intervalDays = target.intervalDays;
+    this._nextReviewAt = this.addDays(
+      this._lastReviewedAt!,
+      target.intervalDays,
+    );
+  }
+
+  private progressLearningStep(): void {
+    this._learningStep += 1;
+    const scorePerStep =
+      SRS_CONFIG.LEVEL_0_MAX_MASTERY_SCORE /
+      SRS_CONFIG.LEARNING_STEPS_TO_GRADUATE;
+    this._masteryScore = Math.min(
+      SRS_CONFIG.LEVEL_0_MAX_MASTERY_SCORE,
+      this._learningStep * scorePerStep,
+    );
+
+    if (this._learningStep >= SRS_CONFIG.LEARNING_STEPS_TO_GRADUATE) {
+      this._level = 1;
+      this._masteryScore = SRS_CONFIG.LEVEL_0_MAX_MASTERY_SCORE;
+      this._intervalDays = SRS_CONFIG.DEFAULT_HOURLY_INTERVAL_DAYS;
+      this._reviewCountAtCurrentLevel = 0;
+      this._nextReviewAt = this.addHours(
+        this._lastReviewedAt!,
+        SRS_CONFIG.DEFAULT_REVIEW_INTERVAL_HOURS,
+      );
+    }
+  }
+
+  private progressGraduation(currentLevel: number): void {
+    this._reviewCountAtCurrentLevel += 1;
+    const rule = LEVEL_PROMOTION_RULES[currentLevel];
+
+    if (rule && this._reviewCountAtCurrentLevel >= rule.requiredReviews) {
+      this._level = rule.nextLevel;
+      this._masteryScore = rule.nextMasteryScore;
+      this._intervalDays = rule.nextIntervalDays;
+      this._reviewCountAtCurrentLevel = 0;
+      this._nextReviewAt = this.addDays(
+        this._lastReviewedAt!,
+        rule.nextIntervalDays,
+      );
+    }
+  }
+
+  private progressMasteredReview(): void {
+    this._intervalDays = Math.min(
+      SRS_CONFIG.MAX_INTERVAL_DAYS,
+      this._intervalDays * SRS_CONFIG.LEVEL_5_INTERVAL_MULTIPLIER,
+    );
+    this._nextReviewAt = this.addDays(
+      this._lastReviewedAt!,
+      this._intervalDays,
+    );
   }
 }

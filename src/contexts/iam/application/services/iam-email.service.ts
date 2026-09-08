@@ -7,7 +7,7 @@ export class IamEmailService {
 
   constructor(private readonly emailService: EmailService) {}
 
-  async sendOtpEmail(
+  sendOtpEmail(
     email: string,
     name: string,
     otp: string,
@@ -36,5 +36,6 @@ export class IamEmailService {
       });
 
     this.logger.log(`Dispatched async OTP email for ${email}`);
+    return Promise.resolve();
   }
 }

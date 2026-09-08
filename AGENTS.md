@@ -560,9 +560,15 @@ The src/shared directory is the single source of truth for cross-cutting concern
 
 - **No Unnecessary Comments**: Do not add comments for normal, self-explanatory information or clearly written code. Only add comments if a function involves multiple steps, contains complex logic, or is highly complicated.
 
-## 13. Strict Prohibition on Workarounds and Aliases
+## 13. Strict Zero-Workaround & Zero-Anti-Pattern Rule (MANDATORY)
 
-- **NEVER use temporary workarounds, re-export aliases, or type shims**: Do NOT create bridge aliases like `export const DECK_REPOSITORY = FOLDER_REPOSITORY;`, `export type Deck = Folder;`, or wrapper functions to avoid refactoring callers.
-- **Complete Refactoring**: When renaming or removing a concept or entity, you MUST refactor 100% of its usages cleanly across all layers (Domain, Application, Infrastructure, Presentation, Tests).
-- **Zero Compatibility Shims**: Do not leave legacy variable names, method names, or DTO wrappers behind to avoid updating caller code.
+- **TUYỆT ĐỐI CẤM MỌI HÌNH THỨC WORKAROUND HOẶC ANTI-PATTERN**:
+  - Nếu KHÔNG CÓ yêu cầu cụ thể, rõ ràng và trực tiếp từ người dùng trong prompt hiện tại, BẤT KỲ anti-pattern hay workaround nào đều TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP SỬ DỤNG.
+  - Tuyệt đối không chọn giải pháp "đi tắt" (shortcut), chắp vá tạm thời (quick fix/hack), hay lách qua các giới hạn kỹ thuật bằng các biện pháp phản kiến trúc.
+  - Mọi giải pháp bắt buộc phải tuân thủ chuẩn Clean Architecture, Domain-Driven Design (DDD), Single Source of Truth, và Separation of Concerns ngay từ đầu.
+  - Danh mục các Anti-Patterns & Workarounds BỊ CẤM TRIỆT ĐỂ:
+    1. **Workarounds & Compatibility Aliases**: Tuyệt đối KHÔNG tạo alias bridge (`export const DECK_REPOSITORY = FOLDER_REPOSITORY;`, `export type Deck = Folder;`) hay wrapper functions để né tránh refactor. Khi đổi tên hoặc xóa entity/concept, BẮT BUỘC phải refactor 100% sạch sẽ trên toàn bộ các tầng (Domain, Application, Infrastructure, Presentation, Tests).
+    2. **Phá vỡ ranh giới DDD (Layer Leakage)**: Tuyệt đối KHÔNG để TypeORM Entity lọt vào Domain Aggregate, Application DTOs hay Controllers. Domain logic chỉ nằm trong Aggregates/Value Objects, không nằm trong Handlers/Controllers.
+    3. **Ép kiểu `any` và Type Bypasses**: Tuyệt đối KHÔNG dùng `any`, `as any`, `@typescript-eslint/no-explicit-any` suppression để qua mặt compiler.
+    4. **Trộn lẫn I/O Boundaries**: Tuyệt đối KHÔNG dùng bare interfaces cho DTOs qua network boundary; bắt buộc dùng classes có `class-validator` và `class-transformer`.
 

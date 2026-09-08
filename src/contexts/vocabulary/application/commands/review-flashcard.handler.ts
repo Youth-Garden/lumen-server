@@ -24,7 +24,13 @@ export class ReviewFlashcardHandler implements ICommandHandler<
   ) {}
 
   async execute(command: ReviewFlashcardCommand): Promise<void> {
-    const { flashcardId, isCorrect, isFastTrackKnown, isFastTrackTempMemory, userId } = command;
+    const {
+      flashcardId,
+      isCorrect,
+      isFastTrackKnown,
+      isFastTrackTempMemory,
+      userId,
+    } = command;
 
     const flashcard = await this.flashcardRepo.findById(flashcardId);
     if (!flashcard) {

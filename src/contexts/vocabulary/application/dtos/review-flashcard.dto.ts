@@ -17,7 +17,8 @@ export class ReviewFlashcardDto {
 
   @ApiPropertyOptional({
     example: false,
-    description: 'Whether the user marked the word as Known (Fast-track to level 5)',
+    description:
+      'Whether the user marked the word as Known (Fast-track to level 5)',
   })
   @IsOptional()
   @IsBoolean()
@@ -25,7 +26,8 @@ export class ReviewFlashcardDto {
 
   @ApiPropertyOptional({
     example: false,
-    description: 'Whether the user marked the word as Temp Memory (Fast-track to level 2)',
+    description:
+      'Whether the user marked the word as Temp Memory (Fast-track to level 2)',
   })
   @IsOptional()
   @IsBoolean()

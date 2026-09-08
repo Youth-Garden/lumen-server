@@ -4,7 +4,7 @@ export class DueFlashcardResponseDto {
   term: string;
   folderId: string;
   folderName: string;
-  
+
   masteryScore: number;
   level: number;
   isWilted: boolean;

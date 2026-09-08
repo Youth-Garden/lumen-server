@@ -191,7 +191,22 @@ export class VocabularyQueryRepository
       qb.limit(limit);
     }
 
-    const rawResults = await qb.getRawMany();
+    interface DueFlashcardRawRow {
+      flashcard_id: string;
+      word_id: string;
+      word_term: string;
+      folder_id: string;
+      folder_name: string;
+      progress_masteryScore: number | null;
+      progress_level: number | null;
+      progress_isWilted: boolean | null;
+      progress_learningStep: number | null;
+      progress_reviewCountAtCurrentLevel: number | null;
+      progress_intervalDays: number | null;
+      progress_nextReviewAt: Date | null;
+    }
+
+    const rawResults = await qb.getRawMany<DueFlashcardRawRow>();
 
     return rawResults.map((row) => ({
       flashcardId: row.flashcard_id,
