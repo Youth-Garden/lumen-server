@@ -37,10 +37,11 @@ Classification mechanism: **Placement test** upon registration, suggesting a sui
 ### 3.2. Grammar & Vocabulary
 
 - Lessons by CEFR levels (A1–C2)
-- Flashcards using Spaced Repetition algorithm
-- Multiple-choice/fill-in-the-blank exercises with immediate feedback
-- Vocabulary categorized by topics (work, academic, daily life, specialized exams)
+- Vocabulary intake with interactive Flashcards for initial word discovery and baseline level self-assessment
+- Continuous Spaced Repetition and review powered by interactive exercises & mini-games (multiple-choice term/meaning, typing, listening) — no passive flashcards during review
+- Folders & Topics serving as intake boundaries/scopes for introducing new words over targeted periods
 - Integrated dictionary: definitions, phonetics, audio, examples, Vietnamese meanings
+
 
 ### 3.3. Listening & Speaking
 

@@ -98,10 +98,17 @@ export class VocabularyQueryRepository
       .leftJoinAndSelect('definition.examples', 'example');
 
     if (validUserId) {
-      queryBuilder.where(
-        'folder.id = :id AND (folder.authorId = :userId OR folder.category IS NOT NULL)',
-        { id, userId: validUserId },
-      );
+      queryBuilder
+        .leftJoinAndSelect(
+          'flashcard.progresses',
+          'progress',
+          'progress.userId = :userId',
+          { userId: validUserId },
+        )
+        .where(
+          'folder.id = :id AND (folder.authorId = :userId OR folder.category IS NOT NULL)',
+          { id, userId: validUserId },
+        );
     } else {
       queryBuilder.where('folder.id = :id AND folder.category IS NOT NULL', {
         id,
@@ -132,6 +139,10 @@ export class VocabularyQueryRepository
         audioUkUrl: flashcard.word.audioUkUrl,
         cefrLevel: flashcard.word.cefrLevel,
         imageUrl: flashcard.word.imageUrl,
+        level: flashcard.progresses?.[0]?.level ?? 0,
+        learningStep: flashcard.progresses?.[0]?.learningStep ?? 0,
+        masteryScore: flashcard.progresses?.[0]?.masteryScore ?? 0,
+        isWilted: flashcard.progresses?.[0]?.isWilted ?? false,
         definitions: (flashcard.word.definitions || []).map((def) => ({
           id: def.id,
           partOfSpeech: def.partOfSpeech,

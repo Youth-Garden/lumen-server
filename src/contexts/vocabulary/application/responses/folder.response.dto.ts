@@ -77,6 +77,18 @@ export class FlashcardSummaryDto {
   @ApiProperty({ nullable: true, required: false })
   imageUrl?: string | null;
 
+  @ApiProperty({ nullable: true, required: false })
+  level?: number;
+
+  @ApiProperty({ nullable: true, required: false })
+  learningStep?: number;
+
+  @ApiProperty({ nullable: true, required: false })
+  masteryScore?: number;
+
+  @ApiProperty({ nullable: true, required: false })
+  isWilted?: boolean;
+
   @ApiProperty({ type: [FlashcardDefinitionDto], required: false })
   definitions?: FlashcardDefinitionDto[];
 }
