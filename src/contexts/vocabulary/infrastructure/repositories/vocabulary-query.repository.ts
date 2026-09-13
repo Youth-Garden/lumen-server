@@ -34,14 +34,23 @@ export class VocabularyQueryRepository
     const queryBuilder = this.folderRepo
       .createQueryBuilder('folder')
       .leftJoin('folder.flashcards', 'flashcard')
+      .leftJoin(
+        'vocab_user_progress',
+        'progress',
+        'progress."flashcardId" = flashcard.id AND progress."userId" = :userId',
+        { userId: validUserId },
+      )
       .select([
         'folder.id AS id',
         'folder.name AS name',
         'folder.description AS description',
         'folder.category AS category',
         'folder.authorId AS "authorId"',
-        'COUNT(flashcard.id)::int AS "flashcardCount"',
-      ]);
+        'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
+        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level > 0 OR progress."learningStep" > 0 OR progress."masteryScore" > 0) THEN flashcard.id END)::int AS "learnedCount"',
+        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND progress."nextReviewAt" <= :now THEN flashcard.id END)::int AS "dueCount"',
+      ])
+      .setParameter('now', new Date());
 
     if (validUserId) {
       queryBuilder.where(
@@ -58,6 +67,8 @@ export class VocabularyQueryRepository
       description: string | null;
       category: string | null;
       flashcardCount: number | string;
+      learnedCount: number | string;
+      dueCount: number | string;
     }
 
     const rawResults = await queryBuilder
@@ -79,6 +90,14 @@ export class VocabularyQueryRepository
         typeof row.flashcardCount === 'number'
           ? row.flashcardCount
           : parseInt(row.flashcardCount || '0', 10),
+      learnedCount:
+        typeof row.learnedCount === 'number'
+          ? row.learnedCount
+          : parseInt(String(row.learnedCount || '0'), 10),
+      dueCount:
+        typeof row.dueCount === 'number'
+          ? row.dueCount
+          : parseInt(String(row.dueCount || '0'), 10),
     }));
   }
 

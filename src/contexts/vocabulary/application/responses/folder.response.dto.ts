@@ -15,6 +15,12 @@ export class FolderResponseDto {
 
   @ApiProperty()
   flashcardCount: number;
+
+  @ApiProperty({ required: false })
+  learnedCount?: number;
+
+  @ApiProperty({ required: false })
+  dueCount?: number;
 }
 
 export class FlashcardDefinitionDto {
