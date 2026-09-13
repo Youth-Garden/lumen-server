@@ -17,6 +17,7 @@ import { ListWordsHandler } from './application/queries/list-words.handler';
 import { ListFoldersHandler } from './application/queries/list-folders.handler';
 import { GetFolderByIdHandler } from './application/queries/get-folder-by-id.handler';
 import { ListDueFlashcardsHandler } from './application/queries/list-due-flashcards.handler';
+import { GetVocabularyOverviewHandler } from './application/queries/get-vocabulary-overview.handler';
 import { UpdateVocabularyWordHandler } from './application/commands/update-vocabulary-word.handler';
 import { DeleteVocabularyWordHandler } from './application/commands/delete-vocabulary-word.handler';
 import { UpdateFolderHandler } from './application/commands/update-folder.handler';
@@ -56,6 +57,7 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
     ListFoldersHandler,
     GetFolderByIdHandler,
     ListDueFlashcardsHandler,
+    GetVocabularyOverviewHandler,
     UpdateVocabularyWordHandler,
     DeleteVocabularyWordHandler,
     UpdateFolderHandler,

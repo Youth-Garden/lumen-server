@@ -38,6 +38,7 @@ import { ListWordsQuery } from '../../application/queries/list-words.query';
 import { ListFoldersQuery } from '../../application/queries/list-folders.query';
 import { GetFolderByIdQuery } from '../../application/queries/get-folder-by-id.query';
 import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
+import { GetVocabularyOverviewQuery } from '../../application/queries/get-vocabulary-overview.query';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
 import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
 import {
@@ -45,6 +46,7 @@ import {
   FolderResponseDto,
 } from '../../application/responses/folder.response.dto';
 import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
+import { VocabularyOverviewResponseDto } from '../../application/responses/vocabulary-overview.response.dto';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { ListWordsFilterDto } from '../../application/dtos/list-words-filter.dto';
@@ -265,6 +267,22 @@ export class VocabularyController {
       ListDueFlashcardsQuery,
       DueFlashcardResponseDto[]
     >(new ListDueFlashcardsQuery(userId, folderId, limitNum));
+  }
+
+  @Get('overview')
+  @ApiOperation({ summary: 'Get vocabulary overview statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Vocabulary overview statistics retrieved successfully.',
+    type: VocabularyOverviewResponseDto,
+  })
+  async getOverview(
+    @CurrentUser() userId: string,
+  ): Promise<VocabularyOverviewResponseDto> {
+    return this.queryBus.execute<
+      GetVocabularyOverviewQuery,
+      VocabularyOverviewResponseDto
+    >(new GetVocabularyOverviewQuery(userId));
   }
 
   @Public()

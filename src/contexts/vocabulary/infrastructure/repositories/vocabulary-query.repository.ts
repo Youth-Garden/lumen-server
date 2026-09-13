@@ -8,6 +8,11 @@ import {
   FolderDetailResponseDto,
   FolderResponseDto,
 } from '../../application/responses/folder.response.dto';
+import {
+  FrequentlyMissedWordDto,
+  MemoryStageDto,
+  VocabularyOverviewResponseDto,
+} from '../../application/responses/vocabulary-overview.response.dto';
 import { FlashcardEntity } from '../entities/flashcard.entity';
 import { FolderEntity } from '../entities/folder.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
@@ -253,4 +258,154 @@ export class VocabularyQueryRepository
       nextReviewAt: row.progress_nextReviewAt || null,
     }));
   }
+
+  async getOverview(userId: string): Promise<VocabularyOverviewResponseDto> {
+    const validUserId = userId && userId !== 'undefined' ? userId : null;
+    if (!validUserId) {
+      return new VocabularyOverviewResponseDto(
+        0,
+        [
+          new MemoryStageDto(1, 0),
+          new MemoryStageDto(2, 0),
+          new MemoryStageDto(3, 0),
+          new MemoryStageDto(4, 0),
+          new MemoryStageDto(5, 0),
+        ],
+        [],
+      );
+    }
+
+    const stagesRaw = await this.progressRepo
+      .createQueryBuilder('progress')
+      .select('progress.level', 'level')
+      .addSelect('progress.learningStep', 'learningStep')
+      .addSelect('COUNT(DISTINCT progress.flashcardId)::int', 'count')
+      .where('progress.userId = :userId', { userId: validUserId })
+      .groupBy('progress.level')
+      .addGroupBy('progress.learningStep')
+      .getRawMany<{
+        level: number | string;
+        learningStep: number | string;
+        count: number | string;
+      }>();
+
+    const stageCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let totalLearnedWords = 0;
+
+    stagesRaw.forEach((row) => {
+      const lvl = Number(row.level);
+      const step = Number(row.learningStep);
+      const count =
+        typeof row.count === 'number'
+          ? row.count
+          : parseInt(String(row.count || '0'), 10);
+
+      if (lvl === 0 && step > 0) {
+        stageCounts[1] = (stageCounts[1] || 0) + count;
+        totalLearnedWords += count;
+      } else if (lvl >= 1 && lvl <= 4) {
+        stageCounts[lvl] = (stageCounts[lvl] || 0) + count;
+        totalLearnedWords += count;
+      } else if (lvl >= 5) {
+        stageCounts[5] = (stageCounts[5] || 0) + count;
+        totalLearnedWords += count;
+      }
+    });
+
+    const memoryLevels = [
+      new MemoryStageDto(1, stageCounts[1] || 0),
+      new MemoryStageDto(2, stageCounts[2] || 0),
+      new MemoryStageDto(3, stageCounts[3] || 0),
+      new MemoryStageDto(4, stageCounts[4] || 0),
+      new MemoryStageDto(5, stageCounts[5] || 0),
+    ];
+
+    const missedRaw = await this.progressRepo
+      .createQueryBuilder('progress')
+      .innerJoin('progress.flashcard', 'flashcard')
+      .innerJoin('flashcard.word', 'word')
+      .leftJoin('word.definitions', 'definition')
+      .where('progress.userId = :userId', { userId: validUserId })
+      .andWhere('(progress.isWilted = true OR progress.masteryScore < 60)')
+      .select([
+        'flashcard.id AS flashcard_id',
+        'word.id AS word_id',
+        'word.term AS word_term',
+        'word.phonetic AS word_phonetic',
+        'word.audioUrl AS word_audio_url',
+        'word.audioUsUrl AS word_audio_us_url',
+        'word.imageUrl AS word_image_url',
+        'progress.masteryScore AS progress_mastery_score',
+        'progress.isWilted AS progress_is_wilted',
+        'definition.partOfSpeech AS def_part_of_speech',
+        'definition.definition AS def_definition',
+      ])
+      .orderBy('progress.isWilted', 'DESC')
+      .addOrderBy('progress.masteryScore', 'ASC')
+      .addOrderBy('progress.lastReviewedAt', 'DESC')
+      .limit(10)
+      .getRawMany<{
+        flashcard_id: string;
+        word_id: string;
+        word_term: string;
+        word_phonetic: string | null;
+        word_audio_url: string | null;
+        word_audio_us_url: string | null;
+        word_image_url: string | null;
+        progress_mastery_score: number | null;
+        progress_is_wilted: boolean | null;
+        def_part_of_speech: string | null;
+        def_definition: unknown;
+      }>();
+
+    const seenTerms = new Set<string>();
+    const frequentlyMissedWords: FrequentlyMissedWordDto[] = [];
+
+    for (const row of missedRaw) {
+      const termLower = (row.word_term || '').toLowerCase().trim();
+      if (!termLower || seenTerms.has(termLower)) continue;
+      seenTerms.add(termLower);
+
+      let definitionText: string | null = null;
+      if (typeof row.def_definition === 'string') {
+        definitionText = row.def_definition;
+      } else if (
+        typeof row.def_definition === 'object' &&
+        row.def_definition !== null
+      ) {
+        const defObj = row.def_definition as Record<string, string>;
+        definitionText =
+          defObj.vi || defObj.en || Object.values(defObj)[0] || null;
+      }
+
+      const mastery = Number(row.progress_mastery_score ?? 0);
+      const errorRate = Math.min(95, Math.max(15, Math.round(100 - mastery)));
+
+      frequentlyMissedWords.push(
+        new FrequentlyMissedWordDto({
+          flashcardId: row.flashcard_id,
+          wordId: row.word_id,
+          term: row.word_term,
+          partOfSpeech: row.def_part_of_speech || null,
+          definition: definitionText,
+          phonetic: row.word_phonetic || null,
+          audioUrl: row.word_audio_url || null,
+          audioUsUrl: row.word_audio_us_url || null,
+          imageUrl: row.word_image_url || null,
+          errorRate,
+          masteryScore: mastery,
+          isWilted: Boolean(row.progress_is_wilted),
+        }),
+      );
+
+      if (frequentlyMissedWords.length >= 3) break;
+    }
+
+    return new VocabularyOverviewResponseDto(
+      totalLearnedWords,
+      memoryLevels,
+      frequentlyMissedWords,
+    );
+  }
 }
+
