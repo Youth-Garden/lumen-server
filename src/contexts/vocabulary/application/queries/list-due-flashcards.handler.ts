@@ -27,6 +27,7 @@ export class ListDueFlashcardsHandler implements IQueryHandler<
       query.userId,
       validFolderId,
       query.limit,
+      query.includeNew,
     );
   }
 }

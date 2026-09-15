@@ -6,10 +6,10 @@ import { VocabularyOverviewResponseDto } from '../responses/vocabulary-overview.
 import { GetVocabularyOverviewQuery } from './get-vocabulary-overview.query';
 
 @QueryHandler(GetVocabularyOverviewQuery)
-export class GetVocabularyOverviewHandler
-  implements
-    IQueryHandler<GetVocabularyOverviewQuery, VocabularyOverviewResponseDto>
-{
+export class GetVocabularyOverviewHandler implements IQueryHandler<
+  GetVocabularyOverviewQuery,
+  VocabularyOverviewResponseDto
+> {
   constructor(
     @Inject(VOCABULARY_QUERY_REPOSITORY)
     private readonly vocabularyQueryRepository: IVocabularyQueryRepository,

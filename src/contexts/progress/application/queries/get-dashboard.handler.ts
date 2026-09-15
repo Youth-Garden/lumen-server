@@ -33,6 +33,10 @@ export class GetDashboardHandler implements IQueryHandler<
       return new DashboardResponseDto(0, null, 0, 15, todayStudyMinutes, []);
     }
 
+    if (profile.syncStreak()) {
+      await this.profileRepo.save(profile);
+    }
+
     return new DashboardResponseDto(
       profile.currentStreak,
       profile.lastActivity,

@@ -83,7 +83,7 @@ export class MaterialQueryRepository
 
     for (const answer of dto.answers) {
       const transcript = material.transcripts.find(
-        (t) => t.id === answer.transcriptId,
+        (transcriptItem) => transcriptItem.id === answer.transcriptId,
       );
       if (!transcript) continue;
 

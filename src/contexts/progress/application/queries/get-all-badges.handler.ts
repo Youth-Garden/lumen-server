@@ -20,7 +20,13 @@ export class GetAllBadgesHandler implements IQueryHandler<
   async execute(): Promise<BadgeResponseDto[]> {
     const badges = await this.badgeRepo.find();
     return badges.map(
-      (b) => new BadgeResponseDto(b.code, b.name, b.description, b.icon),
+      (badge) =>
+        new BadgeResponseDto(
+          badge.code,
+          badge.name,
+          badge.description,
+          badge.icon,
+        ),
     );
   }
 }

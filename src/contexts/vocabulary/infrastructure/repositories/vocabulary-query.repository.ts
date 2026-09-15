@@ -185,6 +185,7 @@ export class VocabularyQueryRepository
     userId: string,
     folderId?: string,
     limit?: number,
+    includeNew = false,
   ): Promise<DueFlashcardResponseDto[]> {
     const validUserId = userId && userId !== 'undefined' ? userId : null;
     const validFolderId =
@@ -192,38 +193,55 @@ export class VocabularyQueryRepository
 
     if (!validUserId) return [];
 
-    // Query flashcards, LEFT JOIN user progress for this specific user
-    const qb = this.flashcardRepo
+    const queryBuilder = this.flashcardRepo
       .createQueryBuilder('flashcard')
-      .leftJoinAndSelect('flashcard.word', 'word')
-      .leftJoinAndSelect('flashcard.folder', 'folder')
-      .leftJoinAndSelect(
+      .leftJoin('flashcard.word', 'word')
+      .leftJoin('flashcard.folder', 'folder')
+      .leftJoin(
         'vocab_user_progress',
         'progress',
         'progress."flashcardId" = flashcard.id AND progress."userId" = :userId',
         { userId: validUserId },
-      );
+      )
+      .select([
+        'flashcard.id AS flashcard_id',
+        'word.id AS word_id',
+        'word.term AS word_term',
+        'folder.id AS folder_id',
+        'folder.name AS folder_name',
+        'progress.masteryScore AS "progress_masteryScore"',
+        'progress.level AS progress_level',
+        'progress.isWilted AS "progress_isWilted"',
+        'progress.learningStep AS "progress_learningStep"',
+        'progress.reviewCountAtCurrentLevel AS "progress_reviewCountAtCurrentLevel"',
+        'progress.intervalDays AS "progress_intervalDays"',
+        'progress.nextReviewAt AS "progress_nextReviewAt"',
+      ]);
 
     if (validFolderId) {
-      qb.andWhere('folder.id = :folderId', { folderId: validFolderId });
+      queryBuilder.andWhere('folder.id = :folderId', {
+        folderId: validFolderId,
+      });
     }
 
-    // A flashcard is due if:
-    // 1. It has NO progress (new word)
-    // OR 2. It has progress and nextReviewAt <= NOW
-    qb.andWhere('(progress.id IS NULL OR progress."nextReviewAt" <= :now)', {
-      now: new Date(),
-    });
-
-    // Order by new words first, then by earliest due date
-    qb.orderBy('progress.id', 'ASC', 'NULLS FIRST').addOrderBy(
-      'progress."nextReviewAt"',
-      'ASC',
-      'NULLS FIRST',
-    );
+    if (includeNew) {
+      queryBuilder.andWhere(
+        '(progress.id IS NULL OR progress."nextReviewAt" <= :now)',
+        { now: new Date() },
+      );
+      queryBuilder
+        .orderBy('progress.id', 'ASC', 'NULLS FIRST')
+        .addOrderBy('progress."nextReviewAt"', 'ASC', 'NULLS FIRST');
+    } else {
+      queryBuilder.andWhere(
+        'progress.id IS NOT NULL AND progress."nextReviewAt" <= :now',
+        { now: new Date() },
+      );
+      queryBuilder.orderBy('progress."nextReviewAt"', 'ASC');
+    }
 
     if (limit) {
-      qb.limit(limit);
+      queryBuilder.limit(limit);
     }
 
     interface DueFlashcardRawRow {
@@ -241,7 +259,7 @@ export class VocabularyQueryRepository
       progress_nextReviewAt: Date | null;
     }
 
-    const rawResults = await qb.getRawMany<DueFlashcardRawRow>();
+    const rawResults = await queryBuilder.getRawMany<DueFlashcardRawRow>();
 
     return rawResults.map((row) => ({
       flashcardId: row.flashcard_id,
@@ -289,7 +307,13 @@ export class VocabularyQueryRepository
         count: number | string;
       }>();
 
-    const stageCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    const stageCounts: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    };
     let totalLearnedWords = 0;
 
     stagesRaw.forEach((row) => {
@@ -408,4 +432,3 @@ export class VocabularyQueryRepository
     );
   }
 }
-

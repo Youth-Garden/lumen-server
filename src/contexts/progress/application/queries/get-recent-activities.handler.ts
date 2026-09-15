@@ -24,13 +24,13 @@ export class GetRecentActivitiesHandler implements IQueryHandler<
       query.limit,
     );
 
-    return activities.map((a) => ({
-      id: a.id,
-      type: a.type,
-      title: a.title,
-      description: a.description,
-      xpEarned: a.xpEarned,
-      timestamp: a.timestamp,
+    return activities.map((activity) => ({
+      id: activity.id,
+      type: activity.type,
+      title: activity.title,
+      description: activity.description,
+      xpEarned: activity.xpEarned,
+      timestamp: activity.timestamp,
     }));
   }
 }

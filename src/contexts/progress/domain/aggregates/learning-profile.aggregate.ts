@@ -37,7 +37,66 @@ export class LearningProfile {
   }
 
   get currentStreak(): number {
-    return this.streak;
+    if (!this.lastActivityDate || this.streak === 0) {
+      return 0;
+    }
+
+    const now = new Date();
+    const lastDate = new Date(
+      this.lastActivityDate.getFullYear(),
+      this.lastActivityDate.getMonth(),
+      this.lastActivityDate.getDate(),
+    );
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffTime = today.getTime() - lastDate.getTime();
+    if (diffTime < 0) {
+      return this.streak;
+    }
+
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 1) {
+      return this.streak;
+    }
+
+    const missedDays = diffDays - 1;
+    if (this._streakFreezes >= missedDays) {
+      return this.streak;
+    }
+
+    return 0;
+  }
+
+  public syncStreak(now: Date = new Date()): boolean {
+    if (!this.lastActivityDate || this.streak === 0) {
+      return false;
+    }
+
+    const lastDate = new Date(
+      this.lastActivityDate.getFullYear(),
+      this.lastActivityDate.getMonth(),
+      this.lastActivityDate.getDate(),
+    );
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffTime = today.getTime() - lastDate.getTime();
+    if (diffTime < 0) {
+      return false;
+    }
+
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 1) {
+      const missedDays = diffDays - 1;
+      if (this._streakFreezes >= missedDays) {
+        this._streakFreezes -= missedDays;
+      } else {
+        this.streak = 0;
+        this._streakFreezes = 0;
+      }
+      return true;
+    }
+
+    return false;
   }
 
   get lastActivity(): Date | null {

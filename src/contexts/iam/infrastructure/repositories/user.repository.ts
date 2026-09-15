@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../shared/infrastructure/database/base.repository';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,10 +6,10 @@ import {
   IUserRepository,
   Session,
   SessionMetadata,
-} from '../domain/repositories/user.repository.interface';
-import { User } from '../domain/entities/user.entity';
-import { UserEntity } from './entities/user.entity';
-import { SessionEntity } from './entities/session.entity';
+} from '../../domain/repositories/user.repository.interface';
+import { User } from '../../domain/entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
+import { SessionEntity } from '../entities/session.entity';
 
 @Injectable()
 export class UserRepository
@@ -46,11 +46,13 @@ export class UserRepository
     if (!user) return null;
     return this.mapToDomain(user);
   }
+
   async findById(id: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) return null;
     return this.mapToDomain(user);
   }
+
   async save(user: User): Promise<User> {
     const ormEntity = new UserEntity();
     ormEntity.id = user.id;

@@ -11,7 +11,7 @@ import { LogoutHandler } from './application/commands/logout.handler';
 import { GetMeHandler } from './application/queries/get-me.handler';
 import { ListSessionsHandler } from './application/queries/list-sessions.handler';
 import { UpdateProfileHandler } from './application/commands/update-profile.handler';
-import { UserRepository } from './infrastructure/user.repository';
+import { UserRepository } from './infrastructure/repositories/user.repository';
 import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
 import {
   HashingService,

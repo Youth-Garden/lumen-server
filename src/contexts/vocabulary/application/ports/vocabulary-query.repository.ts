@@ -19,7 +19,7 @@ export interface IVocabularyQueryRepository {
     userId: string,
     folderId?: string,
     limit?: number,
+    includeNew?: boolean,
   ): Promise<DueFlashcardResponseDto[]>;
   getOverview(userId: string): Promise<VocabularyOverviewResponseDto>;
 }
-

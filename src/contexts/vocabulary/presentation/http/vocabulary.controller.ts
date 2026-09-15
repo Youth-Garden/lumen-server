@@ -261,12 +261,14 @@ export class VocabularyController {
     @CurrentUser() userId: string,
     @Query('folderId') folderId?: string,
     @Query('limit') limit?: string,
+    @Query('includeNew') includeNew?: string,
   ): Promise<DueFlashcardResponseDto[]> {
     const limitNum = limit ? parseInt(limit, 10) : undefined;
+    const includeNewBool = includeNew === 'true';
     return this.queryBus.execute<
       ListDueFlashcardsQuery,
       DueFlashcardResponseDto[]
-    >(new ListDueFlashcardsQuery(userId, folderId, limitNum));
+    >(new ListDueFlashcardsQuery(userId, folderId, limitNum, includeNewBool));
   }
 
   @Get('overview')

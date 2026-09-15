@@ -1,10 +1,10 @@
-import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ActivityEntity } from '../entities/activity.entity';
-import { IActivityRepository } from '../../domain/repositories/activity.repository.interface';
+import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Activity } from '../../domain/entities/activity.entity';
+import { IActivityRepository } from '../../domain/repositories/activity.repository.interface';
+import { ActivityEntity } from '../entities/activity.entity';
 
 @Injectable()
 export class ActivityRepository
@@ -56,19 +56,51 @@ export class ActivityRepository
       .orderBy('date', 'ASC')
       .getRawMany<{ date: string | Date; count: string | number }>();
 
-    return raw.map((row) => {
+    const resultMap = new Map<string, number>();
+
+    raw.forEach((row) => {
       const dateStr =
         row.date instanceof Date
           ? row.date.toISOString().split('T')[0]
           : String(row.date);
-      return {
-        date: dateStr,
-        count:
+      const count =
+        typeof row.count === 'string'
+          ? parseInt(row.count, 10)
+          : Number(row.count);
+      resultMap.set(dateStr, count);
+    });
+
+    try {
+      const progressRaw: { date: string | Date; count: string | number }[] =
+        await this.repository.query(
+          `SELECT DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt")) as date, COUNT(id) as count
+           FROM vocab_user_progress
+           WHERE "userId" = $1 AND COALESCE("lastReviewedAt", "updatedAt", "createdAt") >= $2
+           GROUP BY DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt"))`,
+          [userId, startDate],
+        );
+
+      progressRaw.forEach((row) => {
+        const dateStr =
+          row.date instanceof Date
+            ? row.date.toISOString().split('T')[0]
+            : String(row.date);
+        const count =
           typeof row.count === 'string'
             ? parseInt(row.count, 10)
-            : Number(row.count),
-      };
-    });
+            : Number(row.count);
+        const existing = resultMap.get(dateStr) || 0;
+        resultMap.set(dateStr, Math.max(existing, count));
+      });
+    } catch {
+      // Fallback if raw query is not supported
+    }
+
+    return Array.from(resultMap.entries())
+      .map(([date, count]) => ({ date, count }))
+      .sort((firstItem, secondItem) =>
+        firstItem.date.localeCompare(secondItem.date),
+      );
   }
 
   async save(activity: Activity): Promise<void> {
