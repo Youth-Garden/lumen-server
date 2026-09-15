@@ -70,6 +70,9 @@ export class VocabularyOverviewResponseDto {
   @ApiProperty({ example: 313 })
   totalLearnedWords: number;
 
+  @ApiProperty({ example: 42 })
+  dueCount: number;
+
   @ApiProperty({ type: [MemoryStageDto] })
   memoryLevels: MemoryStageDto[];
 
@@ -78,10 +81,12 @@ export class VocabularyOverviewResponseDto {
 
   constructor(
     totalLearnedWords: number,
+    dueCount: number,
     memoryLevels: MemoryStageDto[],
     frequentlyMissedWords: FrequentlyMissedWordDto[],
   ) {
     this.totalLearnedWords = totalLearnedWords;
+    this.dueCount = dueCount;
     this.memoryLevels = memoryLevels;
     this.frequentlyMissedWords = frequentlyMissedWords;
   }

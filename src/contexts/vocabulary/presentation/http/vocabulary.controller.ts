@@ -16,6 +16,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ListDueFlashcardsDto } from '../../application/dtos/list-due-flashcards.dto';
 import { CreateVocabularyWordDto } from '../../application/dtos/create-vocabulary-word.dto';
 import {
   CreateFolderDto,
@@ -259,16 +260,19 @@ export class VocabularyController {
   @ApiResponse({ type: [DueFlashcardResponseDto], status: 200 })
   async listDueFlashcards(
     @CurrentUser() userId: string,
-    @Query('folderId') folderId?: string,
-    @Query('limit') limit?: string,
-    @Query('includeNew') includeNew?: string,
+    @Query() queryDto: ListDueFlashcardsDto,
   ): Promise<DueFlashcardResponseDto[]> {
-    const limitNum = limit ? parseInt(limit, 10) : undefined;
-    const includeNewBool = includeNew === 'true';
     return this.queryBus.execute<
       ListDueFlashcardsQuery,
       DueFlashcardResponseDto[]
-    >(new ListDueFlashcardsQuery(userId, folderId, limitNum, includeNewBool));
+    >(
+      new ListDueFlashcardsQuery(
+        userId,
+        queryDto.folderId,
+        queryDto.limit,
+        queryDto.includeNew ?? false,
+      ),
+    );
   }
 
   @Get('overview')

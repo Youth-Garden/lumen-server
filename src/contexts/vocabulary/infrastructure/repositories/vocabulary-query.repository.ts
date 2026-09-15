@@ -282,6 +282,7 @@ export class VocabularyQueryRepository
     if (!validUserId) {
       return new VocabularyOverviewResponseDto(
         0,
+        0,
         [
           new MemoryStageDto(1, 0),
           new MemoryStageDto(2, 0),
@@ -425,8 +426,15 @@ export class VocabularyQueryRepository
       if (frequentlyMissedWords.length >= 3) break;
     }
 
+    const dueCountRaw = await this.progressRepo
+      .createQueryBuilder('progress')
+      .where('progress.userId = :userId', { userId: validUserId })
+      .andWhere('progress.nextReviewAt <= :now', { now: new Date() })
+      .getCount();
+
     return new VocabularyOverviewResponseDto(
       totalLearnedWords,
+      dueCountRaw,
       memoryLevels,
       frequentlyMissedWords,
     );

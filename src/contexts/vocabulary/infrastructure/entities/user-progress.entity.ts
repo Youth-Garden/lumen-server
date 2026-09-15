@@ -1,8 +1,9 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { FlashcardEntity } from './flashcard.entity';
 
 @Entity('vocab_user_progress')
+@Index('idx_user_progress_due', ['userId', 'nextReviewAt'])
 export class UserProgressEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;

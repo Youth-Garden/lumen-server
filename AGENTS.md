@@ -572,3 +572,14 @@ The src/shared directory is the single source of truth for cross-cutting concern
     3. **Ép kiểu `any` và Type Bypasses**: Tuyệt đối KHÔNG dùng `any`, `as any`, `@typescript-eslint/no-explicit-any` suppression để qua mặt compiler.
     4. **Trộn lẫn I/O Boundaries**: Tuyệt đối KHÔNG dùng bare interfaces cho DTOs qua network boundary; bắt buộc dùng classes có `class-validator` và `class-transformer`.
 
+## 14. Query Serialization, Parameterized APIs & Indexing Rules (MANDATORY)
+
+- **Parameterized Query APIs (Caller-Controlled Limits)**:
+  - Query endpoints and handlers MUST accept optional filter/pagination parameters (`folderId`, `limit`, `page`, `includeNew`) without imposing forced hardcoded default limits that restrict caller flexibility.
+  - The caller (Frontend) controls and specifies `limit` parameters explicitly according to UI requirements.
+- **B-Tree Composite Indexing for Schedule Queries**:
+  - Entities with timestamp/date scheduling fields (e.g., `vocab_user_progress.nextReviewAt`) MUST have B-Tree composite indexes on `(userId, nextReviewAt)` to allow $O(\log N)$ index-only `COUNT(*)` calculations (< 1ms execution time).
+- **Summary Metrics in Overview DTOs**:
+  - Overview and summary endpoints MUST expose pre-calculated or indexed count fields (e.g., `dueCount: number`) so clients do not need to fetch entity lists to render badges.
+
+
