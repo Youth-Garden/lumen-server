@@ -84,14 +84,19 @@ export class ProgressController {
 
   @Get('heatmap')
   @ApiOperation({ summary: 'Get user activity heatmap' })
+  @ApiQuery({ name: 'year', required: false, type: Number })
   @ApiResponse({
     status: 200,
     description: 'Heatmap data retrieved successfully.',
     type: [HeatmapItemDto],
   })
-  async getHeatmap(@CurrentUser() userId: string): Promise<HeatmapItemDto[]> {
+  async getHeatmap(
+    @CurrentUser() userId: string,
+    @Query('year') year?: string,
+  ): Promise<HeatmapItemDto[]> {
+    const parsedYear = year ? parseInt(year, 10) : undefined;
     return this.queryBus.execute<GetHeatmapQuery, HeatmapItemDto[]>(
-      new GetHeatmapQuery(userId, 365),
+      new GetHeatmapQuery(userId, parsedYear),
     );
   }
 

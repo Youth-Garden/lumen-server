@@ -8,6 +8,7 @@ export interface IActivityRepository {
   getHeatmapData(
     userId: string,
     startDate: Date,
+    endDate?: Date,
   ): Promise<{ date: string; count: number }[]>;
   save(activity: Activity): Promise<void>;
 }

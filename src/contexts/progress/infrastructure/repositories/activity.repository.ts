@@ -45,13 +45,20 @@ export class ActivityRepository
   async getHeatmapData(
     userId: string,
     startDate: Date,
+    endDate?: Date,
   ): Promise<{ date: string; count: number }[]> {
-    const raw = await this.repository
+    const qb = this.repository
       .createQueryBuilder('activity')
       .select('DATE(activity.timestamp)', 'date')
       .addSelect('COUNT(activity.id)', 'count')
       .where('activity.userId = :userId', { userId })
-      .andWhere('activity.timestamp >= :startDate', { startDate })
+      .andWhere('activity.timestamp >= :startDate', { startDate });
+
+    if (endDate) {
+      qb.andWhere('activity.timestamp <= :endDate', { endDate });
+    }
+
+    const raw = await qb
       .groupBy('DATE(activity.timestamp)')
       .orderBy('date', 'ASC')
       .getRawMany<{ date: string | Date; count: string | number }>();
@@ -71,14 +78,25 @@ export class ActivityRepository
     });
 
     try {
-      const progressRaw: { date: string | Date; count: string | number }[] =
-        await this.repository.query(
-          `SELECT DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt")) as date, COUNT(id) as count
+      const progressQuery = endDate
+        ? `SELECT DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt")) as date, COUNT(id) as count
            FROM vocab_user_progress
-           WHERE "userId" = $1 AND COALESCE("lastReviewedAt", "updatedAt", "createdAt") >= $2
-           GROUP BY DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt"))`,
-          [userId, startDate],
-        );
+           WHERE "userId" = $1 
+             AND COALESCE("lastReviewedAt", "updatedAt", "createdAt") >= $2
+             AND COALESCE("lastReviewedAt", "updatedAt", "createdAt") <= $3
+           GROUP BY DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt"))`
+        : `SELECT DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt")) as date, COUNT(id) as count
+           FROM vocab_user_progress
+           WHERE "userId" = $1 
+             AND COALESCE("lastReviewedAt", "updatedAt", "createdAt") >= $2
+           GROUP BY DATE(COALESCE("lastReviewedAt", "updatedAt", "createdAt"))`;
+
+      const queryParams = endDate
+        ? [userId, startDate, endDate]
+        : [userId, startDate];
+
+      const progressRaw: { date: string | Date; count: string | number }[] =
+        await this.repository.query(progressQuery, queryParams);
 
       progressRaw.forEach((row) => {
         const dateStr =

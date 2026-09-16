@@ -21,6 +21,9 @@ export class UserResponseDto {
   @ApiProperty({ required: false, nullable: true })
   phone: string | null;
 
+  @ApiProperty({ required: false })
+  createdAt: Date;
+
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
@@ -28,5 +31,6 @@ export class UserResponseDto {
     this.fullName = user.fullName;
     this.avatarUrl = user.avatarUrl;
     this.phone = user.phone;
+    this.createdAt = user.createdAt;
   }
 }

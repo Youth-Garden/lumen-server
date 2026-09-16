@@ -14,6 +14,12 @@ export class GetHeatmapHandler implements IQueryHandler<GetHeatmapQuery> {
   async execute(
     query: GetHeatmapQuery,
   ): Promise<{ date: string; count: number }[]> {
+    if (query.year) {
+      const startDate = new Date(query.year, 0, 1, 0, 0, 0, 0);
+      const endDate = new Date(query.year, 11, 31, 23, 59, 59, 999);
+      return this.activityRepo.getHeatmapData(query.userId, startDate, endDate);
+    }
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - query.days);
     return this.activityRepo.getHeatmapData(query.userId, startDate);
