@@ -1,35 +1,22 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Query as QueryParam,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiBody,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  SubmitDictationDto,
-  DictationResultDto,
-} from '../../application/dtos/dictation.dto';
-import { SubmitDictationCommand } from '../../application/commands/submit-dictation.command';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
+import { Public } from '../../../../shared/presentation/decorators/public.decorator';
+import { SubmitDictationCommand } from '../../application/commands/submit-dictation.command';
+import {
+  DictationResultDto,
+  SubmitDictationDto,
+} from '../../application/dtos/dictation.dto';
+import { ListMaterialsDto } from '../../application/dtos/list-materials.dto';
+import {
+  GetMaterialByIdQuery,
+  ListMaterialsQuery,
+} from '../../application/queries/get-material.query';
 import {
   MaterialDto,
   MaterialListDto,
 } from '../../application/responses/material.response.dto';
-import {
-  ListMaterialsQuery,
-  GetMaterialByIdQuery,
-} from '../../application/queries/get-material.query';
-import { MaterialType } from '../../domain/enums/material.enum';
-import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 
 @ApiTags('Materials (Content Hub)')
 @Controller('materials')
@@ -40,17 +27,18 @@ export class MaterialController {
   ) {}
 
   @Get()
-  @Public() // Allow dictation without login for now if needed, or remove @Public
+  @Public()
   @ApiOperation({ summary: 'List materials (audio, text, etc)' })
-  @ApiQuery({ name: 'type', enum: MaterialType, required: false })
   @ApiResponse({ status: 200, type: MaterialListDto })
   async listMaterials(
-    @QueryParam('type') type?: MaterialType,
-    @QueryParam('page') page: number = 1,
-    @QueryParam('limit') limit: number = 20,
+    @Query() queryDto: ListMaterialsDto,
   ): Promise<MaterialListDto> {
     return this.queryBus.execute<ListMaterialsQuery, MaterialListDto>(
-      new ListMaterialsQuery(type, page, limit),
+      new ListMaterialsQuery(
+        queryDto.type,
+        queryDto.page || 1,
+        queryDto.limit || 20,
+      ),
     );
   }
 

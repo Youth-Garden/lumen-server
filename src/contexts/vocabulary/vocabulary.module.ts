@@ -23,6 +23,8 @@ import { DeleteVocabularyWordHandler } from './application/commands/delete-vocab
 import { UpdateFolderHandler } from './application/commands/update-folder.handler';
 import { DeleteFolderHandler } from './application/commands/delete-folder.handler';
 import { DeleteFlashcardHandler } from './application/commands/delete-flashcard.handler';
+import { ListFolderTopicsHandler } from './application/queries/list-folder-topics.handler';
+import { ListFolderFlashcardsHandler } from './application/queries/list-folder-flashcards.handler';
 import { VOCABULARY_WORD_REPOSITORY } from './domain/repositories/vocabulary-word.repository.interface';
 import { FOLDER_REPOSITORY } from './domain/repositories/folder.repository.interface';
 import { FLASHCARD_REPOSITORY } from './domain/repositories/flashcard.repository.interface';
@@ -63,6 +65,8 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
     UpdateFolderHandler,
     DeleteFolderHandler,
     DeleteFlashcardHandler,
+    ListFolderTopicsHandler,
+    ListFolderFlashcardsHandler,
     {
       provide: VOCABULARY_WORD_REPOSITORY,
       useClass: VocabularyWordRepository,

@@ -1,56 +1,61 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Delete,
   Get,
   Param,
+  Post,
   Put,
-  Delete,
   Query,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiBody,
-} from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ListDueFlashcardsDto } from '../../application/dtos/list-due-flashcards.dto';
-import { CreateVocabularyWordDto } from '../../application/dtos/create-vocabulary-word.dto';
 import {
-  CreateFolderDto,
-  CreateFlashcardDto,
-} from '../../application/dtos/folder-flashcard.dto';
-import { UpdateVocabularyWordDto } from '../../application/dtos/update-vocabulary-word.dto';
-import { UpdateFolderDto } from '../../application/dtos/update-folder.dto';
-import { ReviewFlashcardDto } from '../../application/dtos/review-flashcard.dto';
-import { CreateVocabularyWordCommand } from '../../application/commands/create-vocabulary-word.command';
-import { CreateFolderCommand } from '../../application/commands/create-folder.command';
-import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
-import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
-import { UpdateVocabularyWordCommand } from '../../application/commands/update-vocabulary-word.command';
-import { DeleteVocabularyWordCommand } from '../../application/commands/delete-vocabulary-word.command';
-import { UpdateFolderCommand } from '../../application/commands/update-folder.command';
-import { DeleteFolderCommand } from '../../application/commands/delete-folder.command';
-import { DeleteFlashcardCommand } from '../../application/commands/delete-flashcard.command';
-import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
-import { ListWordsQuery } from '../../application/queries/list-words.query';
-import { ListFoldersQuery } from '../../application/queries/list-folders.query';
-import { GetFolderByIdQuery } from '../../application/queries/get-folder-by-id.query';
-import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
-import { GetVocabularyOverviewQuery } from '../../application/queries/get-vocabulary-overview.query';
-import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
-import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
-import {
-  FolderDetailResponseDto,
-  FolderResponseDto,
-} from '../../application/responses/folder.response.dto';
-import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
-import { VocabularyOverviewResponseDto } from '../../application/responses/vocabulary-overview.response.dto';
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
+import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
+import { CreateFolderCommand } from '../../application/commands/create-folder.command';
+import { CreateVocabularyWordCommand } from '../../application/commands/create-vocabulary-word.command';
+import { DeleteFlashcardCommand } from '../../application/commands/delete-flashcard.command';
+import { DeleteFolderCommand } from '../../application/commands/delete-folder.command';
+import { DeleteVocabularyWordCommand } from '../../application/commands/delete-vocabulary-word.command';
+import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
+import { UpdateFolderCommand } from '../../application/commands/update-folder.command';
+import { UpdateVocabularyWordCommand } from '../../application/commands/update-vocabulary-word.command';
+import { CreateVocabularyWordDto } from '../../application/dtos/create-vocabulary-word.dto';
+import {
+  CreateFlashcardDto,
+  CreateFolderDto,
+} from '../../application/dtos/folder-flashcard.dto';
+import { ListDueFlashcardsDto } from '../../application/dtos/list-due-flashcards.dto';
+import { ListFolderFlashcardsDto } from '../../application/dtos/list-folder-flashcards.dto';
 import { ListWordsFilterDto } from '../../application/dtos/list-words-filter.dto';
+import { ReviewFlashcardDto } from '../../application/dtos/review-flashcard.dto';
+import { UpdateFolderDto } from '../../application/dtos/update-folder.dto';
+import { UpdateVocabularyWordDto } from '../../application/dtos/update-vocabulary-word.dto';
+import { GetFolderByIdQuery } from '../../application/queries/get-folder-by-id.query';
+import { GetVocabularyOverviewQuery } from '../../application/queries/get-vocabulary-overview.query';
+import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
+import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
+import { ListFolderFlashcardsQuery } from '../../application/queries/list-folder-flashcards.query';
+import { ListFolderTopicsQuery } from '../../application/queries/list-folder-topics.query';
+import { ListFoldersQuery } from '../../application/queries/list-folders.query';
+import { ListWordsQuery } from '../../application/queries/list-words.query';
+import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
+import { FolderTopicResponseDto } from '../../application/responses/folder-topic.response.dto';
+import {
+  FolderDetailResponseDto,
+  FolderFlashcardsResponseDto,
+  FolderResponseDto,
+} from '../../application/responses/folder.response.dto';
+import { VocabularyOverviewResponseDto } from '../../application/responses/vocabulary-overview.response.dto';
+import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
+import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
 
 @ApiTags('Vocabulary')
 @Controller('vocabulary/words')
@@ -159,7 +164,7 @@ export class VocabularyController {
   }
 
   @Get('folders/:id')
-  @ApiOperation({ summary: 'Get folder details with flashcards' })
+  @ApiOperation({ summary: 'Get folder summary (no flashcards)' })
   @ApiResponse({ type: FolderDetailResponseDto, status: 200 })
   async getFolderById(
     @Param('id') id: string,
@@ -167,6 +172,43 @@ export class VocabularyController {
   ): Promise<FolderDetailResponseDto> {
     return this.queryBus.execute<GetFolderByIdQuery, FolderDetailResponseDto>(
       new GetFolderByIdQuery(id, userId),
+    );
+  }
+
+  @Get('folders/:id/topics')
+  @ApiOperation({ summary: 'List topics in a folder with aggregate stats' })
+  @ApiParam({ name: 'id', description: 'Folder UUID' })
+  @ApiResponse({ type: [FolderTopicResponseDto], status: 200 })
+  async listFolderTopics(
+    @Param('id') id: string,
+    @CurrentUser() userId: string,
+  ): Promise<FolderTopicResponseDto[]> {
+    return this.queryBus.execute<
+      ListFolderTopicsQuery,
+      FolderTopicResponseDto[]
+    >(new ListFolderTopicsQuery(id, userId));
+  }
+
+  @Get('folders/:id/flashcards')
+  @ApiOperation({ summary: 'List flashcards in a folder, filtered by topic' })
+  @ApiParam({ name: 'id', description: 'Folder UUID' })
+  @ApiResponse({ type: FolderFlashcardsResponseDto, status: 200 })
+  async listFolderFlashcards(
+    @Param('id') id: string,
+    @CurrentUser() userId: string,
+    @Query() queryDto: ListFolderFlashcardsDto,
+  ): Promise<FolderFlashcardsResponseDto> {
+    return this.queryBus.execute<
+      ListFolderFlashcardsQuery,
+      FolderFlashcardsResponseDto
+    >(
+      new ListFolderFlashcardsQuery(
+        id,
+        userId,
+        queryDto.topic,
+        queryDto.page || 1,
+        queryDto.limit || 50,
+      ),
     );
   }
 

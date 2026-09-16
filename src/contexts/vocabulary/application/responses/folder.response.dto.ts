@@ -14,6 +14,9 @@ export class FolderResponseDto {
   category: string | null;
 
   @ApiProperty()
+  isSystem: boolean;
+
+  @ApiProperty()
   flashcardCount: number;
 
   @ApiProperty({ required: false })
@@ -22,6 +25,8 @@ export class FolderResponseDto {
   @ApiProperty({ required: false })
   dueCount?: number;
 }
+
+export class FolderDetailResponseDto extends FolderResponseDto {}
 
 export class FlashcardDefinitionDto {
   @ApiProperty()
@@ -99,19 +104,10 @@ export class FlashcardSummaryDto {
   definitions?: FlashcardDefinitionDto[];
 }
 
-export class FolderDetailResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty({ nullable: true })
-  description: string | null;
-
-  @ApiProperty({ nullable: true })
-  category: string | null;
-
+export class FolderFlashcardsResponseDto {
   @ApiProperty({ type: [FlashcardSummaryDto] })
-  flashcards: FlashcardSummaryDto[];
+  data: FlashcardSummaryDto[];
+
+  @ApiProperty()
+  total: number;
 }
