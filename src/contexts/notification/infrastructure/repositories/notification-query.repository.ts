@@ -20,11 +20,17 @@ export class NotificationQueryRepository
     super(repo);
   }
 
-  async findByUserId(userId: string): Promise<NotificationResponseDto[]> {
+  async findByUserId(
+    userId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<NotificationResponseDto[]> {
+    const offset = (page - 1) * limit;
     const entities = await this.repo.find({
       where: { userId },
       order: { createdAt: 'DESC' },
-      take: 20,
+      skip: offset,
+      take: limit,
     });
 
     return entities.map((entity) => ({

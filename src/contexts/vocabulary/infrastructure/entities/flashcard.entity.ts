@@ -1,10 +1,20 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  Index,
+} from 'typeorm';
 import { FolderEntity } from './folder.entity';
 import { WordEntity } from './word.entity';
 import { UserProgressEntity } from './user-progress.entity';
 
 @Entity('vocab_flashcards')
+@Index('idx_flashcards_folder_id', ['folderId'])
+@Index('idx_flashcards_word_id', ['wordId'])
+@Index('idx_flashcards_folder_word', ['folderId', 'wordId'], { unique: true })
 export class FlashcardEntity extends BaseEntity {
   @Column({ name: 'folderId', type: 'uuid' })
   folderId: string;

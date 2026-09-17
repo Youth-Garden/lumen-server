@@ -1,9 +1,13 @@
+import { PaginatedQuery } from '../../../../shared/application/cqrs/paginated.query';
 import { LeaderboardPeriodEnum } from '../../domain/enums/progress.enum';
 
-export class GetLeaderboardQuery {
+export class GetLeaderboardQuery extends PaginatedQuery {
   constructor(
-    public readonly limit: number = 50,
+    page?: number,
+    limit?: number,
     public readonly period: LeaderboardPeriodEnum = LeaderboardPeriodEnum.ALL_TIME,
     public readonly userId?: string,
-  ) {}
+  ) {
+    super(page, limit);
+  }
 }

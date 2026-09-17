@@ -1,8 +1,10 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity('iam_sessions')
+@Index('idx_sessions_refresh_token', ['refreshToken'])
+@Index('idx_sessions_user_id', ['userId'])
 export class SessionEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;

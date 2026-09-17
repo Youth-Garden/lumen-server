@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Param,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
@@ -7,7 +15,8 @@ import { MarkNotificationReadCommand } from '../../application/commands/mark-not
 import { MarkAllNotificationsReadCommand } from '../../application/commands/mark-all-notifications-read.command';
 import { CreateNotificationCommand } from '../../application/commands/create-notification.command';
 import { CreateNotificationDto } from '../../application/dtos/create-notification.dto';
-import { NotificationResponseDto } from '../../application/ports/notification-query.repository';
+import { ListNotificationsDto } from '../../application/dtos/list-notifications.dto';
+import { NotificationResponseDto } from '../../application/responses/notification.response.dto';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -22,11 +31,12 @@ export class NotificationController {
   @ApiResponse({ type: [NotificationResponseDto], status: 200 })
   async getNotifications(
     @CurrentUser() userId: string,
+    @Query() queryDto: ListNotificationsDto,
   ): Promise<NotificationResponseDto[]> {
     return this.queryBus.execute<
       GetNotificationsQuery,
       NotificationResponseDto[]
-    >(new GetNotificationsQuery(userId));
+    >(new GetNotificationsQuery(userId, queryDto.page, queryDto.limit));
   }
 
   @Patch(':id/read')

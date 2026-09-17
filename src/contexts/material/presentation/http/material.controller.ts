@@ -34,11 +34,7 @@ export class MaterialController {
     @Query() queryDto: ListMaterialsDto,
   ): Promise<MaterialListDto> {
     return this.queryBus.execute<ListMaterialsQuery, MaterialListDto>(
-      new ListMaterialsQuery(
-        queryDto.type,
-        queryDto.page || 1,
-        queryDto.limit || 20,
-      ),
+      new ListMaterialsQuery(queryDto.type, queryDto.page, queryDto.limit),
     );
   }
 

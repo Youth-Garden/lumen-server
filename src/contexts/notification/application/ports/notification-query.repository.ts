@@ -1,16 +1,15 @@
+import { NotificationResponseDto } from '../responses/notification.response.dto';
+
+export { NotificationResponseDto };
+
 export const NOTIFICATION_QUERY_REPOSITORY = Symbol(
   'NOTIFICATION_QUERY_REPOSITORY',
 );
 
-export class NotificationResponseDto {
-  id: string;
-  userId: string;
-  title: string;
-  description: string;
-  isRead: boolean;
-  createdAt: Date;
-}
-
 export interface INotificationQueryRepository {
-  findByUserId(userId: string): Promise<NotificationResponseDto[]>;
+  findByUserId(
+    userId: string,
+    page?: number,
+    limit?: number,
+  ): Promise<NotificationResponseDto[]>;
 }

@@ -10,12 +10,16 @@ import { MaterialEx } from '../../domain/exceptions/material.exception';
 import { MATERIAL_QUERY_REPOSITORY } from '../ports/material-query.repository';
 import type { IMaterialQueryRepository } from '../ports/material-query.repository';
 
-export class ListMaterialsQuery {
+import { PaginatedQuery } from '../../../../shared/application/cqrs/paginated.query';
+
+export class ListMaterialsQuery extends PaginatedQuery {
   constructor(
     public readonly type?: MaterialType,
-    public readonly page: number = 1,
-    public readonly limit: number = 20,
-  ) {}
+    page?: number,
+    limit?: number,
+  ) {
+    super(page, limit);
+  }
 }
 
 @QueryHandler(ListMaterialsQuery)

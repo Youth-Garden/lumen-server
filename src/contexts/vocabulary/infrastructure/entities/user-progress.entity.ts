@@ -4,6 +4,10 @@ import { FlashcardEntity } from './flashcard.entity';
 
 @Entity('vocab_user_progress')
 @Index('idx_user_progress_due', ['userId', 'nextReviewAt'])
+@Index('idx_user_progress_user_flashcard', ['userId', 'flashcardId'], {
+  unique: true,
+})
+@Index('idx_user_progress_missed', ['userId', 'isWilted', 'masteryScore'])
 export class UserProgressEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;

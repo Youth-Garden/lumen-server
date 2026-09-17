@@ -18,10 +18,16 @@ export class ActivityRepository
     super(repository);
   }
 
-  async findByUserId(userId: string, limit: number): Promise<Activity[]> {
+  async findByUserId(
+    userId: string,
+    limit = 10,
+    page = 1,
+  ): Promise<Activity[]> {
+    const offset = (page - 1) * limit;
     const entities = await this.repository.find({
       where: { userId },
       order: { timestamp: 'DESC' },
+      skip: offset,
       take: limit,
     });
 

@@ -1,9 +1,11 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, Index } from 'typeorm';
 import { DefinitionEntity } from './definition.entity';
 import { FlashcardEntity } from './flashcard.entity';
 
 @Entity('vocab_words')
+@Index('idx_words_topic', ['topic'])
+@Index('idx_words_cefr', ['cefrLevel'])
 export class WordEntity extends BaseEntity {
   @Column({ unique: true })
   term: string;

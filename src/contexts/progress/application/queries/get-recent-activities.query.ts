@@ -1,6 +1,11 @@
-export class GetRecentActivitiesQuery {
+import { PaginatedQuery } from '../../../../shared/application/cqrs/paginated.query';
+
+export class GetRecentActivitiesQuery extends PaginatedQuery {
   constructor(
     public readonly userId: string,
-    public readonly limit: number = 10,
-  ) {}
+    page?: number,
+    limit?: number,
+  ) {
+    super(page, limit);
+  }
 }

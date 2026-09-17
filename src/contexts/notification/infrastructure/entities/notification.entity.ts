@@ -1,7 +1,8 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
 
 @Entity('notifications')
+@Index('idx_notifications_user_created', ['userId', 'createdAt'])
 export class NotificationEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   userId: string;

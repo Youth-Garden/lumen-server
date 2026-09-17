@@ -4,13 +4,15 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { BuyStreakFreezeCommand } from '../../application/commands/buy-streak-freeze.command';
 import { UpdateProgressSettingsCommand } from '../../application/commands/update-progress-settings.command';
+import { GetHeatmapDto } from '../../application/dtos/get-heatmap.dto';
+import { GetLeaderboardDto } from '../../application/dtos/get-leaderboard.dto';
+import { ListActivitiesDto } from '../../application/dtos/list-activities.dto';
 import { UpdateProgressSettingsDto } from '../../application/dtos/update-progress-settings.dto';
 import { GetAllBadgesQuery } from '../../application/queries/get-all-badges.query';
 import { GetDashboardQuery } from '../../application/queries/get-dashboard.query';
@@ -22,7 +24,6 @@ import { BadgeResponseDto } from '../../application/responses/badge.response.dto
 import { DashboardResponseDto } from '../../application/responses/dashboard.response.dto';
 import { HeatmapItemDto } from '../../application/responses/heatmap.response.dto';
 import { LeaderboardResponseDto } from '../../application/responses/leaderboard.response.dto';
-import { LeaderboardPeriodEnum } from '../../domain/enums/progress.enum';
 
 @ApiTags('Progress')
 @ApiBearerAuth()
@@ -50,7 +51,6 @@ export class ProgressController {
 
   @Get('leaderboard')
   @ApiOperation({ summary: 'Get global leaderboard' })
-  @ApiQuery({ name: 'period', required: false, enum: LeaderboardPeriodEnum })
   @ApiResponse({
     status: 200,
     description: 'Leaderboard retrieved successfully.',
@@ -58,12 +58,13 @@ export class ProgressController {
   })
   async getLeaderboard(
     @CurrentUser() userId: string,
-    @Query('period') period?: LeaderboardPeriodEnum,
+    @Query() queryDto: GetLeaderboardDto,
   ): Promise<LeaderboardResponseDto> {
     return this.queryBus.execute<GetLeaderboardQuery, LeaderboardResponseDto>(
       new GetLeaderboardQuery(
-        50,
-        period || LeaderboardPeriodEnum.ALL_TIME,
+        queryDto.page,
+        queryDto.limit,
+        queryDto.period,
         userId,
       ),
     );
@@ -84,7 +85,6 @@ export class ProgressController {
 
   @Get('heatmap')
   @ApiOperation({ summary: 'Get user activity heatmap' })
-  @ApiQuery({ name: 'year', required: false, type: Number })
   @ApiResponse({
     status: 200,
     description: 'Heatmap data retrieved successfully.',
@@ -92,11 +92,10 @@ export class ProgressController {
   })
   async getHeatmap(
     @CurrentUser() userId: string,
-    @Query('year') year?: string,
+    @Query() queryDto: GetHeatmapDto,
   ): Promise<HeatmapItemDto[]> {
-    const parsedYear = year ? parseInt(year, 10) : undefined;
     return this.queryBus.execute<GetHeatmapQuery, HeatmapItemDto[]>(
-      new GetHeatmapQuery(userId, parsedYear),
+      new GetHeatmapQuery(userId, queryDto.year),
     );
   }
 
@@ -109,11 +108,12 @@ export class ProgressController {
   })
   async getActivities(
     @CurrentUser() userId: string,
+    @Query() queryDto: ListActivitiesDto,
   ): Promise<ActivityResponseDto[]> {
     return this.queryBus.execute<
       GetRecentActivitiesQuery,
       ActivityResponseDto[]
-    >(new GetRecentActivitiesQuery(userId, 10));
+    >(new GetRecentActivitiesQuery(userId, queryDto.page, queryDto.limit));
   }
 
   @Put('settings')

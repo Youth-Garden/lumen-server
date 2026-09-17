@@ -1,7 +1,8 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, CreateDateColumn } from 'typeorm';
+import { Entity, Column, CreateDateColumn, Index } from 'typeorm';
 
 @Entity('activities')
+@Index('idx_activities_user_timestamp', ['userId', 'timestamp'])
 export class ActivityEntity extends BaseEntity {
   @Column('uuid')
   userId: string;

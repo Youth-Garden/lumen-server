@@ -20,6 +20,10 @@ export class GetNotificationsHandler implements IQueryHandler<
   async execute(
     query: GetNotificationsQuery,
   ): Promise<NotificationResponseDto[]> {
-    return this.notificationQueryRepository.findByUserId(query.userId);
+    return this.notificationQueryRepository.findByUserId(
+      query.userId,
+      query.page,
+      query.limit,
+    );
   }
 }

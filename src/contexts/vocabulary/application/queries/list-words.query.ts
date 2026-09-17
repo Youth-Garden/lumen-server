@@ -1,11 +1,16 @@
-export class ListWordsQuery {
+import { BaseFilterQuery } from '../../../../shared/application/cqrs/base-filter.query';
+import { SortOrder } from '../../../../shared/presentation/dtos/pagination.dto';
+
+export class ListWordsQuery extends BaseFilterQuery {
   constructor(
-    public readonly page: number,
-    public readonly limit: number,
-    public readonly search?: string,
-    public readonly sortBy?: string,
-    public readonly sortOrder?: 'ASC' | 'DESC',
+    page?: number,
+    limit?: number,
+    search?: string,
+    sortBy?: string,
+    sortOrder?: SortOrder,
     public readonly cefrLevel?: string,
     public readonly partOfSpeech?: string,
-  ) {}
+  ) {
+    super(page, limit, search, sortBy, sortOrder);
+  }
 }

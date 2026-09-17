@@ -26,7 +26,7 @@ export class GetLeaderboardHandler implements IQueryHandler<
   constructor(private readonly dataSource: DataSource) {}
 
   async execute(query: GetLeaderboardQuery): Promise<LeaderboardResponseDto> {
-    const limit = query.limit || 50;
+    const limit = query.limit;
 
     const rawResults: RawLeaderboardRow[] = await this.dataSource.query(
       `
@@ -56,21 +56,26 @@ export class GetLeaderboardHandler implements IQueryHandler<
       if (foundInTop) {
         currentUserRank = Number(foundInTop.userRank);
       } else {
-        const userRankResult: { userRank: number | string }[] =
+        const userProfile: { totalPoints: number; streak: number }[] =
           await this.dataSource.query(
-            `
-          WITH ranked_users AS (
-            SELECT 
-              lp."userId" AS "userId",
-              RANK() OVER (ORDER BY lp."totalPoints" DESC, lp.streak DESC) AS "userRank"
-            FROM learning_profiles lp
-          )
-          SELECT "userRank" FROM ranked_users WHERE "userId" = $1
-        `,
+            `SELECT "totalPoints", "streak" FROM learning_profiles WHERE "userId" = $1`,
             [query.userId],
           );
-        if (userRankResult.length > 0) {
-          currentUserRank = Number(userRankResult[0].userRank);
+
+        if (userProfile.length > 0) {
+          const { totalPoints, streak } = userProfile[0];
+          const rankResult: { userRank: number | string }[] =
+            await this.dataSource.query(
+              `
+              SELECT (COUNT(*)::int + 1) AS "userRank"
+              FROM learning_profiles
+              WHERE "totalPoints" > $1 OR ("totalPoints" = $1 AND "streak" > $2)
+            `,
+              [totalPoints, streak],
+            );
+          if (rankResult.length > 0) {
+            currentUserRank = Number(rankResult[0].userRank);
+          }
         }
       }
     }

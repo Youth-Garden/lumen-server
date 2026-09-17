@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class ListDueFlashcardsDto {
@@ -8,24 +8,6 @@ export class ListDueFlashcardsDto {
   })
   @IsOptional()
   @IsString()
-  @Transform(
-    ({ value, obj }: { value?: unknown; obj?: Record<string, unknown> }) => {
-      const rawFolderId = typeof value === 'string' ? value : undefined;
-      const bracketFolderId =
-        typeof obj?.['params[folderId]'] === 'string'
-          ? obj['params[folderId]']
-          : undefined;
-      const nestedParams =
-        typeof obj?.params === 'object' && obj?.params !== null
-          ? (obj.params as Record<string, unknown>)
-          : undefined;
-      const nestedFolderId =
-        typeof nestedParams?.folderId === 'string'
-          ? nestedParams.folderId
-          : undefined;
-      return rawFolderId || bracketFolderId || nestedFolderId || undefined;
-    },
-  )
   folderId?: string;
 
   @ApiPropertyOptional({
@@ -33,18 +15,7 @@ export class ListDueFlashcardsDto {
     example: 30,
   })
   @IsOptional()
-  @Transform(
-    ({ value, obj }: { value?: unknown; obj?: Record<string, unknown> }) => {
-      const nestedParams =
-        typeof obj?.params === 'object' && obj?.params !== null
-          ? (obj.params as Record<string, unknown>)
-          : undefined;
-      const rawVal = value ?? obj?.['params[limit]'] ?? nestedParams?.limit;
-      return rawVal !== undefined && rawVal !== null
-        ? Number(rawVal)
-        : undefined;
-    },
-  )
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   limit?: number;
@@ -54,17 +25,7 @@ export class ListDueFlashcardsDto {
     example: false,
   })
   @IsOptional()
-  @Transform(
-    ({ value, obj }: { value?: unknown; obj?: Record<string, unknown> }) => {
-      const nestedParams =
-        typeof obj?.params === 'object' && obj?.params !== null
-          ? (obj.params as Record<string, unknown>)
-          : undefined;
-      const rawVal =
-        value ?? obj?.['params[includeNew]'] ?? nestedParams?.includeNew;
-      return rawVal === 'true' || rawVal === true;
-    },
-  )
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   includeNew?: boolean;
 }

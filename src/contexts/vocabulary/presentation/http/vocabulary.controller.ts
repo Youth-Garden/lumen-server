@@ -18,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
+import { CreatedEntityResponseDto } from '../../../../shared/presentation/dtos/created-entity.response.dto';
 import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
 import { CreateFolderCommand } from '../../application/commands/create-folder.command';
 import { CreateVocabularyWordCommand } from '../../application/commands/create-vocabulary-word.command';
@@ -75,7 +76,7 @@ export class VocabularyController {
   @ApiResponse({
     status: 201,
     description: 'Word created successfully. Returns the new word ID.',
-    schema: { example: { id: 'uuid-string' } },
+    type: CreatedEntityResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -87,7 +88,7 @@ export class VocabularyController {
   })
   async createWord(
     @Body() dto: CreateVocabularyWordDto,
-  ): Promise<{ id: string }> {
+  ): Promise<CreatedEntityResponseDto> {
     const id = await this.commandBus.execute<
       CreateVocabularyWordCommand,
       string
@@ -100,7 +101,7 @@ export class VocabularyController {
         dto.definitions,
       ),
     );
-    return { id };
+    return new CreatedEntityResponseDto(id);
   }
 
   @Put(':id')
@@ -141,8 +142,8 @@ export class VocabularyController {
   ): Promise<WordListResponseDto> {
     return this.queryBus.execute<ListWordsQuery, WordListResponseDto>(
       new ListWordsQuery(
-        filterDto.page || 1,
-        filterDto.limit || 20,
+        filterDto.page,
+        filterDto.limit,
         filterDto.search,
         filterDto.sortBy,
         filterDto.sortOrder,
@@ -206,8 +207,8 @@ export class VocabularyController {
         id,
         userId,
         queryDto.topic,
-        queryDto.page || 1,
-        queryDto.limit || 50,
+        queryDto.page,
+        queryDto.limit,
       ),
     );
   }
@@ -222,18 +223,18 @@ export class VocabularyController {
   @ApiResponse({
     status: 201,
     description: 'Folder created successfully. Returns the new folder ID.',
-    schema: { example: { id: 'uuid-string' } },
+    type: CreatedEntityResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async createFolder(
     @Body() dto: CreateFolderDto,
     @CurrentUser() userId: string,
-  ): Promise<{ id: string }> {
+  ): Promise<CreatedEntityResponseDto> {
     const id = await this.commandBus.execute<CreateFolderCommand, string>(
       new CreateFolderCommand(dto.name, dto.description, userId),
     );
-    return { id };
+    return new CreatedEntityResponseDto(id);
   }
 
   @Put('folders/:id')
@@ -273,17 +274,17 @@ export class VocabularyController {
     status: 201,
     description:
       'Flashcard created successfully. Returns the new flashcard ID.',
-    schema: { example: { id: 'uuid-string' } },
+    type: CreatedEntityResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async createFlashcard(
     @Body() dto: CreateFlashcardDto,
-  ): Promise<{ id: string }> {
+  ): Promise<CreatedEntityResponseDto> {
     const id = await this.commandBus.execute<CreateFlashcardCommand, string>(
       new CreateFlashcardCommand(dto.folderId, dto.wordId),
     );
-    return { id };
+    return new CreatedEntityResponseDto(id);
   }
 
   @Delete('flashcards/:id')

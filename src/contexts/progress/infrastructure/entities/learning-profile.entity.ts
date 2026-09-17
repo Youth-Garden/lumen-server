@@ -1,7 +1,8 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
 
 @Entity('learning_profiles')
+@Index('idx_learning_profiles_leaderboard', ['totalPoints', 'streak'])
 export class LearningProfileEntity extends BaseEntity {
   @PrimaryColumn('uuid')
   userId: string;

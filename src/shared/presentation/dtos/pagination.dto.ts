@@ -17,7 +17,7 @@ export class PaginationDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page?: number = 1;
+  page: number = 1;
 
   @ApiPropertyOptional({
     description: 'Number of items per page',
@@ -28,7 +28,7 @@ export class PaginationDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  limit?: number = 20;
+  limit: number = 20;
 }
 
 export class BaseFilterDto extends PaginationDto {
