@@ -21,8 +21,8 @@ export class GetRecentActivitiesHandler implements IQueryHandler<
   ): Promise<ActivityResponseDto[]> {
     const activities = await this.activityRepo.findByUserId(
       query.userId,
-      query.limit,
       query.page,
+      query.limit,
     );
 
     return activities.map((activity) => ({

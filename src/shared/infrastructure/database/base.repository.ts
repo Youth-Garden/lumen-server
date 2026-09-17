@@ -5,7 +5,7 @@ import { BaseEntity } from './base.entity';
 export abstract class BaseRepository<T extends BaseEntity> {
   constructor(protected readonly repository: Repository<T>) {}
 
-  protected query(alias: string = 'entity'): SelectQueryBuilder<T> {
+  protected query(alias: string): SelectQueryBuilder<T> {
     return this.repository
       .createQueryBuilder(alias)
       .where(`${alias}.deletedAt IS NULL`);

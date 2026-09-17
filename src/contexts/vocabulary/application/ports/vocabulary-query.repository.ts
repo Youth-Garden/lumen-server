@@ -24,9 +24,9 @@ export interface IVocabularyQueryRepository {
   findFlashcardsByFolderAndTopic(
     folderId: string,
     userId: string,
-    topic?: string,
-    page?: number,
-    limit?: number,
+    topic: string | undefined,
+    page: number,
+    limit: number,
   ): Promise<FolderFlashcardsResponseDto>;
   findDueFlashcards(
     userId: string,

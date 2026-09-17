@@ -22,8 +22,8 @@ export class NotificationQueryRepository
 
   async findByUserId(
     userId: string,
-    page = 1,
-    limit = 20,
+    page: number,
+    limit: number,
   ): Promise<NotificationResponseDto[]> {
     const offset = (page - 1) * limit;
     const entities = await this.repo.find({

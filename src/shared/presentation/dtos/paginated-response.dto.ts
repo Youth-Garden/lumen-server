@@ -27,17 +27,15 @@ export class PaginatedResponseDto<T> {
   constructor(
     items: T[],
     totalItems: number,
-    currentPage: number = 1,
-    perPage: number = 20,
+    currentPage: number,
+    perPage: number,
   ) {
     this.items = items;
-    const limit = perPage > 0 ? perPage : 20;
-    const page = currentPage > 0 ? currentPage : 1;
     this.meta = {
-      currentPage: page,
-      perPage: limit,
+      currentPage,
+      perPage,
       totalItems,
-      totalPages: Math.ceil(totalItems / limit) || 0,
+      totalPages: perPage > 0 ? Math.ceil(totalItems / perPage) : 0,
     };
   }
 }

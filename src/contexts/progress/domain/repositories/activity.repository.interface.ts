@@ -5,8 +5,8 @@ export const ACTIVITY_REPOSITORY = 'ACTIVITY_REPOSITORY';
 export interface IActivityRepository {
   findByUserId(
     userId: string,
-    limit?: number,
-    page?: number,
+    page: number,
+    limit: number,
   ): Promise<Activity[]>;
   findTodayActivities(userId: string): Promise<Activity[]>;
   getHeatmapData(

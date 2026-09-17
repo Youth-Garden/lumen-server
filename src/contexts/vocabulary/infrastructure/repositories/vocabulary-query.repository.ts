@@ -253,9 +253,9 @@ export class VocabularyQueryRepository
   async findFlashcardsByFolderAndTopic(
     folderId: string,
     userId: string,
-    topic?: string,
-    page = 1,
-    limit = 50,
+    topic: string | undefined,
+    page: number,
+    limit: number,
   ): Promise<FolderFlashcardsResponseDto> {
     if (!folderId || folderId === 'undefined') return { data: [], total: 0 };
     const validUserId = userId && userId !== 'undefined' ? userId : null;
@@ -323,7 +323,7 @@ export class VocabularyQueryRepository
     userId: string,
     folderId?: string,
     limit?: number,
-    includeNew = false,
+    includeNew?: boolean,
   ): Promise<DueFlashcardResponseDto[]> {
     const validUserId = userId && userId !== 'undefined' ? userId : null;
     const validFolderId =

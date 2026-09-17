@@ -9,7 +9,7 @@ export const NOTIFICATION_QUERY_REPOSITORY = Symbol(
 export interface INotificationQueryRepository {
   findByUserId(
     userId: string,
-    page?: number,
-    limit?: number,
+    page: number,
+    limit: number,
   ): Promise<NotificationResponseDto[]>;
 }
