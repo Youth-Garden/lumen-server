@@ -1,9 +1,8 @@
-export type LanguageCode = 'en' | 'vi' | 'ja';
+export type LanguageCode = 'en' | 'vi';
 
 export interface TranslationRecord {
   en: string;
   vi?: string;
-  ja?: string;
 }
 
-export const SUPPORTED_LANGUAGES: LanguageCode[] = ['en', 'vi', 'ja'];
+export const SUPPORTED_LANGUAGES: LanguageCode[] = ['en', 'vi'];

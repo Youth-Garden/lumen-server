@@ -54,7 +54,7 @@ export class VocabularyQueryRepository
         'folder.category AS category',
         'folder.authorId AS "authorId"',
         'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
-        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level > 0 OR progress."learningStep" > 0 OR progress."masteryScore" > 0) THEN flashcard.id END)::int AS "learnedCount"',
+        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND progress."nextReviewAt" <= :now THEN flashcard.id END)::int AS "dueCount"',
       ])
       .setParameter('now', new Date());
@@ -145,7 +145,7 @@ export class VocabularyQueryRepository
         'folder.category AS category',
         'folder.authorId AS "authorId"',
         'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
-        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level > 0 OR progress."learningStep" > 0 OR progress."masteryScore" > 0) THEN flashcard.id END)::int AS "learnedCount"',
+        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND progress."nextReviewAt" <= :now THEN flashcard.id END)::int AS "dueCount"',
       ])
       .setParameter('now', new Date())
@@ -219,7 +219,7 @@ export class VocabularyQueryRepository
         'word."topicVi" AS "topicVi"',
         'word."topicImageUrl" AS "topicImageUrl"',
         'COUNT(DISTINCT flashcard.id)::int AS count',
-        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level > 0 OR progress."learningStep" > 0 OR progress."masteryScore" > 0) THEN flashcard.id END)::int AS "learnedCount"',
+        'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND progress."nextReviewAt" <= :now THEN flashcard.id END)::int AS "dueCount"',
       ])
       .setParameter('now', new Date())
@@ -463,14 +463,14 @@ export class VocabularyQueryRepository
           ? row.count
           : parseInt(String(row.count || '0'), 10);
 
-      if (lvl === 0 && step > 0) {
-        stageCounts[1] = (stageCounts[1] || 0) + count;
-        totalLearnedWords += count;
-      } else if (lvl >= 1 && lvl <= 4) {
+      if (lvl >= 1 && lvl <= 4) {
         stageCounts[lvl] = (stageCounts[lvl] || 0) + count;
         totalLearnedWords += count;
       } else if (lvl >= 5) {
         stageCounts[5] = (stageCounts[5] || 0) + count;
+        totalLearnedWords += count;
+      } else if (lvl === 0 && step >= 5) {
+        stageCounts[1] = (stageCounts[1] || 0) + count;
         totalLearnedWords += count;
       }
     });
