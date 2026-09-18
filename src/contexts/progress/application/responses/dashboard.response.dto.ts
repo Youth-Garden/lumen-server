@@ -19,6 +19,9 @@ export class DashboardResponseDto {
   @ApiProperty()
   unlockedBadges: string[];
 
+  @ApiProperty()
+  streakFreezes: number;
+
   constructor(
     streak: number,
     lastActivityDate: Date | null,
@@ -26,6 +29,7 @@ export class DashboardResponseDto {
     dailyGoalMinutes: number,
     todayStudyMinutes: number,
     unlockedBadges: string[],
+    streakFreezes: number = 0,
   ) {
     this.streak = streak;
     this.lastActivityDate = lastActivityDate;
@@ -33,5 +37,6 @@ export class DashboardResponseDto {
     this.dailyGoalMinutes = dailyGoalMinutes;
     this.todayStudyMinutes = todayStudyMinutes;
     this.unlockedBadges = unlockedBadges;
+    this.streakFreezes = streakFreezes;
   }
 }

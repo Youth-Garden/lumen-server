@@ -30,7 +30,7 @@ export class GetDashboardHandler implements IQueryHandler<
     );
 
     if (!profile) {
-      return new DashboardResponseDto(0, null, 0, 15, todayStudyMinutes, []);
+      return new DashboardResponseDto(0, null, 0, 15, todayStudyMinutes, [], 0);
     }
 
     if (profile.syncStreak()) {
@@ -44,6 +44,7 @@ export class GetDashboardHandler implements IQueryHandler<
       profile.dailyGoalMinutes,
       todayStudyMinutes,
       profile.unlockedBadges,
+      profile.streakFreezes,
     );
   }
 }

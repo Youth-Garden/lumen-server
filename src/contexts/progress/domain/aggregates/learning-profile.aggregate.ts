@@ -148,10 +148,13 @@ export class LearningProfile {
 
   public recordActivity(points: number, activityDate: Date = new Date()) {
     this.totalPoints += points;
+    const MAX_STREAK_FREEZES = 5;
 
     if (!this.lastActivityDate) {
       this.streak = 1;
+      this._streakFreezes = Math.min(MAX_STREAK_FREEZES, this._streakFreezes + 1);
       this.lastActivityDate = activityDate;
+      this.checkAndUnlockBadges();
       return;
     }
 
@@ -172,7 +175,7 @@ export class LearningProfile {
     if (diffDays === 1) {
       // Consecutive day
       this.streak += 1;
-      this._streakFreezes += 1; // Gain 1 freeze for maintaining streak
+      this._streakFreezes = Math.min(MAX_STREAK_FREEZES, this._streakFreezes + 1);
       this.lastActivityDate = activityDate;
     } else if (diffDays > 1) {
       // Missed a day
@@ -181,16 +184,14 @@ export class LearningProfile {
         // Used freeze
         this._streakFreezes -= missedDays;
         this.streak += 1;
-        this._streakFreezes += 1; // Gain 1 freeze for maintaining streak today
+        this._streakFreezes = Math.min(MAX_STREAK_FREEZES, this._streakFreezes + 1);
       } else {
         // Streak lost
         this.streak = 1;
-        this._streakFreezes = 0; // Reset freezes when streak is lost (optional, but makes sense)
+        this._streakFreezes = 1;
       }
       this.lastActivityDate = activityDate;
-    }
-    // If diffDays === 0, it means activity on the same day, streak remains the same, update lastActivityDate
-    else {
+    } else {
       this.lastActivityDate = activityDate;
     }
 
