@@ -12,6 +12,7 @@ import { CreateVocabularyWordHandler } from './application/commands/create-vocab
 import { CreateFolderHandler } from './application/commands/create-folder.handler';
 import { CreateFlashcardHandler } from './application/commands/create-flashcard.handler';
 import { ReviewFlashcardHandler } from './application/commands/review-flashcard.handler';
+import { BatchReviewFlashcardsHandler } from './application/commands/batch-review-flashcards.handler';
 import { GetVocabularyWordByIdHandler } from './application/queries/get-vocabulary-word-by-id.handler';
 import { ListWordsHandler } from './application/queries/list-words.handler';
 import { ListFoldersHandler } from './application/queries/list-folders.handler';
@@ -54,6 +55,7 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
     CreateFolderHandler,
     CreateFlashcardHandler,
     ReviewFlashcardHandler,
+    BatchReviewFlashcardsHandler,
     GetVocabularyWordByIdHandler,
     ListWordsHandler,
     ListFoldersHandler,

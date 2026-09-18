@@ -39,6 +39,7 @@ export class FlashcardReviewedListener implements IEventHandler<FlashcardReviewe
       'Reviewed Flashcard',
       'Earned 1 XP',
       pointsEarned,
+      1,
     );
     await this.activityRepo.save(activity);
   }

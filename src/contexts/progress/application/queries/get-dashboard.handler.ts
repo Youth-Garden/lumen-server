@@ -25,7 +25,7 @@ export class GetDashboardHandler implements IQueryHandler<
       query.userId,
     );
     const todayStudyMinutes = todayActivities.reduce(
-      (sum, activity) => sum + (activity.durationMinutes || 0),
+      (sum, activity) => sum + (activity.durationMinutes || 1),
       0,
     );
 

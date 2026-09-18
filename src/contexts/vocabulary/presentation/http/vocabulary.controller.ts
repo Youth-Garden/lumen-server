@@ -25,9 +25,11 @@ import { CreateVocabularyWordCommand } from '../../application/commands/create-v
 import { DeleteFlashcardCommand } from '../../application/commands/delete-flashcard.command';
 import { DeleteFolderCommand } from '../../application/commands/delete-folder.command';
 import { DeleteVocabularyWordCommand } from '../../application/commands/delete-vocabulary-word.command';
+import { BatchReviewFlashcardsCommand } from '../../application/commands/batch-review-flashcards.command';
 import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
 import { UpdateFolderCommand } from '../../application/commands/update-folder.command';
 import { UpdateVocabularyWordCommand } from '../../application/commands/update-vocabulary-word.command';
+import { BatchReviewFlashcardsDto } from '../../application/dtos/batch-review-flashcards.dto';
 import { CreateVocabularyWordDto } from '../../application/dtos/create-vocabulary-word.dto';
 import {
   CreateFlashcardDto,
@@ -389,6 +391,31 @@ export class VocabularyController {
         dto.isFastTrackTempMemory,
         userId,
       ),
+    );
+  }
+
+  @Post('flashcards/review-batch')
+  @ApiOperation({
+    summary: 'Submit multiple flashcard reviews in a single batch',
+    description:
+      'Record review results for multiple flashcards in a study session. Updates progress for each flashcard.',
+  })
+  @ApiBody({ type: BatchReviewFlashcardsDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Flashcard reviews recorded successfully.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error in batch reviews.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async batchReviewFlashcards(
+    @Body() dto: BatchReviewFlashcardsDto,
+    @CurrentUser() userId: string,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new BatchReviewFlashcardsCommand(dto.reviews, userId),
     );
   }
 }
