@@ -26,6 +26,8 @@ export class FolderRepository
       entity.name,
       entity.description,
       entity.authorId,
+      entity.category,
+      entity.isSystem,
     );
   }
 
@@ -35,6 +37,8 @@ export class FolderRepository
     entity.name = folder.name;
     entity.description = folder.description;
     entity.authorId = folder.authorId;
+    entity.category = folder.category;
+    entity.isSystem = folder.isSystem;
     await this.repo.save(entity);
   }
 
@@ -50,6 +54,8 @@ export class FolderRepository
         entity.name,
         entity.description,
         entity.authorId,
+        entity.category,
+        entity.isSystem,
       ),
     );
   }

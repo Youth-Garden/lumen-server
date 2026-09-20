@@ -375,7 +375,10 @@ export async function seedToeicVocabulary(
   const existingWords = await wordRepo.find();
 
   const folderMapByName = new Map<string, FolderEntity>();
-  existingFolders.forEach((d) => folderMapByName.set(d.name, d));
+  existingFolders.forEach((d) => {
+    const enName = typeof d.name === 'string' ? d.name : d.name?.en || '';
+    if (enName) folderMapByName.set(enName, d);
+  });
 
   const wordMapByTerm = new Map<string, WordEntity>();
   existingWords.forEach((w) => wordMapByTerm.set(w.term, w));
@@ -385,17 +388,31 @@ export async function seedToeicVocabulary(
   for (const topicName of topics) {
     if (!folderMapByName.has(topicName)) {
       const d = new FolderEntity();
-      d.name = topicName;
-      d.description = `600 Essential Words for TOEIC: ${topicName}`;
+      const topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
+      d.name = {
+        en: topicName,
+        vi: topicVi,
+      };
+      d.description = {
+        en: `600 Essential Words for TOEIC: ${topicName}`,
+        vi: `600 từ vựng TOEIC thiết yếu: ${topicVi}`,
+      };
       d.authorId = systemUser.id;
-      d.category = 'TOEIC';
+      d.category = {
+        en: 'TOEIC Vocabulary',
+        vi: 'Từ vựng TOEIC',
+      };
+      d.isSystem = true;
       newFoldersToSave.push(d);
     }
   }
 
   if (newFoldersToSave.length > 0) {
     const saved = await folderRepo.save(newFoldersToSave, { chunk: 100 });
-    saved.forEach((d) => folderMapByName.set(d.name, d));
+    saved.forEach((d) => {
+      const enName = typeof d.name === 'string' ? d.name : d.name?.en || '';
+      if (enName) folderMapByName.set(enName, d);
+    });
     console.log(`Bulk saved ${saved.length} Folders.`);
   }
 

@@ -4,14 +4,20 @@ export class FolderResponseDto {
   @ApiProperty()
   id: string;
 
-  @ApiProperty()
-  name: string;
+  @ApiProperty({ oneOf: [{ type: 'string' }, { type: 'object' }] })
+  name: Record<string, string> | string;
 
-  @ApiProperty({ nullable: true })
-  description: string | null;
+  @ApiProperty({
+    nullable: true,
+    oneOf: [{ type: 'string' }, { type: 'object' }],
+  })
+  description: Record<string, string> | string | null;
 
-  @ApiProperty({ nullable: true })
-  category: string | null;
+  @ApiProperty({
+    nullable: true,
+    oneOf: [{ type: 'string' }, { type: 'object' }],
+  })
+  category: Record<string, string> | string | null;
 
   @ApiProperty()
   isSystem: boolean;

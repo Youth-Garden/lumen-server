@@ -19,6 +19,40 @@ import { FlashcardEntity } from '../entities/flashcard.entity';
 import { FolderEntity } from '../entities/folder.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
+function parseI18nValue(value: unknown): Record<string, string> | string {
+  if (!value) return '';
+  if (typeof value === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed as Record<string, string>;
+      }
+    } catch {
+      return value;
+    }
+    return value;
+  }
+  return value as Record<string, string>;
+}
+
+function parseI18nNullableValue(
+  value: unknown,
+): Record<string, string> | string | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed as Record<string, string>;
+      }
+    } catch {
+      return value;
+    }
+    return value;
+  }
+  return value as Record<string, string>;
+}
+
 @Injectable()
 export class VocabularyQueryRepository
   extends BaseRepository<FolderEntity>
@@ -52,6 +86,7 @@ export class VocabularyQueryRepository
         'folder.name AS name',
         'folder.description AS description',
         'folder.category AS category',
+        'folder.isSystem AS "isSystem"',
         'folder.authorId AS "authorId"',
         'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
@@ -61,18 +96,21 @@ export class VocabularyQueryRepository
 
     if (validUserId) {
       queryBuilder.where(
-        'folder.authorId = :userId OR folder.category IS NOT NULL',
+        'folder.authorId = :userId OR folder.category IS NOT NULL OR folder.isSystem = true',
         { userId: validUserId },
       );
     } else {
-      queryBuilder.where('folder.category IS NOT NULL');
+      queryBuilder.where(
+        'folder.category IS NOT NULL OR folder.isSystem = true',
+      );
     }
 
     interface RawFolderRow {
       id: string;
-      name: string;
-      description: string | null;
-      category: string | null;
+      name: unknown;
+      description: unknown;
+      category: unknown;
+      isSystem: boolean | null;
       authorId: string;
       flashcardCount: number | string;
       learnedCount: number | string;
@@ -84,6 +122,7 @@ export class VocabularyQueryRepository
       .addGroupBy('folder.name')
       .addGroupBy('folder.description')
       .addGroupBy('folder.category')
+      .addGroupBy('folder.isSystem')
       .addGroupBy('folder.authorId')
       .addGroupBy('folder.createdAt')
       .orderBy('folder.createdAt', 'ASC')
@@ -91,14 +130,16 @@ export class VocabularyQueryRepository
 
     return rawResults.map((row) => ({
       id: row.id,
-      name: row.name,
-      description: row.description,
-      category: row.category || null,
-      isSystem: row.category !== null && row.authorId !== validUserId,
+      name: parseI18nValue(row.name),
+      description: parseI18nNullableValue(row.description),
+      category: parseI18nNullableValue(row.category),
+      isSystem:
+        Boolean(row.isSystem) ||
+        (row.category !== null && row.authorId !== validUserId),
       flashcardCount:
         typeof row.flashcardCount === 'number'
           ? row.flashcardCount
-          : parseInt(row.flashcardCount || '0', 10),
+          : parseInt(String(row.flashcardCount || '0'), 10),
       learnedCount:
         typeof row.learnedCount === 'number'
           ? row.learnedCount
@@ -120,9 +161,10 @@ export class VocabularyQueryRepository
 
     interface RawFolderRow {
       id: string;
-      name: string;
-      description: string | null;
-      category: string | null;
+      name: unknown;
+      description: unknown;
+      category: unknown;
+      isSystem: boolean | null;
       authorId: string;
       flashcardCount: number | string;
       learnedCount: number | string;
@@ -143,6 +185,7 @@ export class VocabularyQueryRepository
         'folder.name AS name',
         'folder.description AS description',
         'folder.category AS category',
+        'folder.isSystem AS "isSystem"',
         'folder.authorId AS "authorId"',
         'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
@@ -153,15 +196,19 @@ export class VocabularyQueryRepository
       .addGroupBy('folder.name')
       .addGroupBy('folder.description')
       .addGroupBy('folder.category')
+      .addGroupBy('folder.isSystem')
       .addGroupBy('folder.authorId');
 
     if (validUserId) {
       qb.where(
-        'folder.id = :id AND (folder.authorId = :userId OR folder.category IS NOT NULL)',
+        'folder.id = :id AND (folder.authorId = :userId OR folder.category IS NOT NULL OR folder.isSystem = true)',
         { id, userId: validUserId },
       );
     } else {
-      qb.where('folder.id = :id AND folder.category IS NOT NULL', { id });
+      qb.where(
+        'folder.id = :id AND (folder.category IS NOT NULL OR folder.isSystem = true)',
+        { id },
+      );
     }
 
     const row = await qb.getRawOne<RawFolderRow>();
@@ -169,10 +216,12 @@ export class VocabularyQueryRepository
 
     return {
       id: row.id,
-      name: row.name,
-      description: row.description,
-      category: row.category || null,
-      isSystem: row.category !== null && row.authorId !== validUserId,
+      name: parseI18nValue(row.name),
+      description: parseI18nNullableValue(row.description),
+      category: parseI18nNullableValue(row.category),
+      isSystem:
+        Boolean(row.isSystem) ||
+        (row.category !== null && row.authorId !== validUserId),
       flashcardCount:
         typeof row.flashcardCount === 'number'
           ? row.flashcardCount
@@ -387,7 +436,7 @@ export class VocabularyQueryRepository
       word_id: string;
       word_term: string;
       folder_id: string;
-      folder_name: string;
+      folder_name: unknown;
       progress_masteryScore: number | null;
       progress_level: number | null;
       progress_isWilted: boolean | null;
@@ -404,7 +453,7 @@ export class VocabularyQueryRepository
       wordId: row.word_id,
       term: row.word_term,
       folderId: row.folder_id,
-      folderName: row.folder_name,
+      folderName: parseI18nValue(row.folder_name),
       masteryScore: row.progress_masteryScore ?? 0,
       level: row.progress_level ?? 0,
       isWilted: row.progress_isWilted ?? false,

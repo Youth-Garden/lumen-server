@@ -4,19 +4,21 @@ import { FlashcardEntity } from './flashcard.entity';
 
 @Entity('vocab_folders')
 @Index('idx_folders_author_id', ['authorId'])
-@Index('idx_folders_category', ['category'])
 export class FolderEntity extends BaseEntity {
-  @Column()
-  name: string;
+  @Column({ type: 'jsonb', default: {} })
+  name: Record<string, string> | string;
 
-  @Column({ type: 'varchar', nullable: true })
-  description: string | null;
+  @Column({ type: 'jsonb', nullable: true })
+  description: Record<string, string> | string | null;
 
   @Column({ type: 'uuid', nullable: false })
   authorId: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  category: string | null;
+  @Column({ type: 'jsonb', nullable: true })
+  category: Record<string, string> | string | null;
+
+  @Column({ type: 'boolean', default: false })
+  isSystem: boolean;
 
   @OneToMany(() => FlashcardEntity, (flashcard) => flashcard.folder)
   flashcards: FlashcardEntity[];

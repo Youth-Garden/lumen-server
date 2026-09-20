@@ -3,7 +3,7 @@ export class DueFlashcardResponseDto {
   wordId: string;
   term: string;
   folderId: string;
-  folderName: string;
+  folderName: Record<string, string> | string;
 
   masteryScore: number;
   level: number;
