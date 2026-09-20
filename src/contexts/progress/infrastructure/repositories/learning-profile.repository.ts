@@ -19,7 +19,10 @@ export class LearningProfileRepository
   }
 
   async findByUserId(userId: string): Promise<LearningProfile | null> {
-    const entity = await this.repo.findOne({ where: { userId } });
+    const entity = await this.repo.findOne({
+      where: { userId },
+      order: { updatedAt: 'DESC' },
+    });
     if (!entity) return null;
 
     const profile = LearningProfile.reconstitute(
@@ -37,11 +40,21 @@ export class LearningProfileRepository
   }
 
   async save(profile: LearningProfile): Promise<LearningProfile> {
-    let entity = await this.repo.findOne({ where: { userId: profile.id } });
+    const entities = await this.repo.find({
+      where: { userId: profile.id },
+      order: { updatedAt: 'DESC' },
+    });
+
+    let entity = entities[0];
     if (!entity) {
       entity = this.repo.create({
         userId: profile.id,
       });
+    }
+
+    if (entities.length > 1) {
+      const duplicateIds = entities.slice(1).map((e) => e.id);
+      await this.repo.delete(duplicateIds);
     }
 
     entity.streak = profile.currentStreak;
