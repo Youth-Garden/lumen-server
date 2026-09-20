@@ -163,6 +163,17 @@ export class UserProgress extends AggregateRoot {
     );
   }
 
+  resetToUnlearned(): void {
+    this._lastReviewedAt = new Date();
+    this._isWilted = false;
+    this._level = 0;
+    this._learningStep = 0;
+    this._masteryScore = 0;
+    this._reviewCountAtCurrentLevel = 0;
+    this._intervalDays = 0;
+    this._nextReviewAt = null;
+  }
+
   private applyFastTrack(target: {
     readonly level: number;
     readonly masteryScore: number;

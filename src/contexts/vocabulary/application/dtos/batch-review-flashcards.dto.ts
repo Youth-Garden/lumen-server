@@ -41,6 +41,15 @@ export class ReviewFlashcardItemDto {
   @IsOptional()
   @IsBoolean()
   isFastTrackTempMemory?: boolean;
+
+  @ApiPropertyOptional({
+    example: false,
+    description:
+      'Whether to reset the word progress completely to unlearned (Level 0, Step 0)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isResetToUnlearned?: boolean;
 }
 
 export class BatchReviewFlashcardsDto {

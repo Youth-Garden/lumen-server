@@ -18,9 +18,6 @@ export class UserResponseDto {
   @ApiProperty({ required: false, nullable: true })
   avatarUrl: string | null;
 
-  @ApiProperty({ required: false, nullable: true })
-  phone: string | null;
-
   @ApiProperty({ required: false })
   createdAt: Date;
 
@@ -30,7 +27,6 @@ export class UserResponseDto {
     this.role = user.role;
     this.fullName = user.fullName;
     this.avatarUrl = user.avatarUrl;
-    this.phone = user.phone;
     this.createdAt = user.createdAt;
   }
 }

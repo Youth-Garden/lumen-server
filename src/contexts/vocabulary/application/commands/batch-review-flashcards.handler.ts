@@ -31,6 +31,7 @@ export class BatchReviewFlashcardsHandler implements ICommandHandler<
         isCorrect,
         isFastTrackKnown,
         isFastTrackTempMemory,
+        isResetToUnlearned,
       } = item;
 
       const flashcard = await this.flashcardRepo.findById(flashcardId);
@@ -47,7 +48,9 @@ export class BatchReviewFlashcardsHandler implements ICommandHandler<
         progress = UserProgress.create(userId, flashcardId);
       }
 
-      if (isCorrect || isFastTrackKnown || isFastTrackTempMemory) {
+      if (isResetToUnlearned) {
+        progress.resetToUnlearned();
+      } else if (isCorrect || isFastTrackKnown || isFastTrackTempMemory) {
         progress.reviewCorrect(isFastTrackKnown, isFastTrackTempMemory);
       } else {
         progress.reviewWrong();

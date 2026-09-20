@@ -4,6 +4,7 @@ export class ReviewFlashcardCommand {
     public readonly isCorrect: boolean,
     public readonly isFastTrackKnown: boolean | undefined,
     public readonly isFastTrackTempMemory: boolean | undefined,
+    public readonly isResetToUnlearned: boolean | undefined,
     public readonly userId: string,
   ) {}
 }

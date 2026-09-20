@@ -389,6 +389,7 @@ export class VocabularyController {
         dto.isCorrect,
         dto.isFastTrackKnown,
         dto.isFastTrackTempMemory,
+        dto.isResetToUnlearned,
         userId,
       ),
     );

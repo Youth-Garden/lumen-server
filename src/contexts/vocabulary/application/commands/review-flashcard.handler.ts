@@ -29,6 +29,7 @@ export class ReviewFlashcardHandler implements ICommandHandler<
       isCorrect,
       isFastTrackKnown,
       isFastTrackTempMemory,
+      isResetToUnlearned,
       userId,
     } = command;
 
@@ -47,7 +48,9 @@ export class ReviewFlashcardHandler implements ICommandHandler<
     }
 
     // Apply Domain Logic (Custom SRS Algorithm)
-    if (isCorrect || isFastTrackKnown || isFastTrackTempMemory) {
+    if (isResetToUnlearned) {
+      progress.resetToUnlearned();
+    } else if (isCorrect || isFastTrackKnown || isFastTrackTempMemory) {
       progress.reviewCorrect(isFastTrackKnown, isFastTrackTempMemory);
     } else {
       progress.reviewWrong();
