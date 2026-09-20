@@ -37,15 +37,19 @@ export class LearningProfileRepository
   }
 
   async save(profile: LearningProfile): Promise<LearningProfile> {
-    const entity = this.repo.create({
-      userId: profile.id,
-      streak: profile.currentStreak,
-      lastActivityDate: profile.lastActivity,
-      totalPoints: profile.points,
-      dailyGoalMinutes: profile.dailyGoalMinutes,
-      unlockedBadges: profile.unlockedBadges,
-      streakFreezes: profile.streakFreezes,
-    });
+    let entity = await this.repo.findOne({ where: { userId: profile.id } });
+    if (!entity) {
+      entity = this.repo.create({
+        userId: profile.id,
+      });
+    }
+
+    entity.streak = profile.currentStreak;
+    entity.lastActivityDate = profile.lastActivity;
+    entity.totalPoints = profile.points;
+    entity.dailyGoalMinutes = profile.dailyGoalMinutes;
+    entity.unlockedBadges = profile.unlockedBadges;
+    entity.streakFreezes = profile.streakFreezes;
 
     await this.repo.save(entity);
     return profile;

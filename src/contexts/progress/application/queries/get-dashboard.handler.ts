@@ -5,6 +5,7 @@ import { LEARNING_PROFILE_REPOSITORY } from '../../domain/repositories/learning-
 import type { ILearningProfileRepository } from '../../domain/repositories/learning-profile.repository.interface';
 import { ACTIVITY_REPOSITORY } from '../../domain/repositories/activity.repository.interface';
 import type { IActivityRepository } from '../../domain/repositories/activity.repository.interface';
+import { LearningProfile } from '../../domain/aggregates/learning-profile.aggregate';
 import { DashboardResponseDto } from '../responses/dashboard.response.dto';
 
 @QueryHandler(GetDashboardQuery)
@@ -29,11 +30,27 @@ export class GetDashboardHandler implements IQueryHandler<
       0,
     );
 
+    const hasTodayActivities =
+      todayActivities.length > 0 || todayStudyMinutes > 0;
+
     if (!profile) {
-      return new DashboardResponseDto(0, null, 0, 15, todayStudyMinutes, [], 0);
+      const newProfile = LearningProfile.create(query.userId);
+      if (hasTodayActivities) {
+        newProfile.recordActivity(0);
+      }
+      await this.profileRepo.save(newProfile);
+      return new DashboardResponseDto(
+        newProfile.currentStreak,
+        newProfile.lastActivity,
+        newProfile.points,
+        newProfile.dailyGoalMinutes,
+        todayStudyMinutes,
+        newProfile.unlockedBadges,
+        newProfile.streakFreezes,
+      );
     }
 
-    if (profile.syncStreak()) {
+    if (profile.syncStreak(new Date(), hasTodayActivities)) {
       await this.profileRepo.save(profile);
     }
 

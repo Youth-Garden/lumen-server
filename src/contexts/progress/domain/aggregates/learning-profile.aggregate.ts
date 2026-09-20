@@ -37,8 +37,12 @@ export class LearningProfile {
   }
 
   get currentStreak(): number {
-    if (!this.lastActivityDate || this.streak === 0) {
+    if (this.streak <= 0) {
       return 0;
+    }
+
+    if (!this.lastActivityDate) {
+      return this.streak;
     }
 
     const now = new Date();
@@ -50,12 +54,16 @@ export class LearningProfile {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const diffTime = today.getTime() - lastDate.getTime();
     if (diffTime < 0) {
-      return this.streak;
+      return Math.max(1, this.streak);
     }
 
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays <= 1) {
+    if (diffDays === 0) {
+      return Math.max(1, this.streak);
+    }
+
+    if (diffDays === 1) {
       return this.streak;
     }
 
@@ -67,9 +75,25 @@ export class LearningProfile {
     return 0;
   }
 
-  public syncStreak(now: Date = new Date()): boolean {
-    if (!this.lastActivityDate || this.streak === 0) {
-      return false;
+  public syncStreak(
+    now: Date = new Date(),
+    hasActivityToday: boolean = false,
+  ): boolean {
+    let changed = false;
+
+    if (hasActivityToday) {
+      if (this.streak === 0) {
+        this.streak = 1;
+        changed = true;
+      }
+      if (!this.lastActivityDate) {
+        this.lastActivityDate = now;
+        changed = true;
+      }
+    }
+
+    if (!this.lastActivityDate) {
+      return changed;
     }
 
     const lastDate = new Date(
@@ -80,10 +104,18 @@ export class LearningProfile {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const diffTime = today.getTime() - lastDate.getTime();
     if (diffTime < 0) {
-      return false;
+      return changed;
     }
 
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      if (this.streak === 0) {
+        this.streak = 1;
+        changed = true;
+      }
+      return changed;
+    }
 
     if (diffDays > 1) {
       const missedDays = diffDays - 1;
@@ -93,10 +125,11 @@ export class LearningProfile {
         this.streak = 0;
         this._streakFreezes = 0;
       }
-      return true;
+      changed = true;
+      return changed;
     }
 
-    return false;
+    return changed;
   }
 
   get lastActivity(): Date | null {
@@ -150,9 +183,9 @@ export class LearningProfile {
     this.totalPoints += points;
     const MAX_STREAK_FREEZES = 5;
 
-    if (!this.lastActivityDate) {
+    if (!this.lastActivityDate || this.streak === 0) {
       this.streak = 1;
-      this._streakFreezes = Math.min(MAX_STREAK_FREEZES, this._streakFreezes + 1);
+      this._streakFreezes = Math.max(this._streakFreezes, 1);
       this.lastActivityDate = activityDate;
       this.checkAndUnlockBadges();
       return;
@@ -175,7 +208,10 @@ export class LearningProfile {
     if (diffDays === 1) {
       // Consecutive day
       this.streak += 1;
-      this._streakFreezes = Math.min(MAX_STREAK_FREEZES, this._streakFreezes + 1);
+      this._streakFreezes = Math.min(
+        MAX_STREAK_FREEZES,
+        this._streakFreezes + 1,
+      );
       this.lastActivityDate = activityDate;
     } else if (diffDays > 1) {
       // Missed a day
@@ -184,7 +220,10 @@ export class LearningProfile {
         // Used freeze
         this._streakFreezes -= missedDays;
         this.streak += 1;
-        this._streakFreezes = Math.min(MAX_STREAK_FREEZES, this._streakFreezes + 1);
+        this._streakFreezes = Math.min(
+          MAX_STREAK_FREEZES,
+          this._streakFreezes + 1,
+        );
       } else {
         // Streak lost
         this.streak = 1;
@@ -192,6 +231,10 @@ export class LearningProfile {
       }
       this.lastActivityDate = activityDate;
     } else {
+      // Same day
+      if (this.streak === 0) {
+        this.streak = 1;
+      }
       this.lastActivityDate = activityDate;
     }
 

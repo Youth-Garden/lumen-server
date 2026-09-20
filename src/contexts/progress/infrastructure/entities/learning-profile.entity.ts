@@ -1,10 +1,11 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity('learning_profiles')
 @Index('idx_learning_profiles_leaderboard', ['totalPoints', 'streak'])
+@Index('idx_learning_profiles_user_id', ['userId'], { unique: true })
 export class LearningProfileEntity extends BaseEntity {
-  @PrimaryColumn('uuid')
+  @Column({ type: 'uuid', unique: true })
   userId: string;
 
   @Column({ type: 'int', default: 0 })
