@@ -9,7 +9,11 @@ export class RedisService {
   constructor(private readonly configService: ConfigService) {
     this.client = new Redis(
       this.configService.getOrThrow<string>('infrastructure.redis.url'),
-      { maxRetriesPerRequest: null },
+      {
+        maxRetriesPerRequest: null,
+        enableAutoPipelining: false,
+        keepAlive: 0,
+      },
     );
   }
 

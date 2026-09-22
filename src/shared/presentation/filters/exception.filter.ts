@@ -69,8 +69,7 @@ export class ExceptionsFilter implements ExceptionFilter {
     void reply.status(CommonEx.InternalError.httpStatus).send(
       new BaseResponse({
         code: CommonEx.InternalError.code,
-        message:
-          exception instanceof Error ? exception.message : String(exception),
+        message: CommonEx.InternalError.message,
       }),
     );
   }
