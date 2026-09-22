@@ -15,7 +15,7 @@ export const CommonEx = {
   NotFound: { code: 'NOT_FOUND', message: 'Not found', httpStatus: 404 },
   InternalError: {
     code: 'INTERNAL_ERROR',
-    message: 'Internal server error',
+    message: 'Oops! Something went wrong. Please try again later.',
     httpStatus: 500,
   },
 } satisfies ExceptionMap;
