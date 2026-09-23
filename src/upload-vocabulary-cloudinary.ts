@@ -104,6 +104,12 @@ async function uploadToCloudinary(
     public_id: publicId,
     overwrite: true,
     resource_type: resourceType,
+    ...(resourceType === 'image'
+      ? {
+          format: 'webp',
+          transformation: [{ quality: 'auto', fetch_format: 'webp' }],
+        }
+      : {}),
   });
   return result.secure_url;
 }

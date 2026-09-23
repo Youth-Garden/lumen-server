@@ -26,11 +26,12 @@ export async function uploadAudioUrlToCloudinary(
   term: string,
   accent: 'us' | 'uk',
 ): Promise<string | null> {
-  const sanitizedTerm = term.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  const sanitizedTerm = term
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]/g, '_');
   const folder =
-    accent === 'uk'
-      ? 'lumen/vocabulary/audio/uk'
-      : 'lumen/vocabulary/audio/us';
+    accent === 'uk' ? 'lumen/vocabulary/audio/uk' : 'lumen/vocabulary/audio/us';
 
   try {
     const uploadResult = await cloudinary.uploader.upload(remoteAudioUrl, {

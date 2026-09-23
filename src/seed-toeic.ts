@@ -320,7 +320,10 @@ function parseCSV(text: string): ToeicRecord[] {
 }
 
 function getCloudinaryAudioUrls(term: string) {
-  const sanitizedTerm = term.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  const sanitizedTerm = term
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]/g, '_');
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dms9jruo5';
   return {
     us: `https://res.cloudinary.com/${cloudName}/video/upload/lumen/vocabulary/audio/us/${sanitizedTerm}.mp3`,
@@ -329,10 +332,22 @@ function getCloudinaryAudioUrls(term: string) {
 }
 
 function getCloudinaryImageUrl(term: string, fallbackUrl?: string) {
-  const sanitizedTerm = term.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  const sanitizedTerm = term
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]/g, '_');
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dms9jruo5';
-  if (fallbackUrl && fallbackUrl.includes('cloudinary')) return fallbackUrl;
-  return `https://res.cloudinary.com/${cloudName}/image/upload/lumen/vocabulary/images/${sanitizedTerm}.jpg`;
+  if (fallbackUrl && fallbackUrl.includes('cloudinary')) {
+    if (
+      fallbackUrl.endsWith('.jpg') ||
+      fallbackUrl.endsWith('.png') ||
+      fallbackUrl.endsWith('.jpeg')
+    ) {
+      return fallbackUrl.replace(/\.(jpg|png|jpeg)$/i, '.webp');
+    }
+    return fallbackUrl;
+  }
+  return `https://res.cloudinary.com/${cloudName}/image/upload/lumen/vocabulary/images/${sanitizedTerm}.webp`;
 }
 
 export async function seedToeicVocabulary(
@@ -481,15 +496,24 @@ export async function seedToeicVocabulary(
         wordMapByTerm.set(term, w);
       } else {
         let updated = false;
-        if (!existingWord.imageUrl || !existingWord.imageUrl.includes('cloudinary')) {
+        if (
+          !existingWord.imageUrl ||
+          !existingWord.imageUrl.includes('cloudinary')
+        ) {
           existingWord.imageUrl = imageUrl;
           updated = true;
         }
-        if (!existingWord.audioUsUrl || existingWord.audioUsUrl.includes('tflat')) {
+        if (
+          !existingWord.audioUsUrl ||
+          existingWord.audioUsUrl.includes('tflat')
+        ) {
           existingWord.audioUsUrl = audioUrls.us;
           updated = true;
         }
-        if (!existingWord.audioUkUrl || existingWord.audioUkUrl.includes('tflat')) {
+        if (
+          !existingWord.audioUkUrl ||
+          existingWord.audioUkUrl.includes('tflat')
+        ) {
           existingWord.audioUkUrl = audioUrls.uk;
           updated = true;
         }
