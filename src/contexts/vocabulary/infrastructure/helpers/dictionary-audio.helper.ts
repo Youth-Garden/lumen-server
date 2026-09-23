@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { v2 as cloudinary } from 'cloudinary';
 
 export interface DictionaryAudioResult {
   audioUsUrl: string | null;
@@ -20,8 +21,33 @@ interface DictionaryWordResponse {
   phonetics?: DictionaryPhoneticEntry[];
 }
 
+export async function uploadAudioUrlToCloudinary(
+  remoteAudioUrl: string,
+  term: string,
+  accent: 'us' | 'uk',
+): Promise<string | null> {
+  const sanitizedTerm = term.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  const folder =
+    accent === 'uk'
+      ? 'lumen/vocabulary/audio/uk'
+      : 'lumen/vocabulary/audio/us';
+
+  try {
+    const uploadResult = await cloudinary.uploader.upload(remoteAudioUrl, {
+      folder,
+      public_id: sanitizedTerm,
+      overwrite: true,
+      resource_type: 'video',
+    });
+    return uploadResult.secure_url;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchDictionaryPronunciations(
   term: string,
+  uploadToCdn = false,
 ): Promise<DictionaryAudioResult> {
   const result: DictionaryAudioResult = {
     audioUsUrl: null,
@@ -82,6 +108,25 @@ export async function fetchDictionaryPronunciations(
         if (!result.phoneticDefault) {
           result.phoneticDefault = phoneticText;
         }
+      }
+    }
+
+    if (uploadToCdn) {
+      if (result.audioUsUrl) {
+        const cdnUs = await uploadAudioUrlToCloudinary(
+          result.audioUsUrl,
+          cleanTerm,
+          'us',
+        );
+        if (cdnUs) result.audioUsUrl = cdnUs;
+      }
+      if (result.audioUkUrl) {
+        const cdnUk = await uploadAudioUrlToCloudinary(
+          result.audioUkUrl,
+          cleanTerm,
+          'uk',
+        );
+        if (cdnUk) result.audioUkUrl = cdnUk;
       }
     }
 

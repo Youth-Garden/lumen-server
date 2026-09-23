@@ -319,6 +319,22 @@ function parseCSV(text: string): ToeicRecord[] {
   return rows;
 }
 
+function getCloudinaryAudioUrls(term: string) {
+  const sanitizedTerm = term.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dms9jruo5';
+  return {
+    us: `https://res.cloudinary.com/${cloudName}/video/upload/lumen/vocabulary/audio/us/${sanitizedTerm}.mp3`,
+    uk: `https://res.cloudinary.com/${cloudName}/video/upload/lumen/vocabulary/audio/uk/${sanitizedTerm}.mp3`,
+  };
+}
+
+function getCloudinaryImageUrl(term: string, fallbackUrl?: string) {
+  const sanitizedTerm = term.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dms9jruo5';
+  if (fallbackUrl && fallbackUrl.includes('cloudinary')) return fallbackUrl;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/lumen/vocabulary/images/${sanitizedTerm}.jpg`;
+}
+
 export async function seedToeicVocabulary(
   dataSource: DataSource,
 ): Promise<void> {
@@ -371,60 +387,81 @@ export async function seedToeicVocabulary(
   console.log(`Found ${topics.length} TOEIC Folders.`);
 
   // Bulk Load Existing Data
-  const existingFolders = await folderRepo.find();
   const existingWords = await wordRepo.find();
-
-  const folderMapByName = new Map<string, FolderEntity>();
-  existingFolders.forEach((d) => {
-    const enName = typeof d.name === 'string' ? d.name : d.name?.en || '';
-    if (enName) folderMapByName.set(enName, d);
-  });
-
   const wordMapByTerm = new Map<string, WordEntity>();
   existingWords.forEach((w) => wordMapByTerm.set(w.term, w));
 
-  // 1. Bulk Create Folders
-  const newFoldersToSave: FolderEntity[] = [];
-  for (const topicName of topics) {
-    if (!folderMapByName.has(topicName)) {
-      const d = new FolderEntity();
-      const topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
-      d.name = {
-        en: topicName,
-        vi: topicVi,
-      };
-      d.description = {
-        en: `600 Essential Words for TOEIC: ${topicName}`,
-        vi: `600 từ vựng TOEIC thiết yếu: ${topicVi}`,
-      };
-      d.authorId = systemUser.id;
-      d.category = {
-        en: 'TOEIC Vocabulary',
-        vi: 'Từ vựng TOEIC',
-      };
-      d.isSystem = true;
-      newFoldersToSave.push(d);
-    }
+  // 1. Ensure Single Master TOEIC Folder Exists
+  const allSysFolders = await folderRepo.find({ where: { isSystem: true } });
+  let masterFolder =
+    allSysFolders.find((f) => {
+      const en = typeof f.name === 'string' ? f.name : f.name?.en || '';
+      return (
+        en === '600 Essential Words for TOEIC' ||
+        en.includes('600 Essential Words')
+      );
+    }) || null;
+
+  if (!masterFolder) {
+    masterFolder = new FolderEntity();
+    masterFolder.name = {
+      en: '600 Essential Words for TOEIC',
+      vi: '600 từ vựng TOEIC cốt lõi',
+    };
+    masterFolder.description = {
+      en: 'Master 600 essential vocabulary words for TOEIC across 50 topics.',
+      vi: 'Nắm vững 600 từ vựng cốt lõi luyện thi TOEIC theo 50 chủ đề.',
+    };
+    masterFolder.authorId = systemUser.id;
+    masterFolder.category = {
+      en: 'TOEIC Vocabulary',
+      vi: 'Từ vựng TOEIC',
+    };
+    masterFolder.isSystem = true;
+    masterFolder = await folderRepo.save(masterFolder);
+    console.log(`Created Master TOEIC Folder: ${masterFolder.id}`);
+  } else {
+    // Ensure metadata is consistent
+    masterFolder.name = {
+      en: '600 Essential Words for TOEIC',
+      vi: '600 từ vựng TOEIC cốt lõi',
+    };
+    masterFolder.category = {
+      en: 'TOEIC Vocabulary',
+      vi: 'Từ vựng TOEIC',
+    };
+    masterFolder.isSystem = true;
+    masterFolder = await folderRepo.save(masterFolder);
   }
 
-  if (newFoldersToSave.length > 0) {
-    const saved = await folderRepo.save(newFoldersToSave, { chunk: 100 });
-    saved.forEach((d) => {
-      const enName = typeof d.name === 'string' ? d.name : d.name?.en || '';
-      if (enName) folderMapByName.set(enName, d);
-    });
-    console.log(`Bulk saved ${saved.length} Folders.`);
+  // Clean up legacy split topic folders if any exist
+  const legacyFolders = allSysFolders.filter((f) => f.id !== masterFolder.id);
+  if (legacyFolders.length > 0) {
+    const legacyIds = legacyFolders.map((f) => f.id);
+    await flashcardRepo
+      .createQueryBuilder()
+      .delete()
+      .where('"folderId" IN (:...legacyIds)', { legacyIds })
+      .execute();
+    await folderRepo
+      .createQueryBuilder()
+      .delete()
+      .where('id IN (:...legacyIds)', { legacyIds })
+      .execute();
+    console.log(`Cleaned up ${legacyFolders.length} legacy topic folders.`);
   }
 
   // 2. Bulk Create & Update Words
   const newWordsToSave: WordEntity[] = [];
   const wordsToUpdate: WordEntity[] = [];
-  const wordRecordPairs: { word: WordEntity; record: ToeicRecord }[] = [];
 
   for (const topicName of topics) {
     for (const item of topicMap[topicName]) {
       const term = item.english.trim();
       if (!term) continue;
+
+      const audioUrls = getCloudinaryAudioUrls(term);
+      const imageUrl = getCloudinaryImageUrl(term, item.image_url);
 
       const existingWord = wordMapByTerm.get(term);
       if (!existingWord) {
@@ -432,28 +469,43 @@ export async function seedToeicVocabulary(
         w.term = term;
         w.phonetic = item.pronounce || null;
         w.phoneticUs = item.pronounce || null;
-        w.audioUrl = item.audio_url || null;
-        w.audioUsUrl = item.audio_url || null;
+        w.audioUrl = audioUrls.us;
+        w.audioUsUrl = audioUrls.us;
+        w.audioUkUrl = audioUrls.uk;
         w.cefrLevel = 'B1';
-        w.imageUrl = item.image_url || null;
+        w.imageUrl = imageUrl;
         w.topic = topicName;
         w.topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
         w.topicImageUrl = TOPICS_METADATA[topicName]?.image || null;
         newWordsToSave.push(w);
-        wordRecordPairs.push({ word: w, record: item });
-        wordMapByTerm.set(term, w); // temporary map
+        wordMapByTerm.set(term, w);
       } else {
         let updated = false;
-        if (!existingWord.imageUrl && item.image_url) {
-          existingWord.imageUrl = item.image_url;
+        if (!existingWord.imageUrl || !existingWord.imageUrl.includes('cloudinary')) {
+          existingWord.imageUrl = imageUrl;
           updated = true;
         }
-        if (!existingWord.audioUsUrl && item.audio_url) {
-          existingWord.audioUsUrl = item.audio_url;
+        if (!existingWord.audioUsUrl || existingWord.audioUsUrl.includes('tflat')) {
+          existingWord.audioUsUrl = audioUrls.us;
+          updated = true;
+        }
+        if (!existingWord.audioUkUrl || existingWord.audioUkUrl.includes('tflat')) {
+          existingWord.audioUkUrl = audioUrls.uk;
+          updated = true;
+        }
+        if (!existingWord.audioUrl || existingWord.audioUrl.includes('tflat')) {
+          existingWord.audioUrl = audioUrls.us;
           updated = true;
         }
         if (!existingWord.phoneticUs && item.pronounce) {
           existingWord.phoneticUs = item.pronounce;
+          updated = true;
+        }
+        if (!existingWord.topic) {
+          existingWord.topic = topicName;
+          existingWord.topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
+          existingWord.topicImageUrl =
+            TOPICS_METADATA[topicName]?.image || null;
           updated = true;
         }
         if (updated) {
@@ -472,7 +524,7 @@ export async function seedToeicVocabulary(
   if (wordsToUpdate.length > 0) {
     await wordRepo.save(wordsToUpdate, { chunk: 100 });
     console.log(
-      `Updated audio/imageUrl for ${wordsToUpdate.length} existing Words.`,
+      `Updated audio/imageUrl/topic for ${wordsToUpdate.length} existing Words.`,
     );
   }
 
@@ -510,38 +562,34 @@ export async function seedToeicVocabulary(
     }
   }
 
-  // 3. Bulk Create Definitions & Examples
+  // 3. Bulk Create Definitions, Examples & Flashcards for Master Folder
   const definitionsToSave: DefinitionEntity[] = [];
   const examplesToSave: ExampleEntity[] = [];
   const flashcardsToSave: FlashcardEntity[] = [];
 
-  const existingFlashcards = await flashcardRepo.find();
+  const existingFlashcards = await flashcardRepo.find({
+    where: { folderId: masterFolder.id },
+  });
   const flashcardSet = new Set<string>();
-  existingFlashcards.forEach((f) =>
-    flashcardSet.add(`${f.folderId}_${f.wordId}`),
-  );
+  existingFlashcards.forEach((f) => flashcardSet.add(f.wordId));
 
   const existingDefs = await definitionRepo.find();
   const defWordSet = new Set<string>();
   existingDefs.forEach((df) => defWordSet.add(df.wordId));
 
   for (const topicName of topics) {
-    const folder = folderMapByName.get(topicName);
-    if (!folder) continue;
-
     for (const item of topicMap[topicName]) {
       const term = item.english.trim();
       const word = wordMapByTerm.get(term);
       if (!word) continue;
 
-      // Check Flashcard
-      const key = `${folder.id}_${word.id}`;
-      if (!flashcardSet.has(key)) {
+      // Link to Master TOEIC Folder
+      if (!flashcardSet.has(word.id)) {
         const fc = new FlashcardEntity();
-        fc.folderId = folder.id;
+        fc.folderId = masterFolder.id;
         fc.wordId = word.id;
         flashcardsToSave.push(fc);
-        flashcardSet.add(key);
+        flashcardSet.add(word.id);
       }
 
       // Check Definition
@@ -558,7 +606,7 @@ export async function seedToeicVocabulary(
 
         if (item.example) {
           const ex = new ExampleEntity();
-          ex.definition = def; // TypeORM CASCADE/linking
+          ex.definition = def;
           ex.sentence = {
             en: item.example,
             vi: item.example_vietnamese || '',
@@ -585,7 +633,7 @@ export async function seedToeicVocabulary(
 
   if (flashcardsToSave.length > 0) {
     const savedFc = await flashcardRepo.save(flashcardsToSave, { chunk: 100 });
-    console.log(`Bulk saved ${savedFc.length} Flashcards.`);
+    console.log(`Bulk saved ${savedFc.length} Flashcards to Master Folder.`);
   }
 
   console.log('--- 600 TOEIC Vocabulary Seeding Complete ---');
