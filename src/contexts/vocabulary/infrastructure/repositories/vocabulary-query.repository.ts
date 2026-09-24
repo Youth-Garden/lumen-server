@@ -86,6 +86,7 @@ export class VocabularyQueryRepository
         'folder.name AS name',
         'folder.description AS description',
         'folder.category AS category',
+        'folder.imageUrl AS "imageUrl"',
         'folder.isSystem AS "isSystem"',
         'folder.authorId AS "authorId"',
         'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
@@ -110,6 +111,7 @@ export class VocabularyQueryRepository
       name: unknown;
       description: unknown;
       category: unknown;
+      imageUrl: string | null;
       isSystem: boolean | null;
       authorId: string;
       flashcardCount: number | string;
@@ -122,6 +124,7 @@ export class VocabularyQueryRepository
       .addGroupBy('folder.name')
       .addGroupBy('folder.description')
       .addGroupBy('folder.category')
+      .addGroupBy('folder.imageUrl')
       .addGroupBy('folder.isSystem')
       .addGroupBy('folder.authorId')
       .addGroupBy('folder.createdAt')
@@ -133,6 +136,7 @@ export class VocabularyQueryRepository
       name: parseI18nValue(row.name),
       description: parseI18nNullableValue(row.description),
       category: parseI18nNullableValue(row.category),
+      imageUrl: row.imageUrl ?? null,
       isSystem:
         Boolean(row.isSystem) ||
         (row.category !== null && row.authorId !== validUserId),
@@ -164,6 +168,7 @@ export class VocabularyQueryRepository
       name: unknown;
       description: unknown;
       category: unknown;
+      imageUrl: string | null;
       isSystem: boolean | null;
       authorId: string;
       flashcardCount: number | string;
@@ -185,6 +190,7 @@ export class VocabularyQueryRepository
         'folder.name AS name',
         'folder.description AS description',
         'folder.category AS category',
+        'folder.imageUrl AS "imageUrl"',
         'folder.isSystem AS "isSystem"',
         'folder.authorId AS "authorId"',
         'COUNT(DISTINCT flashcard.id)::int AS "flashcardCount"',
@@ -196,6 +202,7 @@ export class VocabularyQueryRepository
       .addGroupBy('folder.name')
       .addGroupBy('folder.description')
       .addGroupBy('folder.category')
+      .addGroupBy('folder.imageUrl')
       .addGroupBy('folder.isSystem')
       .addGroupBy('folder.authorId');
 
@@ -219,6 +226,7 @@ export class VocabularyQueryRepository
       name: parseI18nValue(row.name),
       description: parseI18nNullableValue(row.description),
       category: parseI18nNullableValue(row.category),
+      imageUrl: row.imageUrl ?? null,
       isSystem:
         Boolean(row.isSystem) ||
         (row.category !== null && row.authorId !== validUserId),
@@ -264,19 +272,19 @@ export class VocabularyQueryRepository
         { userId: validUserId },
       )
       .select([
-        "COALESCE(word.topic, 'General') AS topic",
-        'word."topicVi" AS "topicVi"',
-        'word."topicImageUrl" AS "topicImageUrl"',
+        "COALESCE(flashcard.topic, word.topic, 'General') AS topic",
+        'COALESCE(flashcard."topicVi", word."topicVi") AS "topicVi"',
+        'COALESCE(flashcard."topicImageUrl", word."topicImageUrl") AS "topicImageUrl"',
         'COUNT(DISTINCT flashcard.id)::int AS count',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND progress."nextReviewAt" <= :now THEN flashcard.id END)::int AS "dueCount"',
       ])
       .setParameter('now', new Date())
       .where('flashcard."folderId" = :folderId', { folderId })
-      .groupBy('word.topic')
-      .addGroupBy('word."topicVi"')
-      .addGroupBy('word."topicImageUrl"')
-      .orderBy('word.topic', 'ASC');
+      .groupBy("COALESCE(flashcard.topic, word.topic, 'General')")
+      .addGroupBy('COALESCE(flashcard."topicVi", word."topicVi")')
+      .addGroupBy('COALESCE(flashcard."topicImageUrl", word."topicImageUrl")')
+      .orderBy("COALESCE(flashcard.topic, word.topic, 'General')", 'ASC');
 
     const rows = await qb.getRawMany<RawTopicRow>();
 
@@ -318,7 +326,9 @@ export class VocabularyQueryRepository
       .where('flashcard."folderId" = :folderId', { folderId });
 
     if (topic) {
-      qb.andWhere("COALESCE(word.topic, 'General') = :topic", { topic });
+      qb.andWhere("COALESCE(flashcard.topic, word.topic, 'General') = :topic", {
+        topic,
+      });
     }
 
     if (validUserId) {
@@ -338,9 +348,10 @@ export class VocabularyQueryRepository
         id: flashcard.id,
         wordId: flashcard.word.id,
         term: flashcard.word.term,
-        topic: flashcard.word.topic || null,
-        topicVi: flashcard.word.topicVi || null,
-        topicImageUrl: flashcard.word.topicImageUrl || null,
+        topic: flashcard.topic || flashcard.word.topic || null,
+        topicVi: flashcard.topicVi || flashcard.word.topicVi || null,
+        topicImageUrl:
+          flashcard.topicImageUrl || flashcard.word.topicImageUrl || null,
         phonetic: flashcard.word.phonetic,
         phoneticUs: flashcard.word.phoneticUs,
         phoneticUk: flashcard.word.phoneticUk,

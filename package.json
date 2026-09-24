@@ -16,6 +16,7 @@
     "start:prod": "node dist/main",
     "seed": "ts-node -r tsconfig-paths/register src/seed.ts",
     "seed:toeic": "ts-node -r tsconfig-paths/register src/seed-toeic.ts",
+    "seed:ngsl": "ts-node -r tsconfig-paths/register src/seed-ngsl-vocabulary.ts",
     "seed:cloudinary": "ts-node -r tsconfig-paths/register src/upload-vocabulary-cloudinary.ts",
     "seed:cloudinary-images": "ts-node -r tsconfig-paths/register src/sync-topic-and-word-images-cloudinary.ts",
     "seed:uk-audio": "ts-node -r tsconfig-paths/register src/enrich-uk-audio.ts",

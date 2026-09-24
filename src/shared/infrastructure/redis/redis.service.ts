@@ -15,6 +15,9 @@ export class RedisService {
         keepAlive: 0,
       },
     );
+    this.client.on('error', () => {
+      // Gracefully handle Redis errors without crashing application context
+    });
   }
 
   getClient(): Redis {

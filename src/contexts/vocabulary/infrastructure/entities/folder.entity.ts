@@ -20,6 +20,9 @@ export class FolderEntity extends BaseEntity {
   @Column({ type: 'boolean', default: false })
   isSystem: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  imageUrl: string | null;
+
   @OneToMany(() => FlashcardEntity, (flashcard) => flashcard.folder)
   flashcards: FlashcardEntity[];
 }

@@ -121,6 +121,9 @@ export class LearningProfile {
       const missedDays = diffDays - 1;
       if (this._streakFreezes >= missedDays) {
         this._streakFreezes -= missedDays;
+        const protectedDate = new Date(today);
+        protectedDate.setDate(protectedDate.getDate() - 1);
+        this.lastActivityDate = protectedDate;
       } else {
         this.streak = 0;
         this._streakFreezes = 0;

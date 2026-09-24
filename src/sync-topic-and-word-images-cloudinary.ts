@@ -56,7 +56,15 @@ function uploadBufferToCloudinary(
       },
       (error, result) => {
         if (error || !result) {
-          return reject(error || new Error('Upload to Cloudinary failed'));
+          return reject(
+            error instanceof Error
+              ? error
+              : new Error(
+                  typeof error === 'object' && error !== null
+                    ? JSON.stringify(error)
+                    : 'Upload to Cloudinary failed',
+                ),
+          );
         }
         resolve(result.secure_url);
       },

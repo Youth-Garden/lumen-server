@@ -22,6 +22,9 @@ export class FolderResponseDto {
   @ApiProperty()
   isSystem: boolean;
 
+  @ApiProperty({ nullable: true, required: false })
+  imageUrl?: string | null;
+
   @ApiProperty()
   flashcardCount: number;
 

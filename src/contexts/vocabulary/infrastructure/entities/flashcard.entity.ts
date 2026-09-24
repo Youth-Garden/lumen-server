@@ -15,12 +15,22 @@ import { UserProgressEntity } from './user-progress.entity';
 @Index('idx_flashcards_folder_id', ['folderId'])
 @Index('idx_flashcards_word_id', ['wordId'])
 @Index('idx_flashcards_folder_word', ['folderId', 'wordId'], { unique: true })
+@Index('idx_flashcards_folder_topic', ['folderId', 'topic'])
 export class FlashcardEntity extends BaseEntity {
   @Column({ name: 'folderId', type: 'uuid' })
   folderId: string;
 
   @Column({ type: 'uuid' })
   wordId: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  topic: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  topicVi: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  topicImageUrl: string | null;
 
   @ManyToOne(() => FolderEntity, (folder) => folder.flashcards, {
     onDelete: 'CASCADE',
