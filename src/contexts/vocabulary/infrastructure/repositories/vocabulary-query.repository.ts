@@ -19,38 +19,17 @@ import { FlashcardEntity } from '../entities/flashcard.entity';
 import { FolderEntity } from '../entities/folder.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
-function parseI18nValue(value: unknown): Record<string, string> | string {
-  if (!value) return '';
-  if (typeof value === 'string') {
-    try {
-      const parsed: unknown = JSON.parse(value);
-      if (typeof parsed === 'object' && parsed !== null) {
-        return parsed as Record<string, string>;
-      }
-    } catch {
-      return value;
-    }
-    return value;
-  }
-  return value as Record<string, string>;
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
+import { toI18nString } from '../../../../shared/utils';
+
+function parseI18nValue(value: unknown): I18nString {
+  return toI18nString(value);
 }
 
-function parseI18nNullableValue(
-  value: unknown,
-): Record<string, string> | string | null {
+function parseI18nNullableValue(value: unknown): I18nString | null {
   if (value === null || value === undefined) return null;
-  if (typeof value === 'string') {
-    try {
-      const parsed: unknown = JSON.parse(value);
-      if (typeof parsed === 'object' && parsed !== null) {
-        return parsed as Record<string, string>;
-      }
-    } catch {
-      return value;
-    }
-    return value;
-  }
-  return value as Record<string, string>;
+  const res = toI18nString(value);
+  return Object.keys(res).length > 0 ? res : null;
 }
 
 @Injectable()
@@ -121,9 +100,9 @@ export class VocabularyQueryRepository
 
     const rawResults = await queryBuilder
       .groupBy('folder.id')
-      .addGroupBy('folder.name')
-      .addGroupBy('folder.description')
-      .addGroupBy('folder.category')
+      .addGroupBy('folder.name::text')
+      .addGroupBy('folder.description::text')
+      .addGroupBy('folder.category::text')
       .addGroupBy('folder.imageUrl')
       .addGroupBy('folder.isSystem')
       .addGroupBy('folder.authorId')
@@ -199,9 +178,9 @@ export class VocabularyQueryRepository
       ])
       .setParameter('now', new Date())
       .groupBy('folder.id')
-      .addGroupBy('folder.name')
-      .addGroupBy('folder.description')
-      .addGroupBy('folder.category')
+      .addGroupBy('folder.name::text')
+      .addGroupBy('folder.description::text')
+      .addGroupBy('folder.category::text')
       .addGroupBy('folder.imageUrl')
       .addGroupBy('folder.isSystem')
       .addGroupBy('folder.authorId');
@@ -253,8 +232,7 @@ export class VocabularyQueryRepository
     const validUserId = userId && userId !== 'undefined' ? userId : null;
 
     interface RawTopicRow {
-      topic: string;
-      topicVi: string | null;
+      topic: unknown;
       topicImageUrl: string | null;
       count: number | string;
       learnedCount: number | string;
@@ -272,8 +250,7 @@ export class VocabularyQueryRepository
         { userId: validUserId },
       )
       .select([
-        "COALESCE(flashcard.topic, word.topic, 'General') AS topic",
-        'COALESCE(flashcard."topicVi", word."topicVi") AS "topicVi"',
+        'COALESCE(flashcard.topic, word.topic) AS topic',
         'COALESCE(flashcard."topicImageUrl", word."topicImageUrl") AS "topicImageUrl"',
         'COUNT(DISTINCT flashcard.id)::int AS count',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
@@ -281,16 +258,14 @@ export class VocabularyQueryRepository
       ])
       .setParameter('now', new Date())
       .where('flashcard."folderId" = :folderId', { folderId })
-      .groupBy("COALESCE(flashcard.topic, word.topic, 'General')")
-      .addGroupBy('COALESCE(flashcard."topicVi", word."topicVi")')
+      .groupBy('COALESCE(flashcard.topic::text, word.topic::text)')
       .addGroupBy('COALESCE(flashcard."topicImageUrl", word."topicImageUrl")')
-      .orderBy("COALESCE(flashcard.topic, word.topic, 'General')", 'ASC');
+      .orderBy('COALESCE(flashcard.topic::text, word.topic::text)', 'ASC');
 
     const rows = await qb.getRawMany<RawTopicRow>();
 
     return rows.map((row) => ({
-      topic: row.topic,
-      topicVi: row.topicVi || null,
+      topic: parseI18nValue(row.topic),
       topicImageUrl: row.topicImageUrl || null,
       count:
         typeof row.count === 'number'
@@ -326,9 +301,10 @@ export class VocabularyQueryRepository
       .where('flashcard."folderId" = :folderId', { folderId });
 
     if (topic) {
-      qb.andWhere("COALESCE(flashcard.topic, word.topic, 'General') = :topic", {
-        topic,
-      });
+      qb.andWhere(
+        "(flashcard.topic->>'en' = :topic OR word.topic->>'en' = :topic OR flashcard.topic->>'vi' = :topic OR word.topic->>'vi' = :topic)",
+        { topic },
+      );
     }
 
     if (validUserId) {
@@ -349,7 +325,6 @@ export class VocabularyQueryRepository
         wordId: flashcard.word.id,
         term: flashcard.word.term,
         topic: flashcard.topic || flashcard.word.topic || null,
-        topicVi: flashcard.topicVi || flashcard.word.topicVi || null,
         topicImageUrl:
           flashcard.topicImageUrl || flashcard.word.topicImageUrl || null,
         phonetic: flashcard.word.phonetic,

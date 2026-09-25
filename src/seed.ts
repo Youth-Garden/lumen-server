@@ -21,6 +21,7 @@ import { materialMockData } from './seed/material-data';
 import { progressData } from './seed/progress-data';
 import { userData } from './seed/user-data';
 import { seedToeicVocabulary } from './seed-toeic';
+import { runNgslVocabularySeeder } from './contexts/vocabulary/infrastructure/seed/ngsl-seeder.service';
 import { StorageService } from './shared/infrastructure/storage/storage.service';
 
 const genDictationPath = path.join(
@@ -53,8 +54,8 @@ async function bootstrap() {
   const badgesToSave = badgeData.map((def) => {
     const b = new BadgeEntity();
     b.code = def.code;
-    b.name = def.name;
-    b.description = def.description;
+    b.name = typeof def.name === 'string' ? { en: def.name, vi: def.name } : def.name;
+    b.description = typeof def.description === 'string' ? { en: def.description, vi: def.description } : def.description;
     b.icon = def.icon;
     return b;
   });
@@ -100,8 +101,12 @@ async function bootstrap() {
 
   for (const materialData of activeMaterialData) {
     const material = new MaterialEntity();
-    material.title = materialData.title;
-    material.description = materialData.description;
+    material.title = typeof materialData.title === 'string' ? { en: materialData.title, vi: materialData.title } : materialData.title;
+    material.description = materialData.description
+      ? typeof materialData.description === 'string'
+        ? { en: materialData.description, vi: materialData.description }
+        : materialData.description
+      : null;
     material.type =
       materialData.type === 'PODCAST' ? 'AUDIO' : materialData.type;
 
@@ -119,14 +124,16 @@ async function bootstrap() {
     material.duration = materialData.duration;
 
     const savedMaterial = await materialRepo.save(material);
-    console.log(`Created Material: ${savedMaterial.title}`);
+    console.log(`Created Material: ${JSON.stringify(savedMaterial.title)}`);
 
     for (const transcriptData of materialData.transcripts) {
       const transcript = new TranscriptEntity();
       transcript.materialId = savedMaterial.id;
       transcript.sequenceNumber = transcriptData.sequenceNumber;
-      transcript.text = transcriptData.text;
-      transcript.translation = transcriptData.translation;
+      transcript.text = {
+        en: transcriptData.text,
+        vi: transcriptData.translation || transcriptData.text,
+      };
       transcript.startTime = transcriptData.startTime;
       transcript.endTime = transcriptData.endTime;
 
@@ -139,6 +146,7 @@ async function bootstrap() {
 
   console.log('--- Starting Vocabulary Database Seeding ---');
   await seedToeicVocabulary(dataSource);
+  await runNgslVocabularySeeder(dataSource);
 
   console.log('--- Starting Progress Database Seeding ---');
   if (targetUserId) {

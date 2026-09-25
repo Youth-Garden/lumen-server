@@ -18,6 +18,8 @@ import { CreateNotificationDto } from '../../application/dtos/create-notificatio
 import { ListNotificationsDto } from '../../application/dtos/list-notifications.dto';
 import { NotificationResponseDto } from '../../application/responses/notification.response.dto';
 
+import { toI18nString } from '../../../../shared/utils';
+
 @ApiTags('Notifications')
 @Controller('notifications')
 export class NotificationController {
@@ -74,7 +76,11 @@ export class NotificationController {
     @CurrentUser() userId: string,
   ): Promise<void> {
     await this.commandBus.execute<CreateNotificationCommand, void>(
-      new CreateNotificationCommand(userId, dto.title, dto.description),
+      new CreateNotificationCommand(
+        userId,
+        toI18nString(dto.title),
+        toI18nString(dto.description),
+      ),
     );
   }
 }

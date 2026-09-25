@@ -1,12 +1,12 @@
 import { Expose, Type } from 'class-transformer';
-import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class VocabularyExampleResponseDto {
   @Expose()
   id: string;
 
   @Expose()
-  sentence: TranslationRecord;
+  sentence: I18nString;
 
   constructor(partial: Partial<VocabularyExampleResponseDto>) {
     Object.assign(this, partial);
@@ -21,7 +21,7 @@ export class VocabularyDefinitionResponseDto {
   partOfSpeech: string;
 
   @Expose()
-  definition: TranslationRecord;
+  definition: I18nString;
 
   @Expose()
   @Type(() => VocabularyExampleResponseDto)
@@ -40,10 +40,7 @@ export class VocabularyWordResponseDto {
   term: string;
 
   @Expose()
-  topic: string | null;
-
-  @Expose()
-  topicVi: string | null;
+  topic: I18nString | null;
 
   @Expose()
   topicImageUrl: string | null;

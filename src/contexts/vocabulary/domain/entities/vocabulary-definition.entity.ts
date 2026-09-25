@@ -1,11 +1,11 @@
 import { VocabularyExample } from './vocabulary-example.entity';
-import { TranslationRecord } from '../../../../shared/domain/types/translation.type';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class VocabularyDefinition {
   constructor(
     public readonly id: string,
     public readonly partOfSpeech: string,
-    public readonly definition: TranslationRecord,
+    public readonly definition: I18nString,
     private _examples: VocabularyExample[] = [],
   ) {}
 

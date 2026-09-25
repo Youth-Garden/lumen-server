@@ -1,6 +1,7 @@
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { MaterialEntity } from './material.entity';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 @Entity('transcripts')
 export class TranscriptEntity extends BaseEntity {
@@ -16,11 +17,8 @@ export class TranscriptEntity extends BaseEntity {
   @Column({ type: 'int' })
   sequenceNumber: number;
 
-  @Column({ type: 'text' })
-  text: string;
-
-  @Column({ type: 'text', nullable: true })
-  translation?: string;
+  @Column({ type: 'jsonb', default: {} })
+  text: I18nString;
 
   @Column({ type: 'float', nullable: true })
   startTime?: number;

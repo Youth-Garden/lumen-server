@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class FolderTopicResponseDto {
-  @ApiProperty()
-  topic: string;
-
-  @ApiProperty({ nullable: true })
-  topicVi: string | null;
+  @ApiProperty({
+    type: Object,
+    description: 'Multilingual topic title map (e.g. { en: "...", vi: "..." })',
+  })
+  topic: I18nString;
 
   @ApiProperty({ nullable: true })
   topicImageUrl: string | null;

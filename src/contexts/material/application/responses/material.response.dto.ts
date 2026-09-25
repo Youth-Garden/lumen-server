@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MaterialType, MaterialLevel } from '../../domain/enums/material.enum';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class TranscriptDto {
   @ApiProperty()
@@ -8,11 +9,8 @@ export class TranscriptDto {
   @ApiProperty()
   sequenceNumber: number;
 
-  @ApiProperty()
-  text: string;
-
-  @ApiProperty({ required: false })
-  translation?: string;
+  @ApiProperty({ type: Object })
+  text: I18nString;
 
   @ApiProperty({ required: false })
   startTime?: number;
@@ -25,11 +23,11 @@ export class MaterialDto {
   @ApiProperty()
   id: string;
 
-  @ApiProperty()
-  title: string;
+  @ApiProperty({ type: Object })
+  title: I18nString;
 
-  @ApiProperty({ required: false })
-  description?: string;
+  @ApiProperty({ required: false, type: Object })
+  description?: I18nString | null;
 
   @ApiProperty({ enum: MaterialType })
   type: MaterialType;

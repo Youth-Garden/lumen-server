@@ -1,12 +1,13 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class Notification extends AggregateRoot {
   private constructor(
     private readonly _id: string,
     private readonly _userId: string,
-    private readonly _title: string,
-    private readonly _description: string,
+    private readonly _title: I18nString,
+    private readonly _description: I18nString,
     private _isRead: boolean,
     private readonly _createdAt: Date,
   ) {
@@ -15,13 +16,9 @@ export class Notification extends AggregateRoot {
 
   static create(
     userId: string,
-    title: string,
-    description: string,
+    title: I18nString,
+    description: I18nString,
   ): Notification {
-    // We would use a UUID generator, but the repository/DB will assign it if we don't,
-    // or we can just pass an empty string and let DB handle it, but for DDD it's better to pass generated ID.
-    // However, looking at the user aggregates, they often generate UUIDs in the aggregate.
-    // I will use a simple string for now and it will be replaced by the DB or standard UUID generator.
     const id = randomUUID();
     return new Notification(id, userId, title, description, false, new Date());
   }
@@ -29,8 +26,8 @@ export class Notification extends AggregateRoot {
   static restore(
     id: string,
     userId: string,
-    title: string,
-    description: string,
+    title: I18nString,
+    description: I18nString,
     isRead: boolean,
     createdAt: Date,
   ): Notification {
@@ -52,11 +49,11 @@ export class Notification extends AggregateRoot {
     return this._userId;
   }
 
-  get title(): string {
+  get title(): I18nString {
     return this._title;
   }
 
-  get description(): string {
+  get description(): I18nString {
     return this._description;
   }
 

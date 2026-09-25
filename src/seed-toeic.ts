@@ -488,9 +488,7 @@ export async function seedToeicVocabulary(
         w.audioUsUrl = audioUrls.us;
         w.audioUkUrl = audioUrls.uk;
         w.cefrLevel = 'B1';
-        w.imageUrl = imageUrl;
-        w.topic = topicName;
-        w.topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
+        w.topic = { en: topicName, vi: TOPICS_METADATA[topicName]?.vi || topicName };
         w.topicImageUrl = TOPICS_METADATA[topicName]?.image || null;
         newWordsToSave.push(w);
         wordMapByTerm.set(term, w);
@@ -526,8 +524,7 @@ export async function seedToeicVocabulary(
           updated = true;
         }
         if (!existingWord.topic) {
-          existingWord.topic = topicName;
-          existingWord.topicVi = TOPICS_METADATA[topicName]?.vi || topicName;
+          existingWord.topic = { en: topicName, vi: TOPICS_METADATA[topicName]?.vi || topicName };
           existingWord.topicImageUrl =
             TOPICS_METADATA[topicName]?.image || null;
           updated = true;

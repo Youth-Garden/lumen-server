@@ -87,7 +87,11 @@ export class MaterialQueryRepository
       );
       if (!transcript) continue;
 
-      const originalText = transcript.text.trim();
+      const originalText = (
+        transcript.text?.en ||
+        Object.values(transcript.text || {})[0] ||
+        ''
+      ).trim();
       const userInput = answer.userInput.trim();
       const isCorrect = originalText === userInput;
       const score = isCorrect

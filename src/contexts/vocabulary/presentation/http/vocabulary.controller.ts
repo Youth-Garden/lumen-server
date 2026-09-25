@@ -59,6 +59,7 @@ import {
 import { VocabularyOverviewResponseDto } from '../../application/responses/vocabulary-overview.response.dto';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
 import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
+import { toI18nString } from '../../../../shared/utils';
 
 @ApiTags('Vocabulary')
 @Controller('vocabulary/words')
@@ -234,7 +235,11 @@ export class VocabularyController {
     @CurrentUser() userId: string,
   ): Promise<CreatedEntityResponseDto> {
     const id = await this.commandBus.execute<CreateFolderCommand, string>(
-      new CreateFolderCommand(dto.name, dto.description, userId),
+      new CreateFolderCommand(
+        toI18nString(dto.name),
+        dto.description ? toI18nString(dto.description) : null,
+        userId,
+      ),
     );
     return new CreatedEntityResponseDto(id);
   }
@@ -250,7 +255,12 @@ export class VocabularyController {
     @CurrentUser() userId: string,
   ): Promise<void> {
     await this.commandBus.execute(
-      new UpdateFolderCommand(id, userId, dto.name, dto.description),
+      new UpdateFolderCommand(
+        id,
+        userId,
+        dto.name ? toI18nString(dto.name) : undefined,
+        dto.description ? toI18nString(dto.description) : undefined,
+      ),
     );
   }
 

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class FolderResponseDto {
   @ApiProperty()
@@ -64,11 +65,8 @@ export class FlashcardSummaryDto {
   @ApiProperty()
   term: string;
 
-  @ApiProperty({ nullable: true, required: false })
-  topic?: string | null;
-
-  @ApiProperty({ nullable: true, required: false })
-  topicVi?: string | null;
+  @ApiProperty({ nullable: true, required: false, type: Object })
+  topic?: I18nString | null;
 
   @ApiProperty({ nullable: true, required: false })
   topicImageUrl?: string | null;

@@ -7,6 +7,7 @@ import { ExampleEntity } from './infrastructure/entities/example.entity';
 import { FolderEntity } from './infrastructure/entities/folder.entity';
 import { FlashcardEntity } from './infrastructure/entities/flashcard.entity';
 import { UserProgressEntity } from './infrastructure/entities/user-progress.entity';
+import { SeedVersionEntity } from './infrastructure/entities/seed-version.entity';
 import { VocabularyController } from './presentation/http/vocabulary.controller';
 import { CreateVocabularyWordHandler } from './application/commands/create-vocabulary-word.handler';
 import { CreateFolderHandler } from './application/commands/create-folder.handler';
@@ -47,6 +48,7 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
       FolderEntity,
       FlashcardEntity,
       UserProgressEntity,
+      SeedVersionEntity,
     ]),
   ],
   controllers: [VocabularyController],

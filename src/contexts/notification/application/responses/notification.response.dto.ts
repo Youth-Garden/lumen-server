@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class NotificationResponseDto {
   @ApiProperty()
@@ -7,11 +8,11 @@ export class NotificationResponseDto {
   @ApiProperty()
   userId: string;
 
-  @ApiProperty()
-  title: string;
+  @ApiProperty({ type: Object })
+  title: I18nString;
 
-  @ApiProperty()
-  description: string;
+  @ApiProperty({ type: Object })
+  description: I18nString;
 
   @ApiProperty()
   isRead: boolean;

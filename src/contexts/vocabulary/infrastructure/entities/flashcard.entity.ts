@@ -10,12 +10,12 @@ import {
 import { FolderEntity } from './folder.entity';
 import { WordEntity } from './word.entity';
 import { UserProgressEntity } from './user-progress.entity';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 @Entity('vocab_flashcards')
 @Index('idx_flashcards_folder_id', ['folderId'])
 @Index('idx_flashcards_word_id', ['wordId'])
 @Index('idx_flashcards_folder_word', ['folderId', 'wordId'], { unique: true })
-@Index('idx_flashcards_folder_topic', ['folderId', 'topic'])
 export class FlashcardEntity extends BaseEntity {
   @Column({ name: 'folderId', type: 'uuid' })
   folderId: string;
@@ -23,11 +23,8 @@ export class FlashcardEntity extends BaseEntity {
   @Column({ type: 'uuid' })
   wordId: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  topic: string | null;
-
-  @Column({ type: 'varchar', nullable: true })
-  topicVi: string | null;
+  @Column({ type: 'jsonb', nullable: true })
+  topic: I18nString | null;
 
   @Column({ type: 'varchar', nullable: true })
   topicImageUrl: string | null;

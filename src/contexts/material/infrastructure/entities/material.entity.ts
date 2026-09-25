@@ -2,14 +2,15 @@ import { BaseEntity } from '../../../../shared/infrastructure/database/base.enti
 import { Entity, Column, OneToMany } from 'typeorm';
 import { TranscriptEntity } from './transcript.entity';
 import { MaterialLevel, MaterialType } from '../../domain/enums/material.enum';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 @Entity('materials')
 export class MaterialEntity extends BaseEntity {
-  @Column({ length: 255 })
-  title: string;
+  @Column({ type: 'jsonb', default: {} })
+  title: I18nString;
 
-  @Column({ type: 'text', nullable: true })
-  description?: string;
+  @Column({ type: 'jsonb', nullable: true })
+  description?: I18nString | null;
 
   @Column({ type: 'enum', enum: MaterialType })
   type: MaterialType;

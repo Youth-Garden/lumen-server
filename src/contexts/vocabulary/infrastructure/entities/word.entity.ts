@@ -2,19 +2,16 @@ import { BaseEntity } from '../../../../shared/infrastructure/database/base.enti
 import { Entity, Column, OneToMany, Index } from 'typeorm';
 import { DefinitionEntity } from './definition.entity';
 import { FlashcardEntity } from './flashcard.entity';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 @Entity('vocab_words')
-@Index('idx_words_topic', ['topic'])
 @Index('idx_words_cefr', ['cefrLevel'])
 export class WordEntity extends BaseEntity {
   @Column({ unique: true })
   term: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  topic: string | null;
-
-  @Column({ type: 'varchar', nullable: true })
-  topicVi: string | null;
+  @Column({ type: 'jsonb', nullable: true })
+  topic: I18nString | null;
 
   @Column({ type: 'varchar', nullable: true })
   topicImageUrl: string | null;

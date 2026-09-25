@@ -6,7 +6,7 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import type { TranslationRecord } from '../../../../shared/domain/types/translation.type';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { ExampleEntity } from './example.entity';
 import { WordEntity } from './word.entity';
@@ -21,7 +21,7 @@ export class DefinitionEntity extends BaseEntity {
 
   @Column({ type: 'jsonb', default: '{}' })
   @Index('idx_definition_jsonb')
-  definition: TranslationRecord;
+  definition: I18nString;
 
   @ManyToOne(() => WordEntity, (word) => word.definitions, {
     onDelete: 'CASCADE',
