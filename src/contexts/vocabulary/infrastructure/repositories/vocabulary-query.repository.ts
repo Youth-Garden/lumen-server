@@ -258,9 +258,9 @@ export class VocabularyQueryRepository
       ])
       .setParameter('now', new Date())
       .where('flashcard."folderId" = :folderId', { folderId })
-      .groupBy('COALESCE(flashcard.topic::text, word.topic::text)')
+      .groupBy('COALESCE(flashcard.topic, word.topic)')
       .addGroupBy('COALESCE(flashcard."topicImageUrl", word."topicImageUrl")')
-      .orderBy('COALESCE(flashcard.topic::text, word.topic::text)', 'ASC');
+      .orderBy('COALESCE(flashcard.topic, word.topic)', 'ASC');
 
     const rows = await qb.getRawMany<RawTopicRow>();
 
