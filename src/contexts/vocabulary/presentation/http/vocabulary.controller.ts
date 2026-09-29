@@ -19,13 +19,14 @@ import {
 import { CurrentUser } from '../../../../shared/presentation/decorators/current-user.decorator';
 import { Public } from '../../../../shared/presentation/decorators/public.decorator';
 import { CreatedEntityResponseDto } from '../../../../shared/presentation/dtos/created-entity.response.dto';
+import { toI18nString } from '../../../../shared/utils';
+import { BatchReviewFlashcardsCommand } from '../../application/commands/batch-review-flashcards.command';
 import { CreateFlashcardCommand } from '../../application/commands/create-flashcard.command';
 import { CreateFolderCommand } from '../../application/commands/create-folder.command';
 import { CreateVocabularyWordCommand } from '../../application/commands/create-vocabulary-word.command';
 import { DeleteFlashcardCommand } from '../../application/commands/delete-flashcard.command';
 import { DeleteFolderCommand } from '../../application/commands/delete-folder.command';
 import { DeleteVocabularyWordCommand } from '../../application/commands/delete-vocabulary-word.command';
-import { BatchReviewFlashcardsCommand } from '../../application/commands/batch-review-flashcards.command';
 import { ReviewFlashcardCommand } from '../../application/commands/review-flashcard.command';
 import { UpdateFolderCommand } from '../../application/commands/update-folder.command';
 import { UpdateVocabularyWordCommand } from '../../application/commands/update-vocabulary-word.command';
@@ -35,8 +36,9 @@ import {
   CreateFlashcardDto,
   CreateFolderDto,
 } from '../../application/dtos/folder-flashcard.dto';
-import { ListDueFlashcardsDto } from '../../application/dtos/list-due-flashcards.dto';
+import { ListDueWordsDto } from '../../application/dtos/list-due-words.dto';
 import { ListFolderFlashcardsDto } from '../../application/dtos/list-folder-flashcards.dto';
+import { ListTopicsDto } from '../../application/dtos/list-topics.dto';
 import { ListWordsFilterDto } from '../../application/dtos/list-words-filter.dto';
 import { ReviewFlashcardDto } from '../../application/dtos/review-flashcard.dto';
 import { UpdateFolderDto } from '../../application/dtos/update-folder.dto';
@@ -44,12 +46,13 @@ import { UpdateVocabularyWordDto } from '../../application/dtos/update-vocabular
 import { GetFolderByIdQuery } from '../../application/queries/get-folder-by-id.query';
 import { GetVocabularyOverviewQuery } from '../../application/queries/get-vocabulary-overview.query';
 import { GetVocabularyWordByIdQuery } from '../../application/queries/get-vocabulary-word-by-id.query';
-import { ListDueFlashcardsQuery } from '../../application/queries/list-due-flashcards.query';
+import { ListAllTopicsQuery } from '../../application/queries/list-all-topics.query';
+import { ListDueWordsQuery } from '../../application/queries/list-due-words.query';
 import { ListFolderFlashcardsQuery } from '../../application/queries/list-folder-flashcards.query';
 import { ListFolderTopicsQuery } from '../../application/queries/list-folder-topics.query';
 import { ListFoldersQuery } from '../../application/queries/list-folders.query';
 import { ListWordsQuery } from '../../application/queries/list-words.query';
-import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
+import { DueWordResponseDto } from '../../application/responses/due-word.response.dto';
 import { FolderTopicResponseDto } from '../../application/responses/folder-topic.response.dto';
 import {
   FolderDetailResponseDto,
@@ -59,7 +62,6 @@ import {
 import { VocabularyOverviewResponseDto } from '../../application/responses/vocabulary-overview.response.dto';
 import { VocabularyWordResponseDto } from '../../application/responses/vocabulary-word.response.dto';
 import { WordListResponseDto } from '../../application/responses/word-list.response.dto';
-import { toI18nString } from '../../../../shared/utils';
 
 @ApiTags('Vocabulary')
 @Controller('vocabulary/words')
@@ -193,6 +195,20 @@ export class VocabularyController {
     >(new ListFolderTopicsQuery(id, userId));
   }
 
+  @Get('topics')
+  @ApiOperation({
+    summary: 'List all topics across folders or search topics with pagination',
+  })
+  @ApiResponse({ type: [FolderTopicResponseDto], status: 200 })
+  async listAllTopics(
+    @Query() queryDto: ListTopicsDto,
+  ): Promise<FolderTopicResponseDto[]> {
+    return this.queryBus.execute<ListAllTopicsQuery, FolderTopicResponseDto[]>(
+      new ListAllTopicsQuery(queryDto.search, queryDto.page, queryDto.limit),
+    );
+  }
+
+  @Get('folders/:id/words')
   @Get('folders/:id/flashcards')
   @ApiOperation({ summary: 'List flashcards in a folder, filtered by topic' })
   @ApiParam({ name: 'id', description: 'Folder UUID' })
@@ -310,20 +326,19 @@ export class VocabularyController {
     await this.commandBus.execute(new DeleteFlashcardCommand(id, userId));
   }
 
+  @Get('due')
   @Get('flashcards/due')
-  @ApiOperation({ summary: 'List due flashcards for today' })
-  @ApiResponse({ type: [DueFlashcardResponseDto], status: 200 })
-  async listDueFlashcards(
+  @ApiOperation({ summary: 'List due words for today' })
+  @ApiResponse({ type: [DueWordResponseDto], status: 200 })
+  async listDueWords(
     @CurrentUser() userId: string,
-    @Query() queryDto: ListDueFlashcardsDto,
-  ): Promise<DueFlashcardResponseDto[]> {
-    return this.queryBus.execute<
-      ListDueFlashcardsQuery,
-      DueFlashcardResponseDto[]
-    >(
-      new ListDueFlashcardsQuery(
+    @Query() queryDto: ListDueWordsDto,
+  ): Promise<DueWordResponseDto[]> {
+    return this.queryBus.execute<ListDueWordsQuery, DueWordResponseDto[]>(
+      new ListDueWordsQuery(
         userId,
         queryDto.folderId,
+        queryDto.page,
         queryDto.limit,
         queryDto.includeNew ?? false,
       ),

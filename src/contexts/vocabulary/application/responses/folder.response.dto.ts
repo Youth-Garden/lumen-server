@@ -27,7 +27,10 @@ export class FolderResponseDto {
   imageUrl?: string | null;
 
   @ApiProperty()
-  flashcardCount: number;
+  wordCount: number;
+
+  @ApiProperty({ required: false })
+  flashcardCount?: number;
 
   @ApiProperty({ required: false })
   learnedCount?: number;

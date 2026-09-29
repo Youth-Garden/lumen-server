@@ -35,9 +35,23 @@ export async function runNgslVocabularySeeder(
   }
 
   console.log(
-    'Step 2: Backfilling folder imageUrl and TOEIC 600 flashcard topics...',
+    'Step 2: Backfilling folder imageUrl and ensuring vocab_topics table...',
   );
   await dataSource.query(`
+    CREATE TABLE IF NOT EXISTS vocab_topics (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      "folderId" UUID NOT NULL REFERENCES vocab_folders(id) ON DELETE CASCADE,
+      name JSONB NOT NULL DEFAULT '{}',
+      "imageUrl" VARCHAR(1000),
+      "orderIndex" INT DEFAULT 0,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      deleted_at TIMESTAMP WITH TIME ZONE
+    );
+    CREATE INDEX IF NOT EXISTS idx_topics_folder_id ON vocab_topics("folderId");
+    ALTER TABLE vocab_flashcards ADD COLUMN IF NOT EXISTS "topicId" UUID REFERENCES vocab_topics(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_flashcards_topic_id ON vocab_flashcards("topicId");
+
     UPDATE vocab_folders
     SET "imageUrl" = 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80'
     WHERE name::text ILIKE '%600%';
@@ -147,10 +161,18 @@ export async function runNgslVocabularySeeder(
 
   console.log('Step 5: Verifying folder and topic image URLs...');
 
-  console.log('Step 6: Recording Seed Version Audit Entry in vocab_seed_versions...');
-  const folderCountRes = await dataSource.query(`SELECT COUNT(*)::int AS count FROM vocab_folders WHERE "isSystem" = true`);
-  const wordCountRes = await dataSource.query(`SELECT COUNT(*)::int AS count FROM vocab_words`);
-  const flashcardCountRes = await dataSource.query(`SELECT COUNT(*)::int AS count FROM vocab_flashcards`);
+  console.log(
+    'Step 6: Recording Seed Version Audit Entry in vocab_seed_versions...',
+  );
+  const folderCountRes = await dataSource.query(
+    `SELECT COUNT(*)::int AS count FROM vocab_folders WHERE "isSystem" = true`,
+  );
+  const wordCountRes = await dataSource.query(
+    `SELECT COUNT(*)::int AS count FROM vocab_words`,
+  );
+  const flashcardCountRes = await dataSource.query(
+    `SELECT COUNT(*)::int AS count FROM vocab_flashcards`,
+  );
 
   const folderCount = folderCountRes[0]?.count || 0;
   const wordCount = wordCountRes[0]?.count || 0;
@@ -173,19 +195,27 @@ export async function runNgslVocabularySeeder(
     )
   `);
 
-  await dataSource.query(`
+  await dataSource.query(
+    `
     INSERT INTO vocab_seed_versions (id, version, name, "folderCount", "wordCount", "flashcardCount", status, metadata, created_at, updated_at)
     VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, 'COMPLETED', $6, NOW(), NOW())
-  `, [
-    versionTag,
-    'Lumen Master Vocabulary Datasets Seeding',
-    folderCount,
-    wordCount,
-    flashcardCount,
-    JSON.stringify({ datasets: NGSL_DATASETS.map((d) => d.id), timestamp: new Date().toISOString() }),
-  ]);
+  `,
+    [
+      versionTag,
+      'Lumen Master Vocabulary Datasets Seeding',
+      folderCount,
+      wordCount,
+      flashcardCount,
+      JSON.stringify({
+        datasets: NGSL_DATASETS.map((d) => d.id),
+        timestamp: new Date().toISOString(),
+      }),
+    ],
+  );
 
-  console.log(`\n--- NGSL Vocabulary Datasets Seeding Complete (Version: ${versionTag}, Folders: ${folderCount}, Words: ${wordCount}, Flashcards: ${flashcardCount}) ---`);
+  console.log(
+    `\n--- NGSL Vocabulary Datasets Seeding Complete (Version: ${versionTag}, Folders: ${folderCount}, Words: ${wordCount}, Flashcards: ${flashcardCount}) ---`,
+  );
 }
 
 async function processDatasetFolder(
@@ -281,14 +311,43 @@ async function processDatasetFolder(
     console.log(`Saved ${newWordsToSave.length} new master words.`);
   }
 
+  // 3.5. Ensure TopicEntity rows exist in vocab_topics for this folder
+  const topicMapByEn = new Map<string, string>();
+  for (let sIdx = 0; sIdx < config.subTopics.length; sIdx++) {
+    const st = config.subTopics[sIdx];
+    const nameJson = JSON.stringify({ en: st.en, vi: st.vi });
+    const existingTopic: { id: string }[] = await dataSource.query(
+      `SELECT id FROM vocab_topics WHERE "folderId" = $1 AND name->>'en' = $2 LIMIT 1`,
+      [folder.id, st.en],
+    );
+    if (existingTopic.length > 0) {
+      topicMapByEn.set(st.en, existingTopic[0].id);
+      await dataSource.query(
+        `UPDATE vocab_topics SET name = $1::jsonb, "imageUrl" = $2, "orderIndex" = $3, updated_at = NOW() WHERE id = $4`,
+        [nameJson, st.imageUrl, sIdx, existingTopic[0].id],
+      );
+    } else {
+      const inserted: { id: string }[] = await dataSource.query(
+        `INSERT INTO vocab_topics (id, "folderId", name, "imageUrl", "orderIndex", created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2::jsonb, $3, $4, NOW(), NOW())
+         RETURNING id`,
+        [folder.id, nameJson, st.imageUrl, sIdx],
+      );
+      if (inserted[0]?.id) {
+        topicMapByEn.set(st.en, inserted[0].id);
+      }
+    }
+  }
+
   // 4. Query existing flashcards in this folder
   const existingFlashcards: {
     id: string;
     wordId: string;
+    topicId: string | null;
     topic: unknown;
     topicImageUrl: string | null;
   }[] = await dataSource.query(
-    `SELECT id, "wordId", topic, "topicImageUrl" FROM vocab_flashcards WHERE "folderId" = $1`,
+    `SELECT id, "wordId", "topicId", topic, "topicImageUrl" FROM vocab_flashcards WHERE "folderId" = $1`,
     [folder.id],
   );
   const flashcardMapByWordId = new Map<
@@ -300,11 +359,13 @@ async function processDatasetFolder(
   const flashcardsToInsert: {
     folderId: string;
     wordId: string;
+    topicId: string;
     topic: string;
     topicImageUrl: string;
   }[] = [];
   const flashcardsToUpdate: {
     id: string;
+    topicId: string;
     topic: string;
     topicImageUrl: string;
   }[] = [];
@@ -320,30 +381,41 @@ async function processDatasetFolder(
     const word = wordMapByTerm.get(cleanTerm);
     if (!word || !word.id) continue;
 
-    const subTopic = assignSubTopic(config, idx, rows.length);
+    const subTopic = assignSubTopic(config, idx, rows.length, cleanTerm);
+    const targetTopicId = topicMapByEn.get(subTopic.en) || null;
     const fc = flashcardMapByWordId.get(word.id);
 
     const topicJsonStr = JSON.stringify({ en: subTopic.en, vi: subTopic.vi });
 
     if (!fc) {
-      flashcardsToInsert.push({
-        folderId: folder.id,
-        wordId: word.id,
-        topic: topicJsonStr,
-        topicImageUrl: subTopic.imageUrl,
-      });
-    } else {
-      const existingTopicObj = typeof fc.topic === 'string' ? (tryParseJson(fc.topic) ?? {}) : (fc.topic || {});
-      const existingEn = (existingTopicObj as Record<string, string>)?.en;
-      if (
-        existingEn !== subTopic.en ||
-        fc.topicImageUrl !== subTopic.imageUrl
-      ) {
-        flashcardsToUpdate.push({
-          id: fc.id,
+      if (targetTopicId) {
+        flashcardsToInsert.push({
+          folderId: folder.id,
+          wordId: word.id,
+          topicId: targetTopicId,
           topic: topicJsonStr,
           topicImageUrl: subTopic.imageUrl,
         });
+      }
+    } else {
+      const existingTopicObj =
+        typeof fc.topic === 'string'
+          ? (tryParseJson(fc.topic) ?? {})
+          : fc.topic || {};
+      const existingEn = (existingTopicObj as Record<string, string>)?.en;
+      if (
+        fc.topicId !== targetTopicId ||
+        existingEn !== subTopic.en ||
+        fc.topicImageUrl !== subTopic.imageUrl
+      ) {
+        if (targetTopicId) {
+          flashcardsToUpdate.push({
+            id: fc.id,
+            topicId: targetTopicId,
+            topic: topicJsonStr,
+            topicImageUrl: subTopic.imageUrl,
+          });
+        }
       }
     }
 
@@ -365,7 +437,7 @@ async function processDatasetFolder(
       const placeholders = chunk
         .map(
           (_, idx) =>
-            `(gen_random_uuid(), $${idx * 4 + 1}::uuid, $${idx * 4 + 2}::uuid, $${idx * 4 + 3}::jsonb, $${idx * 4 + 4}, NOW(), NOW())`,
+            `(gen_random_uuid(), $${idx * 5 + 1}::uuid, $${idx * 5 + 2}::uuid, $${idx * 5 + 3}::uuid, $${idx * 5 + 4}::jsonb, $${idx * 5 + 5}, NOW(), NOW())`,
         )
         .join(', ');
       const params: string[] = [];
@@ -373,16 +445,17 @@ async function processDatasetFolder(
         params.push(
           fc.folderId,
           fc.wordId,
+          fc.topicId,
           fc.topic,
           fc.topicImageUrl,
         ),
       );
 
       await dataSource.query(
-        `INSERT INTO vocab_flashcards (id, "folderId", "wordId", topic, "topicImageUrl", created_at, updated_at)
+        `INSERT INTO vocab_flashcards (id, "folderId", "wordId", "topicId", topic, "topicImageUrl", created_at, updated_at)
          VALUES ${placeholders}
          ON CONFLICT ("folderId", "wordId") DO UPDATE 
-         SET topic = EXCLUDED.topic, "topicImageUrl" = EXCLUDED."topicImageUrl"`,
+         SET "topicId" = EXCLUDED."topicId", topic = EXCLUDED.topic, "topicImageUrl" = EXCLUDED."topicImageUrl"`,
         params,
       );
     }
@@ -391,7 +464,7 @@ async function processDatasetFolder(
     );
   }
 
-  // 6. Bulk Update Existing Flashcards with granular sub-topics
+  // 6. Bulk Update Existing Flashcards with topicId & granular sub-topics
   if (flashcardsToUpdate.length > 0) {
     const chunkSize = 200;
     for (let i = 0; i < flashcardsToUpdate.length; i += chunkSize) {
@@ -399,26 +472,27 @@ async function processDatasetFolder(
       const placeholders = chunk
         .map(
           (_, idx) =>
-            `($${idx * 3 + 1}::uuid, $${idx * 3 + 2}::jsonb, $${idx * 3 + 3}::text)`,
+            `($${idx * 4 + 1}::uuid, $${idx * 4 + 2}::uuid, $${idx * 4 + 3}::jsonb, $${idx * 4 + 4}::text)`,
         )
         .join(', ');
       const params: string[] = [];
       chunk.forEach((fc) =>
-        params.push(fc.id, fc.topic, fc.topicImageUrl),
+        params.push(fc.id, fc.topicId, fc.topic, fc.topicImageUrl),
       );
 
       await dataSource.query(
         `UPDATE vocab_flashcards AS fc
          SET 
+           "topicId" = v.topic_id,
            topic = v.topic,
            "topicImageUrl" = v.topic_image_url
-         FROM (VALUES ${placeholders}) AS v(id, topic, topic_image_url)
+         FROM (VALUES ${placeholders}) AS v(id, topic_id, topic, topic_image_url)
          WHERE fc.id = v.id`,
         params,
       );
     }
     console.log(
-      `Updated ${flashcardsToUpdate.length} existing flashcards with sub-topics for folder ${config.name.en}.`,
+      `Updated ${flashcardsToUpdate.length} existing flashcards with topicId for folder ${config.name.en}.`,
     );
   }
 

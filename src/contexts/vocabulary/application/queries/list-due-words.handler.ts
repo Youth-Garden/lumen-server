@@ -1,31 +1,30 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { ListDueFlashcardsQuery } from './list-due-flashcards.query';
+import { ListDueWordsQuery } from './list-due-words.query';
 import { VOCABULARY_QUERY_REPOSITORY } from '../ports/vocabulary-query.repository';
 import type { IVocabularyQueryRepository } from '../ports/vocabulary-query.repository';
-import { DueFlashcardResponseDto } from '../responses/due-flashcard.response.dto';
+import { DueWordResponseDto } from '../responses/due-word.response.dto';
 
-@QueryHandler(ListDueFlashcardsQuery)
-export class ListDueFlashcardsHandler implements IQueryHandler<
-  ListDueFlashcardsQuery,
-  DueFlashcardResponseDto[]
+@QueryHandler(ListDueWordsQuery)
+export class ListDueWordsHandler implements IQueryHandler<
+  ListDueWordsQuery,
+  DueWordResponseDto[]
 > {
   constructor(
     @Inject(VOCABULARY_QUERY_REPOSITORY)
     private readonly vocabularyQueryRepository: IVocabularyQueryRepository,
   ) {}
 
-  async execute(
-    query: ListDueFlashcardsQuery,
-  ): Promise<DueFlashcardResponseDto[]> {
+  async execute(query: ListDueWordsQuery): Promise<DueWordResponseDto[]> {
     const validFolderId =
       query.folderId && query.folderId !== 'undefined'
         ? query.folderId
         : undefined;
 
-    return this.vocabularyQueryRepository.findDueFlashcards(
+    return this.vocabularyQueryRepository.findDueWords(
       query.userId,
       validFolderId,
+      query.page,
       query.limit,
       query.includeNew,
     );

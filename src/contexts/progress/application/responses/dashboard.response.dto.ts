@@ -1,5 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export class DailyGoalHistoryItemDto {
+  @ApiProperty()
+  targetMinutes: number;
+
+  @ApiProperty()
+  effectiveFrom: string;
+
+  @ApiProperty({ nullable: true })
+  effectiveTo: string | null;
+}
+
 export class DashboardResponseDto {
   @ApiProperty()
   streak: number;
@@ -22,6 +33,9 @@ export class DashboardResponseDto {
   @ApiProperty()
   streakFreezes: number;
 
+  @ApiProperty({ type: [DailyGoalHistoryItemDto] })
+  goalHistories: DailyGoalHistoryItemDto[];
+
   constructor(
     streak: number,
     lastActivityDate: Date | null,
@@ -30,6 +44,7 @@ export class DashboardResponseDto {
     todayStudyMinutes: number,
     unlockedBadges: string[],
     streakFreezes: number = 0,
+    goalHistories: DailyGoalHistoryItemDto[] = [],
   ) {
     this.streak = streak;
     this.lastActivityDate = lastActivityDate;
@@ -38,5 +53,6 @@ export class DashboardResponseDto {
     this.todayStudyMinutes = todayStudyMinutes;
     this.unlockedBadges = unlockedBadges;
     this.streakFreezes = streakFreezes;
+    this.goalHistories = goalHistories;
   }
 }

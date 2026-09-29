@@ -37,8 +37,13 @@ export class ListWordsHandler implements IQueryHandler<
           id: word.id,
           term: word.term,
           phonetic: word.phonetic,
+          phoneticUs: word.phoneticUs,
+          phoneticUk: word.phoneticUk,
           audioUrl: word.audioUrl,
+          audioUsUrl: word.audioUsUrl,
+          audioUkUrl: word.audioUkUrl,
           cefrLevel: word.cefrLevel,
+          imageUrl: word.imageUrl,
           definitions: word.definitions.map(
             (def) =>
               new VocabularyDefinitionResponseDto({

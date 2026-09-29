@@ -18,6 +18,8 @@ import { BuyStreakFreezeHandler } from './application/commands/buy-streak-freeze
 import { UpdateProgressSettingsHandler } from './application/commands/update-progress-settings.handler';
 import { ProgressController } from './presentation/http/progress.controller';
 
+import { DailyGoalHistoryEntity } from './infrastructure/entities/daily-goal-history.entity';
+
 const EventHandlers = [FlashcardReviewedListener];
 const QueryHandlers = [
   GetDashboardHandler,
@@ -35,6 +37,7 @@ const CommandHandlers = [UpdateProgressSettingsHandler, BuyStreakFreezeHandler];
       LearningProfileEntity,
       ActivityEntity,
       BadgeEntity,
+      DailyGoalHistoryEntity,
     ]),
   ],
   controllers: [ProgressController],

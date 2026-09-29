@@ -20,9 +20,11 @@ import { badgeData } from './seed/badge-data';
 import { materialMockData } from './seed/material-data';
 import { progressData } from './seed/progress-data';
 import { userData } from './seed/user-data';
-import { seedToeicVocabulary } from './seed-toeic';
+import { seedToeicVocabulary } from './scripts/seed-toeic';
 import { runNgslVocabularySeeder } from './contexts/vocabulary/infrastructure/seed/ngsl-seeder.service';
 import { StorageService } from './shared/infrastructure/storage/storage.service';
+import { Locale } from './shared/domain/types/translation.type';
+import { i18nText } from './shared/utils/i18n.util';
 
 const genDictationPath = path.join(
   process.cwd(),
@@ -54,8 +56,12 @@ async function bootstrap() {
   const badgesToSave = badgeData.map((def) => {
     const b = new BadgeEntity();
     b.code = def.code;
-    b.name = typeof def.name === 'string' ? { en: def.name, vi: def.name } : def.name;
-    b.description = typeof def.description === 'string' ? { en: def.description, vi: def.description } : def.description;
+    b.name =
+      typeof def.name === 'string' ? { en: def.name, vi: def.name } : def.name;
+    b.description =
+      typeof def.description === 'string'
+        ? { en: def.description, vi: def.description }
+        : def.description;
     b.icon = def.icon;
     return b;
   });
@@ -101,7 +107,10 @@ async function bootstrap() {
 
   for (const materialData of activeMaterialData) {
     const material = new MaterialEntity();
-    material.title = typeof materialData.title === 'string' ? { en: materialData.title, vi: materialData.title } : materialData.title;
+    material.title =
+      typeof materialData.title === 'string'
+        ? { en: materialData.title, vi: materialData.title }
+        : materialData.title;
     material.description = materialData.description
       ? typeof materialData.description === 'string'
         ? { en: materialData.description, vi: materialData.description }
@@ -140,7 +149,7 @@ async function bootstrap() {
       await transcriptRepo.save(transcript);
     }
     console.log(
-      `Created ${materialData.transcripts.length} transcripts for ${savedMaterial.title}`,
+      `Created ${materialData.transcripts.length} transcripts for ${i18nText(savedMaterial.title, Locale.EN)}`,
     );
   }
 

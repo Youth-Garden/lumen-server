@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DataSource } from 'typeorm';
-import { AppModule } from './app.module';
-import { runNgslVocabularySeeder } from './contexts/vocabulary/infrastructure/seed/ngsl-seeder.service';
+import { AppModule } from '../app.module';
+import { runNgslVocabularySeeder } from '../contexts/vocabulary/infrastructure/seed/ngsl-seeder.service';
 
 async function bootstrap() {
   console.log(

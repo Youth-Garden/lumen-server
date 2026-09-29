@@ -19,3 +19,17 @@ export function toI18nString(input: unknown): I18nString {
   }
   return {};
 }
+
+export function i18nText(
+  input: I18nString | null | undefined,
+  locale: Locale = Locale.EN,
+): string {
+  if (!input) return '';
+  switch (locale) {
+    case Locale.VI:
+      return input.vi || input.en || Object.values(input)[0] || '';
+    case Locale.EN:
+    default:
+      return input.en || input.vi || Object.values(input)[0] || '';
+  }
+}

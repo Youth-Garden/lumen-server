@@ -4,7 +4,7 @@ import {
   FolderResponseDto,
 } from '../responses/folder.response.dto';
 import { FolderTopicResponseDto } from '../responses/folder-topic.response.dto';
-import { DueFlashcardResponseDto } from '../responses/due-flashcard.response.dto';
+import { DueWordResponseDto } from '../responses/due-word.response.dto';
 import { VocabularyOverviewResponseDto } from '../responses/vocabulary-overview.response.dto';
 
 export const VOCABULARY_QUERY_REPOSITORY = Symbol(
@@ -21,6 +21,11 @@ export interface IVocabularyQueryRepository {
     folderId: string,
     userId: string,
   ): Promise<FolderTopicResponseDto[]>;
+  findAllTopics(
+    search?: string,
+    page?: number,
+    limit?: number,
+  ): Promise<FolderTopicResponseDto[]>;
   findFlashcardsByFolderAndTopic(
     folderId: string,
     userId: string,
@@ -28,11 +33,12 @@ export interface IVocabularyQueryRepository {
     page: number,
     limit: number,
   ): Promise<FolderFlashcardsResponseDto>;
-  findDueFlashcards(
+  findDueWords(
     userId: string,
-    folderId?: string,
-    limit?: number,
+    folderId: string | undefined,
+    page: number,
+    limit: number,
     includeNew?: boolean,
-  ): Promise<DueFlashcardResponseDto[]>;
+  ): Promise<DueWordResponseDto[]>;
   getOverview(userId: string): Promise<VocabularyOverviewResponseDto>;
 }

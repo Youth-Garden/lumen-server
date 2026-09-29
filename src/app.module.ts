@@ -19,9 +19,10 @@ import {
   TypedConfigService,
   validationSchema,
 } from './shared/infrastructure/config';
-import { SharedCqrsModule } from './shared/infrastructure/cqrs/shared-cqrs.module';
+import { SharedCqrsModule } from './shared/application/cqrs/shared-cqrs.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RequestContextMiddleware } from './shared/infrastructure/database/request-context.middleware';
+import { EnrichmentModule } from './shared/infrastructure/enrichment';
 import { KeepAliveService } from './shared/infrastructure/keep-alive/keep-alive.service';
 import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
 
@@ -56,6 +57,7 @@ import { JwtAuthGuard } from './shared/presentation/guards/jwt-auth.guard';
       },
     }),
     SharedCqrsModule,
+    EnrichmentModule,
     IamModule,
     VocabularyModule,
     DatabaseModule,

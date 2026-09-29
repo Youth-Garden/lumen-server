@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class MemoryStageDto {
   @ApiProperty({ example: 1 })
@@ -27,7 +28,7 @@ export class FrequentlyMissedWordDto {
   partOfSpeech: string | null;
 
   @ApiProperty({ nullable: true })
-  definition: string | null;
+  definition: I18nString | null;
 
   @ApiProperty({ nullable: true })
   phonetic: string | null;

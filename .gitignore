@@ -45,6 +45,7 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+scratch/
 
 # Runtime data
 pids
@@ -60,4 +61,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Static uploaded & generated media files
 public/audio
 *.mp3
+
+# Script temp execution logs
+/src/scripts/temp/
+
 

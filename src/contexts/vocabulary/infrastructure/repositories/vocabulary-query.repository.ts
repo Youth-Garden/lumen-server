@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import type { IVocabularyQueryRepository } from '../../application/ports/vocabulary-query.repository';
-import { DueFlashcardResponseDto } from '../../application/responses/due-flashcard.response.dto';
+import { DueWordResponseDto } from '../../application/responses/due-word.response.dto';
 import { FolderTopicResponseDto } from '../../application/responses/folder-topic.response.dto';
 import {
   FolderDetailResponseDto,
@@ -17,6 +17,7 @@ import {
 } from '../../application/responses/vocabulary-overview.response.dto';
 import { FlashcardEntity } from '../entities/flashcard.entity';
 import { FolderEntity } from '../entities/folder.entity';
+import { TopicEntity } from '../entities/topic.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
 import type { I18nString } from '../../../../shared/domain/types/translation.type';
@@ -44,6 +45,8 @@ export class VocabularyQueryRepository
     private readonly progressRepo: Repository<UserProgressEntity>,
     @InjectRepository(FlashcardEntity)
     private readonly flashcardRepo: Repository<FlashcardEntity>,
+    @InjectRepository(TopicEntity)
+    private readonly topicRepo: Repository<TopicEntity>,
   ) {
     super(folderRepo);
   }
@@ -119,6 +122,10 @@ export class VocabularyQueryRepository
       isSystem:
         Boolean(row.isSystem) ||
         (row.category !== null && row.authorId !== validUserId),
+      wordCount:
+        typeof row.flashcardCount === 'number'
+          ? row.flashcardCount
+          : parseInt(String(row.flashcardCount || '0'), 10),
       flashcardCount:
         typeof row.flashcardCount === 'number'
           ? row.flashcardCount
@@ -209,6 +216,10 @@ export class VocabularyQueryRepository
       isSystem:
         Boolean(row.isSystem) ||
         (row.category !== null && row.authorId !== validUserId),
+      wordCount:
+        typeof row.flashcardCount === 'number'
+          ? row.flashcardCount
+          : parseInt(String(row.flashcardCount || '0'), 10),
       flashcardCount:
         typeof row.flashcardCount === 'number'
           ? row.flashcardCount
@@ -232,17 +243,18 @@ export class VocabularyQueryRepository
     const validUserId = userId && userId !== 'undefined' ? userId : null;
 
     interface RawTopicRow {
-      topic: unknown;
-      topicImageUrl: string | null;
+      id: string;
+      name: unknown;
+      imageUrl: string | null;
+      orderIndex: number | string;
       count: number | string;
       learnedCount: number | string;
       dueCount: number | string;
     }
 
-    const qb = this.flashcardRepo
-      .createQueryBuilder('flashcard')
-      .innerJoin('flashcard.folder', 'folder')
-      .innerJoin('flashcard.word', 'word')
+    const qb = this.topicRepo
+      .createQueryBuilder('topic')
+      .leftJoin('topic.flashcards', 'flashcard')
       .leftJoin(
         'vocab_user_progress',
         'progress',
@@ -250,36 +262,124 @@ export class VocabularyQueryRepository
         { userId: validUserId },
       )
       .select([
-        'COALESCE(flashcard.topic, word.topic) AS topic',
-        'COALESCE(flashcard."topicImageUrl", word."topicImageUrl") AS "topicImageUrl"',
+        'topic.id AS id',
+        'topic.name AS name',
+        'topic.imageUrl AS "imageUrl"',
+        'topic.orderIndex AS "orderIndex"',
         'COUNT(DISTINCT flashcard.id)::int AS count',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5) THEN flashcard.id END)::int AS "learnedCount"',
         'COUNT(DISTINCT CASE WHEN progress.id IS NOT NULL AND progress."nextReviewAt" <= :now THEN flashcard.id END)::int AS "dueCount"',
       ])
       .setParameter('now', new Date())
-      .where('flashcard."folderId" = :folderId', { folderId })
-      .groupBy('COALESCE(flashcard.topic, word.topic)')
-      .addGroupBy('COALESCE(flashcard."topicImageUrl", word."topicImageUrl")')
-      .orderBy('COALESCE(flashcard.topic, word.topic)', 'ASC');
+      .where('topic."folderId" = :folderId', { folderId })
+      .groupBy('topic.id')
+      .addGroupBy('topic.name::text')
+      .addGroupBy('topic.imageUrl')
+      .addGroupBy('topic.orderIndex')
+      .addGroupBy('topic.created_at')
+      .orderBy('topic.orderIndex', 'ASC')
+      .addOrderBy('topic.created_at', 'ASC');
 
     const rows = await qb.getRawMany<RawTopicRow>();
 
-    return rows.map((row) => ({
-      topic: parseI18nValue(row.topic),
-      topicImageUrl: row.topicImageUrl || null,
-      count:
-        typeof row.count === 'number'
-          ? row.count
-          : parseInt(String(row.count || '0'), 10),
-      learnedCount:
-        typeof row.learnedCount === 'number'
-          ? row.learnedCount
-          : parseInt(String(row.learnedCount || '0'), 10),
-      dueCount:
-        typeof row.dueCount === 'number'
-          ? row.dueCount
-          : parseInt(String(row.dueCount || '0'), 10),
-    }));
+    return rows.map((row) => {
+      const parsedName = parseI18nValue(row.name);
+      return {
+        id: row.id,
+        name: parsedName,
+        topic: parsedName,
+        imageUrl: row.imageUrl ?? null,
+        topicImageUrl: row.imageUrl ?? null,
+        orderIndex: Number(row.orderIndex ?? 0),
+        count:
+          typeof row.count === 'number'
+            ? row.count
+            : parseInt(String(row.count || '0'), 10),
+        learnedCount:
+          typeof row.learnedCount === 'number'
+            ? row.learnedCount
+            : parseInt(String(row.learnedCount || '0'), 10),
+        dueCount:
+          typeof row.dueCount === 'number'
+            ? row.dueCount
+            : parseInt(String(row.dueCount || '0'), 10),
+      };
+    });
+  }
+
+  async findAllTopics(
+    search?: string,
+    page = 1,
+    limit = 20,
+  ): Promise<FolderTopicResponseDto[]> {
+    const qb = this.topicRepo
+      .createQueryBuilder('topic')
+      .innerJoin('topic.folder', 'folder')
+      .leftJoin(
+        'vocab_flashcards',
+        'flashcard',
+        'flashcard."topicId" = topic.id',
+      )
+      .select([
+        'topic.id AS id',
+        'topic.name AS name',
+        'topic."imageUrl" AS "imageUrl"',
+        'topic."orderIndex" AS "orderIndex"',
+        'folder.id AS "folderId"',
+        'folder.name AS "folderName"',
+        'COUNT(flashcard.id)::int AS count',
+      ])
+      .groupBy('topic.id')
+      .addGroupBy('topic.name::text')
+      .addGroupBy('topic."imageUrl"')
+      .addGroupBy('topic."orderIndex"')
+      .addGroupBy('folder.id')
+      .addGroupBy('folder.name::text')
+      .addGroupBy('topic.created_at')
+      .orderBy('topic."orderIndex"', 'ASC')
+      .addOrderBy('topic.created_at', 'ASC');
+
+    if (search && search.trim()) {
+      qb.where(
+        "(topic.name->>'en' ILIKE :search OR topic.name->>'vi' ILIKE :search OR folder.name->>'en' ILIKE :search OR folder.name->>'vi' ILIKE :search)",
+        { search: `%${search.trim()}%` },
+      );
+    }
+
+    const offset = (page - 1) * limit;
+    qb.offset(offset).limit(limit);
+
+    interface RawAllTopicRow {
+      id: string;
+      name: unknown;
+      imageUrl: string | null;
+      orderIndex: number | string;
+      folderId: string;
+      folderName: unknown;
+      count: number | string;
+    }
+
+    const rows = await qb.getRawMany<RawAllTopicRow>();
+
+    return rows.map((row) => {
+      const parsedName = parseI18nValue(row.name);
+      return {
+        id: row.id,
+        folderId: row.folderId,
+        folderName: parseI18nValue(row.folderName),
+        name: parsedName,
+        topic: parsedName,
+        imageUrl: row.imageUrl ?? null,
+        topicImageUrl: row.imageUrl ?? null,
+        orderIndex: Number(row.orderIndex ?? 0),
+        count:
+          typeof row.count === 'number'
+            ? row.count
+            : parseInt(String(row.count || '0'), 10),
+        learnedCount: 0,
+        dueCount: 0,
+      };
+    });
   }
 
   async findFlashcardsByFolderAndTopic(
@@ -301,10 +401,19 @@ export class VocabularyQueryRepository
       .where('flashcard."folderId" = :folderId', { folderId });
 
     if (topic) {
-      qb.andWhere(
-        "(flashcard.topic->>'en' = :topic OR word.topic->>'en' = :topic OR flashcard.topic->>'vi' = :topic OR word.topic->>'vi' = :topic)",
-        { topic },
-      );
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          topic,
+        );
+      if (isUuid) {
+        qb.andWhere('flashcard."topicId" = :topicId', { topicId: topic });
+      } else {
+        qb.leftJoin('flashcard.topicEntity', 'topicEntity');
+        qb.andWhere(
+          "(flashcard.\"topicId\" IN (SELECT t.id FROM vocab_topics t WHERE t.\"folderId\" = :folderId AND (t.name->>'en' = :topic OR t.name->>'vi' = :topic)) OR flashcard.topic->>'en' = :topic OR flashcard.topic->>'vi' = :topic)",
+          { topic, folderId },
+        );
+      }
     }
 
     if (validUserId) {
@@ -354,42 +463,32 @@ export class VocabularyQueryRepository
     };
   }
 
-  async findDueFlashcards(
+  async findDueWords(
     userId: string,
-    folderId?: string,
-    limit?: number,
+    folderId: string | undefined,
+    page: number,
+    limit: number,
     includeNew?: boolean,
-  ): Promise<DueFlashcardResponseDto[]> {
+  ): Promise<DueWordResponseDto[]> {
     const validUserId = userId && userId !== 'undefined' ? userId : null;
     const validFolderId =
       folderId && folderId !== 'undefined' ? folderId : null;
 
     if (!validUserId) return [];
 
+    const offset = (page - 1) * limit;
+
     const queryBuilder = this.flashcardRepo
       .createQueryBuilder('flashcard')
-      .leftJoin('flashcard.word', 'word')
-      .leftJoin('flashcard.folder', 'folder')
-      .leftJoin(
-        'vocab_user_progress',
+      .innerJoinAndSelect('flashcard.word', 'word')
+      .leftJoinAndSelect('word.definitions', 'definition')
+      .innerJoinAndSelect('flashcard.folder', 'folder')
+      .leftJoinAndSelect(
+        'flashcard.progresses',
         'progress',
-        'progress."flashcardId" = flashcard.id AND progress."userId" = :userId',
+        'progress.userId = :userId',
         { userId: validUserId },
-      )
-      .select([
-        'flashcard.id AS flashcard_id',
-        'word.id AS word_id',
-        'word.term AS word_term',
-        'folder.id AS folder_id',
-        'folder.name AS folder_name',
-        'progress.masteryScore AS "progress_masteryScore"',
-        'progress.level AS progress_level',
-        'progress.isWilted AS "progress_isWilted"',
-        'progress.learningStep AS "progress_learningStep"',
-        'progress.reviewCountAtCurrentLevel AS "progress_reviewCountAtCurrentLevel"',
-        'progress.intervalDays AS "progress_intervalDays"',
-        'progress.nextReviewAt AS "progress_nextReviewAt"',
-      ]);
+      );
 
     if (validFolderId) {
       queryBuilder.andWhere('folder.id = :folderId', {
@@ -399,55 +498,53 @@ export class VocabularyQueryRepository
 
     if (includeNew) {
       queryBuilder.andWhere(
-        '(progress.id IS NULL OR progress."nextReviewAt" <= :now)',
+        '(progress.id IS NULL OR progress.nextReviewAt <= :now OR progress.isWilted = true)',
         { now: new Date() },
       );
       queryBuilder
         .orderBy('progress.id', 'ASC', 'NULLS FIRST')
-        .addOrderBy('progress."nextReviewAt"', 'ASC', 'NULLS FIRST');
+        .addOrderBy('progress.nextReviewAt', 'ASC', 'NULLS FIRST');
     } else {
       queryBuilder.andWhere(
-        'progress.id IS NOT NULL AND progress."nextReviewAt" <= :now',
+        'progress.id IS NOT NULL AND (progress.nextReviewAt <= :now OR progress.isWilted = true)',
         { now: new Date() },
       );
-      queryBuilder.orderBy('progress."nextReviewAt"', 'ASC');
+      queryBuilder.orderBy('progress.nextReviewAt', 'ASC');
     }
 
-    if (limit) {
-      queryBuilder.limit(limit);
-    }
+    queryBuilder.skip(offset).take(limit);
 
-    interface DueFlashcardRawRow {
-      flashcard_id: string;
-      word_id: string;
-      word_term: string;
-      folder_id: string;
-      folder_name: unknown;
-      progress_masteryScore: number | null;
-      progress_level: number | null;
-      progress_isWilted: boolean | null;
-      progress_learningStep: number | null;
-      progress_reviewCountAtCurrentLevel: number | null;
-      progress_intervalDays: number | null;
-      progress_nextReviewAt: Date | null;
-    }
+    const flashcards = await queryBuilder.getMany();
 
-    const rawResults = await queryBuilder.getRawMany<DueFlashcardRawRow>();
-
-    return rawResults.map((row) => ({
-      flashcardId: row.flashcard_id,
-      wordId: row.word_id,
-      term: row.word_term,
-      folderId: row.folder_id,
-      folderName: parseI18nValue(row.folder_name),
-      masteryScore: row.progress_masteryScore ?? 0,
-      level: row.progress_level ?? 0,
-      isWilted: row.progress_isWilted ?? false,
-      learningStep: row.progress_learningStep ?? 0,
-      reviewCountAtCurrentLevel: row.progress_reviewCountAtCurrentLevel ?? 0,
-      intervalDays: row.progress_intervalDays ?? 0,
-      nextReviewAt: row.progress_nextReviewAt || null,
-    }));
+    return flashcards.map((fc) => {
+      const progress = fc.progresses?.[0];
+      return {
+        flashcardId: fc.id,
+        wordId: fc.word.id,
+        term: fc.word.term,
+        folderId: fc.folder.id,
+        folderName: parseI18nValue(fc.folder.name),
+        masteryScore: progress?.masteryScore ?? 0,
+        level: progress?.level ?? 0,
+        isWilted: progress?.isWilted ?? false,
+        learningStep: progress?.learningStep ?? 0,
+        reviewCountAtCurrentLevel: progress?.reviewCountAtCurrentLevel ?? 0,
+        intervalDays: progress?.intervalDays ?? 0,
+        nextReviewAt: progress?.nextReviewAt || null,
+        phonetic: fc.word.phonetic,
+        phoneticUs: fc.word.phoneticUs,
+        phoneticUk: fc.word.phoneticUk,
+        audioUrl: fc.word.audioUrl,
+        audioUsUrl: fc.word.audioUsUrl,
+        audioUkUrl: fc.word.audioUkUrl,
+        imageUrl: fc.word.imageUrl,
+        definitions: (fc.word.definitions || []).map((def) => ({
+          id: def.id,
+          partOfSpeech: def.partOfSpeech,
+          definition: parseI18nValue(def.definition),
+        })),
+      };
+    });
   }
 
   async getOverview(userId: string): Promise<VocabularyOverviewResponseDto> {
@@ -564,18 +661,6 @@ export class VocabularyQueryRepository
       if (!termLower || seenTerms.has(termLower)) continue;
       seenTerms.add(termLower);
 
-      let definitionText: string | null = null;
-      if (typeof row.def_definition === 'string') {
-        definitionText = row.def_definition;
-      } else if (
-        typeof row.def_definition === 'object' &&
-        row.def_definition !== null
-      ) {
-        const defObj = row.def_definition as Record<string, string>;
-        definitionText =
-          defObj.vi || defObj.en || Object.values(defObj)[0] || null;
-      }
-
       const mastery = Number(row.progress_mastery_score ?? 0);
       const errorRate = Math.min(95, Math.max(15, Math.round(100 - mastery)));
 
@@ -585,7 +670,7 @@ export class VocabularyQueryRepository
           wordId: row.word_id,
           term: row.word_term,
           partOfSpeech: row.def_part_of_speech || null,
-          definition: definitionText,
+          definition: parseI18nNullableValue(row.def_definition),
           phonetic: row.word_phonetic || null,
           audioUrl: row.word_audio_url || null,
           audioUsUrl: row.word_audio_us_url || null,
@@ -602,7 +687,9 @@ export class VocabularyQueryRepository
     const dueCountRaw = await this.progressRepo
       .createQueryBuilder('progress')
       .where('progress.userId = :userId', { userId: validUserId })
-      .andWhere('progress.nextReviewAt <= :now', { now: new Date() })
+      .andWhere('(progress.nextReviewAt <= :now OR progress.isWilted = true)', {
+        now: new Date(),
+      })
       .getCount();
 
     return new VocabularyOverviewResponseDto(
