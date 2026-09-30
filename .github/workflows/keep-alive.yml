@@ -1,0 +1,33 @@
+name: Keep Alive Service
+
+on:
+  schedule:
+    # 1. Ping every 14 minutes from 11:30 AM to 11:58 AM VN Time (04:30 - 04:58 UTC)
+    - cron: '30,44,58 4 * * *'
+
+    # 2. Ping every 14 minutes from 12:00 PM to 11:59 PM VN Time (05:00 - 16:59 UTC)
+    - cron: '*/14 5-16 * * *'
+
+    # 3. Dedicated pre-wake trigger at 11:50 AM VN Time (04:50 UTC)
+    - cron: '50 4 * * *'
+
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send keep-alive ping to server
+        env:
+          SERVER_URL: ${{ secrets.SERVER_HEALTH_URL }}
+        run: |
+          if [ -z "${SERVER_URL}" ]; then
+            echo "Error: SERVER_HEALTH_URL secret is not set in GitHub Repository Secrets."
+            exit 1
+          fi
+          echo "Sending keep-alive request to ${SERVER_URL}..."
+          curl -s -X GET "${SERVER_URL}" \
+            -H "User-Agent: GitHub-Actions-KeepAlive" \
+            --retry 3 \
+            --retry-delay 5 \
+            --fail
