@@ -9,11 +9,11 @@ describe('BatchReviewFlashcardsHandler', () => {
   let handler: BatchReviewFlashcardsHandler;
 
   const mockFlashcardRepo = {
-    findById: jest.fn(),
+    findManyByIds: jest.fn(),
   };
 
   const mockProgressRepo = {
-    findByUserAndFlashcard: jest.fn(),
+    findManyByUserAndFlashcards: jest.fn(),
     save: jest.fn(),
   };
 
@@ -51,20 +51,19 @@ describe('BatchReviewFlashcardsHandler', () => {
 
     await handler.execute(command);
 
-    expect(mockFlashcardRepo.findById).not.toHaveBeenCalled();
+    expect(mockFlashcardRepo.findManyByIds).not.toHaveBeenCalled();
+    expect(mockProgressRepo.findManyByUserAndFlashcards).not.toHaveBeenCalled();
     expect(mockProgressRepo.save).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should process batch items, skip missing cards, save progress and publish events', async () => {
-    mockFlashcardRepo.findById.mockImplementation((id: string) => {
-      if (id === 'card-valid-1' || id === 'card-valid-2') {
-        return Promise.resolve({ id });
-      }
-      return Promise.resolve(null);
-    });
-
-    mockProgressRepo.findByUserAndFlashcard.mockResolvedValue(null);
+    const cardMap = new Map([
+      ['card-valid-1', { id: 'card-valid-1' }],
+      ['card-valid-2', { id: 'card-valid-2' }],
+    ]);
+    mockFlashcardRepo.findManyByIds.mockResolvedValue(cardMap);
+    mockProgressRepo.findManyByUserAndFlashcards.mockResolvedValue(new Map());
     mockProgressRepo.save.mockResolvedValue(undefined);
 
     const command = new BatchReviewFlashcardsCommand(
@@ -96,7 +95,10 @@ describe('BatchReviewFlashcardsHandler', () => {
 
     await handler.execute(command);
 
-    expect(mockFlashcardRepo.findById).toHaveBeenCalledTimes(3);
+    expect(mockFlashcardRepo.findManyByIds).toHaveBeenCalledTimes(1);
+    expect(mockProgressRepo.findManyByUserAndFlashcards).toHaveBeenCalledTimes(
+      1,
+    );
     // Only 2 valid cards should be saved
     expect(mockProgressRepo.save).toHaveBeenCalledTimes(2);
     expect(mockEventBus.publish).toHaveBeenCalledTimes(2);

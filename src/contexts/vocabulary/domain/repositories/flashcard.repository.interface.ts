@@ -5,6 +5,7 @@ export const FLASHCARD_REPOSITORY = Symbol('FLASHCARD_REPOSITORY');
 export interface IFlashcardRepository {
   save(flashcard: Flashcard): Promise<void>;
   findById(id: string): Promise<Flashcard | null>;
+  findManyByIds(ids: string[]): Promise<Map<string, Flashcard>>;
   findByFolderAndWord(
     folderId: string,
     wordId: string,

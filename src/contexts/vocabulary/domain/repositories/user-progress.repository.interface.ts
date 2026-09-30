@@ -8,4 +8,8 @@ export interface IUserProgressRepository {
     userId: string,
     flashcardId: string,
   ): Promise<UserProgress | null>;
+  findManyByUserAndFlashcards(
+    userId: string,
+    flashcardIds: string[],
+  ): Promise<Map<string, UserProgress>>;
 }

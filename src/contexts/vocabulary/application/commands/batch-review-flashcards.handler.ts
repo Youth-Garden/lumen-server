@@ -1,12 +1,12 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { BatchReviewFlashcardsCommand } from './batch-review-flashcards.command';
-import type { IUserProgressRepository } from '../../domain/repositories/user-progress.repository.interface';
-import { USER_PROGRESS_REPOSITORY } from '../../domain/repositories/user-progress.repository.interface';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { FlashcardReviewedEvent } from '../../../../shared/domain/events/flashcard-reviewed.event';
+import { UserProgress } from '../../domain/aggregates/user-progress.aggregate';
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { FLASHCARD_REPOSITORY } from '../../domain/repositories/flashcard.repository.interface';
-import { UserProgress } from '../../domain/aggregates/user-progress.aggregate';
-import { FlashcardReviewedEvent } from '../../../../shared/domain/events/flashcard-reviewed.event';
+import type { IUserProgressRepository } from '../../domain/repositories/user-progress.repository.interface';
+import { USER_PROGRESS_REPOSITORY } from '../../domain/repositories/user-progress.repository.interface';
+import { BatchReviewFlashcardsCommand } from './batch-review-flashcards.command';
 
 @CommandHandler(BatchReviewFlashcardsCommand)
 export class BatchReviewFlashcardsHandler implements ICommandHandler<
@@ -25,6 +25,13 @@ export class BatchReviewFlashcardsHandler implements ICommandHandler<
     const { reviews, userId } = command;
     if (!reviews || reviews.length === 0) return;
 
+    const flashcardIds = reviews.map((r) => r.flashcardId);
+
+    const [flashcards, progressMap] = await Promise.all([
+      this.flashcardRepo.findManyByIds(flashcardIds),
+      this.progressRepo.findManyByUserAndFlashcards(userId, flashcardIds),
+    ]);
+
     for (const item of reviews) {
       const {
         flashcardId,
@@ -34,19 +41,11 @@ export class BatchReviewFlashcardsHandler implements ICommandHandler<
         isResetToUnlearned,
       } = item;
 
-      const flashcard = await this.flashcardRepo.findById(flashcardId);
-      if (!flashcard) {
-        continue;
-      }
+      if (!flashcards.has(flashcardId)) continue;
 
-      let progress = await this.progressRepo.findByUserAndFlashcard(
-        userId,
-        flashcardId,
-      );
-
-      if (!progress) {
-        progress = UserProgress.create(userId, flashcardId);
-      }
+      const progress =
+        progressMap.get(flashcardId) ??
+        UserProgress.create(userId, flashcardId);
 
       if (isResetToUnlearned) {
         progress.resetToUnlearned();

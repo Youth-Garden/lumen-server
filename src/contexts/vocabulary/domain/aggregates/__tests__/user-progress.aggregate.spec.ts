@@ -21,7 +21,7 @@ describe('UserProgress Aggregate', () => {
   });
 
   describe('reviewCorrect with Fast Track', () => {
-    it('should jump to level 6 and score 100 when FAST_TRACK_KNOWN is applied', () => {
+    it('should jump to level 5 and score 100 when FAST_TRACK_KNOWN is applied', () => {
       const progress = UserProgress.create(mockUserId, mockFlashcardId);
 
       progress.reviewCorrect(true, false);
@@ -36,7 +36,7 @@ describe('UserProgress Aggregate', () => {
       expect(progress.nextReviewAt).not.toBeNull();
     });
 
-    it('should jump to level 3 when FAST_TRACK_TEMP is applied', () => {
+    it('should jump to level 2 when FAST_TRACK_TEMP is applied', () => {
       const progress = UserProgress.create(mockUserId, mockFlashcardId);
 
       progress.reviewCorrect(false, true);

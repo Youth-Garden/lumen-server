@@ -1,7 +1,7 @@
 import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import type { IFlashcardRepository } from '../../domain/repositories/flashcard.repository.interface';
 import { Flashcard } from '../../domain/aggregates/flashcard.aggregate';
 import { FlashcardEntity } from '../entities/flashcard.entity';
@@ -22,6 +22,19 @@ export class FlashcardRepository
     const entity = await this.repo.findOne({ where: { id } });
     if (!entity) return null;
     return Flashcard.restore(entity.id, entity.folderId, entity.wordId);
+  }
+
+  async findManyByIds(ids: string[]): Promise<Map<string, Flashcard>> {
+    if (ids.length === 0) return new Map();
+    const entities = await this.repo.find({ where: { id: In(ids) } });
+    const result = new Map<string, Flashcard>();
+    for (const entity of entities) {
+      result.set(
+        entity.id,
+        Flashcard.restore(entity.id, entity.folderId, entity.wordId),
+      );
+    }
+    return result;
   }
 
   async findByFolderAndWord(

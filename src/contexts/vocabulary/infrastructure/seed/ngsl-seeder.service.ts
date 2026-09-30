@@ -17,7 +17,6 @@ export async function runNgslVocabularySeeder(
 ): Promise<void> {
   const userRepo = dataSource.getRepository(UserEntity);
   const folderRepo = dataSource.getRepository(FolderEntity);
-  const wordRepo = dataSource.getRepository(WordEntity);
 
   console.log('--- Starting NGSL Vocabulary Datasets Seeding Pipeline ---');
 
@@ -164,13 +163,13 @@ export async function runNgslVocabularySeeder(
   console.log(
     'Step 6: Recording Seed Version Audit Entry in vocab_seed_versions...',
   );
-  const folderCountRes = await dataSource.query(
+  const folderCountRes = await dataSource.query<{ count: number }[]>(
     `SELECT COUNT(*)::int AS count FROM vocab_folders WHERE "isSystem" = true`,
   );
-  const wordCountRes = await dataSource.query(
+  const wordCountRes = await dataSource.query<{ count: number }[]>(
     `SELECT COUNT(*)::int AS count FROM vocab_words`,
   );
-  const flashcardCountRes = await dataSource.query(
+  const flashcardCountRes = await dataSource.query<{ count: number }[]>(
     `SELECT COUNT(*)::int AS count FROM vocab_flashcards`,
   );
 
@@ -381,7 +380,7 @@ async function processDatasetFolder(
     const word = wordMapByTerm.get(cleanTerm);
     if (!word || !word.id) continue;
 
-    const subTopic = assignSubTopic(config, idx, rows.length, cleanTerm);
+    const subTopic = assignSubTopic(config, idx, cleanTerm);
     const targetTopicId = topicMapByEn.get(subTopic.en) || null;
     const fc = flashcardMapByWordId.get(word.id);
 
@@ -527,7 +526,7 @@ async function processDatasetFolder(
 function tryParseJson(val: unknown): Record<string, string> | null {
   if (typeof val === 'string') {
     try {
-      const parsed = JSON.parse(val);
+      const parsed: unknown = JSON.parse(val);
       if (typeof parsed === 'object' && parsed !== null) {
         return parsed as Record<string, string>;
       }

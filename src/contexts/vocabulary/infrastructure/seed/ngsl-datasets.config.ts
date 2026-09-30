@@ -1138,7 +1138,6 @@ function hashString(str: string): number {
 export function assignSubTopic(
   datasetConfig: NgslDatasetConfig,
   index: number,
-  totalRows: number = 1000,
   term?: string,
 ): SubTopicConfig {
   const subTopics = datasetConfig.subTopics;
