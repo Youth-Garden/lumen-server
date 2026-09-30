@@ -1,3 +1,4 @@
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 import { BaseRepository } from '../../../../shared/infrastructure/database/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -49,7 +50,7 @@ export class MaterialQueryRepository
 
     const [items, total] = await queryBuilder.getManyAndCount();
 
-    return { items, total };
+    return new PaginatedResponseDto(items, total, page, limit);
   }
 
   async findById(id: string): Promise<MaterialDto | null> {

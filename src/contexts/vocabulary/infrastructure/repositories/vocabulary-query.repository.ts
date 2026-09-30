@@ -21,6 +21,7 @@ import { TopicEntity } from '../entities/topic.entity';
 import { UserProgressEntity } from '../entities/user-progress.entity';
 
 import type { I18nString } from '../../../../shared/domain/types/translation.type';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 import { toI18nString } from '../../../../shared/utils';
 
 function parseI18nValue(value: unknown): I18nString {
@@ -389,14 +390,15 @@ export class VocabularyQueryRepository
     page: number,
     limit: number,
   ): Promise<FolderFlashcardsResponseDto> {
-    if (!folderId || folderId === 'undefined') return { data: [], total: 0 };
+    if (!folderId || folderId === 'undefined')
+      return new PaginatedResponseDto([], 0, page, limit);
     const validUserId = userId && userId !== 'undefined' ? userId : null;
     const offset = (page - 1) * limit;
 
     const qb = this.flashcardRepo
       .createQueryBuilder('flashcard')
       .innerJoinAndSelect('flashcard.word', 'word')
-      .innerJoinAndSelect('word.definitions', 'definition')
+      .leftJoinAndSelect('word.definitions', 'definition')
       .leftJoinAndSelect('definition.examples', 'example')
       .where('flashcard."folderId" = :folderId', { folderId });
 
@@ -428,39 +430,37 @@ export class VocabularyQueryRepository
     const total = await qb.getCount();
     const flashcards = await qb.skip(offset).take(limit).getMany();
 
-    return {
-      data: flashcards.map((flashcard) => ({
-        id: flashcard.id,
-        wordId: flashcard.word.id,
-        term: flashcard.word.term,
-        topic: flashcard.topic || flashcard.word.topic || null,
-        topicImageUrl:
-          flashcard.topicImageUrl || flashcard.word.topicImageUrl || null,
-        phonetic: flashcard.word.phonetic,
-        phoneticUs: flashcard.word.phoneticUs,
-        phoneticUk: flashcard.word.phoneticUk,
-        audioUrl: flashcard.word.audioUrl,
-        audioUsUrl: flashcard.word.audioUsUrl,
-        audioUkUrl: flashcard.word.audioUkUrl,
-        cefrLevel: flashcard.word.cefrLevel,
-        imageUrl: flashcard.word.imageUrl,
-        level: flashcard.progresses?.[0]?.level ?? 0,
-        learningStep: flashcard.progresses?.[0]?.learningStep ?? 0,
-        masteryScore: flashcard.progresses?.[0]?.masteryScore ?? 0,
-        isWilted: flashcard.progresses?.[0]?.isWilted ?? false,
-        definitions: (flashcard.word.definitions || []).map((def) => ({
-          id: def.id,
-          partOfSpeech: def.partOfSpeech,
-          definition:
-            (def.definition as unknown as Record<string, string>) || {},
-          examples: (def.examples || []).map((ex) => ({
-            id: ex.id,
-            sentence: (ex.sentence as unknown as Record<string, string>) || {},
-          })),
+    const items = flashcards.map((flashcard) => ({
+      id: flashcard.id,
+      wordId: flashcard.word.id,
+      term: flashcard.word.term,
+      topic: flashcard.topic || flashcard.word.topic || null,
+      topicImageUrl:
+        flashcard.topicImageUrl || flashcard.word.topicImageUrl || null,
+      phonetic: flashcard.word.phonetic,
+      phoneticUs: flashcard.word.phoneticUs,
+      phoneticUk: flashcard.word.phoneticUk,
+      audioUrl: flashcard.word.audioUrl,
+      audioUsUrl: flashcard.word.audioUsUrl,
+      audioUkUrl: flashcard.word.audioUkUrl,
+      cefrLevel: flashcard.word.cefrLevel,
+      imageUrl: flashcard.word.imageUrl,
+      level: flashcard.progresses?.[0]?.level ?? 0,
+      learningStep: flashcard.progresses?.[0]?.learningStep ?? 0,
+      masteryScore: flashcard.progresses?.[0]?.masteryScore ?? 0,
+      isWilted: flashcard.progresses?.[0]?.isWilted ?? false,
+      definitions: (flashcard.word.definitions || []).map((def) => ({
+        id: def.id,
+        partOfSpeech: def.partOfSpeech,
+        definition: (def.definition as unknown as Record<string, string>) || {},
+        examples: (def.examples || []).map((ex) => ({
+          id: ex.id,
+          sentence: (ex.sentence as unknown as Record<string, string>) || {},
         })),
       })),
-      total,
-    };
+    }));
+
+    return new PaginatedResponseDto(items, total, page, limit);
   }
 
   async findDueWords(
@@ -506,7 +506,7 @@ export class VocabularyQueryRepository
         .addOrderBy('progress.nextReviewAt', 'ASC', 'NULLS FIRST');
     } else {
       queryBuilder.andWhere(
-        'progress.id IS NOT NULL AND (progress.nextReviewAt <= :now OR progress.isWilted = true)',
+        'progress.id IS NOT NULL AND (progress.level >= 1 OR progress."learningStep" >= 5 OR progress."lastReviewedAt" IS NOT NULL) AND (progress.nextReviewAt <= :now OR progress.isWilted = true)',
         { now: new Date() },
       );
       queryBuilder.orderBy('progress.nextReviewAt', 'ASC');
@@ -515,9 +515,15 @@ export class VocabularyQueryRepository
     queryBuilder.skip(offset).take(limit);
 
     const flashcards = await queryBuilder.getMany();
+    const now = new Date();
 
     return flashcards.map((fc) => {
       const progress = fc.progresses?.[0];
+      const isDue = Boolean(
+        progress &&
+        (progress.isWilted ||
+          (progress.nextReviewAt && new Date(progress.nextReviewAt) <= now)),
+      );
       return {
         flashcardId: fc.id,
         wordId: fc.word.id,
@@ -526,7 +532,7 @@ export class VocabularyQueryRepository
         folderName: parseI18nValue(fc.folder.name),
         masteryScore: progress?.masteryScore ?? 0,
         level: progress?.level ?? 0,
-        isWilted: progress?.isWilted ?? false,
+        isWilted: isDue || (progress?.isWilted ?? false),
         learningStep: progress?.learningStep ?? 0,
         reviewCountAtCurrentLevel: progress?.reviewCountAtCurrentLevel ?? 0,
         intervalDays: progress?.intervalDays ?? 0,

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MaterialType, MaterialLevel } from '../../domain/enums/material.enum';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 import type { I18nString } from '../../../../shared/domain/types/translation.type';
+import { MaterialLevel, MaterialType } from '../../domain/enums/material.enum';
 
 export class TranscriptDto {
   @ApiProperty()
@@ -54,10 +55,6 @@ export class MaterialDto {
   viewCount?: number;
 }
 
-export class MaterialListDto {
-  @ApiProperty({ type: [MaterialDto] })
-  items: Omit<MaterialDto, 'transcripts'>[];
-
-  @ApiProperty()
-  total: number;
-}
+export class MaterialListDto extends PaginatedResponseDto<
+  Omit<MaterialDto, 'transcripts'>
+> {}

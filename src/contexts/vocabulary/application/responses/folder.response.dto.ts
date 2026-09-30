@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PaginatedResponseDto } from '../../../../shared/presentation/dtos/paginated-response.dto';
 import type { I18nString } from '../../../../shared/domain/types/translation.type';
 
 export class FolderResponseDto {
@@ -114,10 +115,4 @@ export class FlashcardSummaryDto {
   definitions?: FlashcardDefinitionDto[];
 }
 
-export class FolderFlashcardsResponseDto {
-  @ApiProperty({ type: [FlashcardSummaryDto] })
-  data: FlashcardSummaryDto[];
-
-  @ApiProperty()
-  total: number;
-}
+export class FolderFlashcardsResponseDto extends PaginatedResponseDto<FlashcardSummaryDto> {}

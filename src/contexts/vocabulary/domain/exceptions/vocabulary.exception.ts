@@ -18,7 +18,7 @@ export const VocabEx = {
   },
   FlashcardAlreadyExists: {
     code: 'VOCAB_FLASHCARD_ALREADY_EXISTS',
-    message: 'Flashcard already exists in this folder',
+    message: 'Word is already in this folder',
     httpStatus: 400,
   },
   FlashcardNotFound: {

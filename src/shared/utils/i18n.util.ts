@@ -3,20 +3,25 @@ import { Locale } from '../domain/types/translation.type';
 
 export function toI18nString(input: unknown): I18nString {
   if (!input) return {};
+
   if (typeof input === 'object' && input !== null) {
     return input as I18nString;
   }
+
   if (typeof input === 'string' && input.trim()) {
+    const trimmed = input.trim();
     try {
-      const parsed: unknown = JSON.parse(input);
-      if (typeof parsed === 'object' && parsed !== null) {
+      const parsed: unknown = JSON.parse(trimmed);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         return parsed as I18nString;
       }
     } catch {
       // plain string
     }
-    return { [Locale.EN]: input.trim() };
+
+    return { [Locale.EN]: trimmed };
   }
+
   return {};
 }
 

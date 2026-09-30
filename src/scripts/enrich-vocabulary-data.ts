@@ -178,7 +178,9 @@ export async function enrichWordData(targetTerm?: string) {
     const whereClause = targetTerm
       ? `WHERE LOWER(w.term) = LOWER('${targetTerm.trim().replace(/'/g, "''")}')`
       : `WHERE d.definition->>'vi' IS NULL
+         OR TRIM(d.definition->>'vi') = ''
          OR LOWER(TRIM(d.definition->>'vi')) = LOWER(TRIM(w.term))
+         OR LOWER(TRIM(d.definition->>'vi')) = LOWER(TRIM(d.definition->>'en'))
          OR w."phoneticUs" IS NULL
          OR w."audioUsUrl" IS NULL
          OR w."imageUrl" IS NULL`;
