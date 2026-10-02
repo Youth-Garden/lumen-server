@@ -1,6 +1,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
 import { VocabularyDefinition } from '../entities/vocabulary-definition.entity';
+import { VocabularyWordRelation } from '../entities/vocabulary-word-relation.entity';
 
 export class VocabularyWord extends AggregateRoot {
   private constructor(
@@ -15,6 +16,7 @@ export class VocabularyWord extends AggregateRoot {
     private _audioUkUrl: string | null = null,
     private _phoneticUs: string | null = null,
     private _phoneticUk: string | null = null,
+    private _relations: VocabularyWordRelation[] = [],
   ) {
     super();
   }
@@ -30,6 +32,7 @@ export class VocabularyWord extends AggregateRoot {
     audioUkUrl: string | null = null,
     phoneticUs: string | null = null,
     phoneticUk: string | null = null,
+    relations: VocabularyWordRelation[] = [],
   ): VocabularyWord {
     return new VocabularyWord(
       randomUUID(),
@@ -43,6 +46,7 @@ export class VocabularyWord extends AggregateRoot {
       audioUkUrl,
       phoneticUs,
       phoneticUk,
+      relations,
     );
   }
 
@@ -58,6 +62,7 @@ export class VocabularyWord extends AggregateRoot {
     audioUkUrl: string | null = null,
     phoneticUs: string | null = null,
     phoneticUk: string | null = null,
+    relations: VocabularyWordRelation[] = [],
   ): VocabularyWord {
     return new VocabularyWord(
       id,
@@ -71,6 +76,7 @@ export class VocabularyWord extends AggregateRoot {
       audioUkUrl,
       phoneticUs,
       phoneticUk,
+      relations,
     );
   }
 
@@ -118,6 +124,10 @@ export class VocabularyWord extends AggregateRoot {
     return this._imageUrl;
   }
 
+  get relations(): VocabularyWordRelation[] {
+    return this._relations;
+  }
+
   update(
     term?: string,
     phonetic?: string | null,
@@ -129,6 +139,7 @@ export class VocabularyWord extends AggregateRoot {
     audioUkUrl?: string | null,
     phoneticUs?: string | null,
     phoneticUk?: string | null,
+    relations?: VocabularyWordRelation[],
   ): void {
     if (term !== undefined) this._term = term;
     if (phonetic !== undefined) this._phonetic = phonetic;
@@ -140,5 +151,6 @@ export class VocabularyWord extends AggregateRoot {
     if (audioUkUrl !== undefined) this._audioUkUrl = audioUkUrl;
     if (phoneticUs !== undefined) this._phoneticUs = phoneticUs;
     if (phoneticUk !== undefined) this._phoneticUk = phoneticUk;
+    if (relations !== undefined) this._relations = relations;
   }
 }

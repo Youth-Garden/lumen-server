@@ -44,6 +44,24 @@ export class GetVocabularyWordByIdHandler implements IQueryHandler<
           id: ex.id,
           sentence: ex.sentence,
         })),
+        relations: (def.relations || []).map((rel) => ({
+          id: rel.id,
+          sourceWordId: rel.sourceWordId,
+          definitionId: rel.definitionId,
+          targetWordId: rel.targetWordId,
+          targetTerm: rel.targetTerm,
+          relationType: rel.relationType,
+          displayOrder: rel.displayOrder,
+        })),
+      })),
+      relations: (word.relations || []).map((rel) => ({
+        id: rel.id,
+        sourceWordId: rel.sourceWordId,
+        definitionId: rel.definitionId,
+        targetWordId: rel.targetWordId,
+        targetTerm: rel.targetTerm,
+        relationType: rel.relationType,
+        displayOrder: rel.displayOrder,
       })),
     });
   }

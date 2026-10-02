@@ -1,5 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import type { I18nString } from '../../../../shared/domain/types/translation.type';
+import { WordRelationResponseDto } from './word-relation.response.dto';
 
 export class VocabularyExampleResponseDto {
   @Expose()
@@ -26,6 +27,10 @@ export class VocabularyDefinitionResponseDto {
   @Expose()
   @Type(() => VocabularyExampleResponseDto)
   examples: VocabularyExampleResponseDto[];
+
+  @Expose()
+  @Type(() => WordRelationResponseDto)
+  relations: WordRelationResponseDto[] = [];
 
   constructor(partial: Partial<VocabularyDefinitionResponseDto>) {
     Object.assign(this, partial);
@@ -72,6 +77,10 @@ export class VocabularyWordResponseDto {
   @Expose()
   @Type(() => VocabularyDefinitionResponseDto)
   definitions: VocabularyDefinitionResponseDto[];
+
+  @Expose()
+  @Type(() => WordRelationResponseDto)
+  relations: WordRelationResponseDto[] = [];
 
   constructor(partial: Partial<VocabularyWordResponseDto>) {
     Object.assign(this, partial);

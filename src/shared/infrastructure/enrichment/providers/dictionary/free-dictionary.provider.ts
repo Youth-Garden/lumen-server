@@ -1,9 +1,9 @@
+import { BaseHttpClient } from '../../client/enrichment-http.client';
 import { DEFAULT_ENRICHMENT_CONFIG } from '../../config/enrichment.config';
 import { EnrichmentEndpointEnum } from '../../constants/enrichment-endpoint.enum';
-import { BaseHttpClient } from '../../client/enrichment-http.client';
 import type {
-  IDictionaryProvider,
   EnrichedDictionaryMetadata,
+  IDictionaryProvider,
 } from '../../interfaces/enrichment-providers.interface';
 
 interface FreeDictPhonetic {
@@ -13,15 +13,26 @@ interface FreeDictPhonetic {
 
 interface FreeDictMeaning {
   partOfSpeech?: string;
+  synonyms?: string[];
+  antonyms?: string[];
   definitions?: Array<{
     definition?: string;
     example?: string;
+    synonyms?: string[];
+    antonyms?: string[];
   }>;
 }
 
 interface FreeDictEntry {
   phonetics?: FreeDictPhonetic[];
   meanings?: FreeDictMeaning[];
+}
+
+export interface SenseRelationItem {
+  partOfSpeech: string;
+  definitionText?: string;
+  synonyms: string[];
+  antonyms: string[];
 }
 
 export class FreeDictionaryProvider
@@ -39,6 +50,61 @@ export class FreeDictionaryProvider
 
   isEnabled(): boolean {
     return true;
+  }
+
+  async fetchSenseRelations(term: string): Promise<SenseRelationItem[]> {
+    const cleanTerm = term.trim().toLowerCase();
+    const url = this.buildPathUrl(
+      EnrichmentEndpointEnum.FREE_DICTIONARY,
+      cleanTerm,
+    );
+
+    try {
+      const data = await this.get<FreeDictEntry[]>(url, {
+        timeoutMs: this.timeoutMs,
+      });
+
+      if (!Array.isArray(data) || data.length === 0) return [];
+
+      const results: SenseRelationItem[] = [];
+
+      for (const entry of data) {
+        for (const meaning of entry.meanings || []) {
+          const pos = meaning.partOfSpeech || 'noun';
+          const meaningSynonyms = meaning.synonyms || [];
+          const meaningAntonyms = meaning.antonyms || [];
+
+          for (const defObj of meaning.definitions || []) {
+            const defSyns = Array.from(
+              new Set([...(defObj.synonyms || []), ...meaningSynonyms]),
+            )
+              .map((s) => s.trim().toLowerCase())
+              .filter((s) => s && s !== cleanTerm && /^[a-z\s-]+$/i.test(s))
+              .slice(0, 8);
+
+            const defAnts = Array.from(
+              new Set([...(defObj.antonyms || []), ...meaningAntonyms]),
+            )
+              .map((a) => a.trim().toLowerCase())
+              .filter((a) => a && a !== cleanTerm && /^[a-z\s-]+$/i.test(a))
+              .slice(0, 8);
+
+            if (defSyns.length > 0 || defAnts.length > 0) {
+              results.push({
+                partOfSpeech: pos,
+                definitionText: defObj.definition,
+                synonyms: defSyns,
+                antonyms: defAnts,
+              });
+            }
+          }
+        }
+      }
+
+      return results;
+    } catch {
+      return [];
+    }
   }
 
   async fetchMetadata(

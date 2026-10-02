@@ -118,16 +118,27 @@ export class LearningProfile {
     }
 
     if (diffDays > 1) {
+      let availableFreezes = this._streakFreezes;
+
+      if (this.streak === 0 && availableFreezes === 0) {
+        availableFreezes = 1;
+      }
+
       const missedDays = diffDays - 1;
-      if (this._streakFreezes >= missedDays) {
-        this._streakFreezes -= missedDays;
-        const protectedDate = new Date(today);
-        protectedDate.setDate(protectedDate.getDate() - 1);
+      const usedFreezes = Math.min(availableFreezes, missedDays);
+      this._streakFreezes = Math.max(0, availableFreezes - usedFreezes);
+
+      if (usedFreezes > 0) {
+        const protectedDate = new Date(this.lastActivityDate.getTime());
+        protectedDate.setDate(protectedDate.getDate() + usedFreezes);
         this.lastActivityDate = protectedDate;
-      } else {
+      }
+
+      if (usedFreezes < missedDays) {
         this.streak = 0;
         this._streakFreezes = 0;
       }
+
       changed = true;
       return changed;
     }

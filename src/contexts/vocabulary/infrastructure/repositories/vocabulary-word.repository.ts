@@ -13,6 +13,8 @@ import { WordEntity } from '../entities/word.entity';
 import { DefinitionEntity } from '../entities/definition.entity';
 import { ExampleEntity } from '../entities/example.entity';
 
+import { VocabularyWordRelation } from '../../domain/entities/vocabulary-word-relation.entity';
+
 @Injectable()
 export class VocabularyWordRepository
   extends BaseRepository<WordEntity>
@@ -29,7 +31,10 @@ export class VocabularyWordRepository
   async findById(id: string): Promise<VocabularyWord | null> {
     const entity = await this.wordRepo.findOne({
       where: { id },
-      relations: { definitions: { examples: true } },
+      relations: {
+        definitions: { examples: true, relations: true },
+        relations: true,
+      },
     });
     if (!entity) return null;
     return this.toDomain(entity);
@@ -38,7 +43,10 @@ export class VocabularyWordRepository
   async findByTerm(term: string): Promise<VocabularyWord | null> {
     const entity = await this.wordRepo.findOne({
       where: { term },
-      relations: { definitions: { examples: true } },
+      relations: {
+        definitions: { examples: true, relations: true },
+        relations: true,
+      },
     });
     if (!entity) return null;
     return this.toDomain(entity);
@@ -60,6 +68,8 @@ export class VocabularyWordRepository
       .createQueryBuilder('word')
       .leftJoinAndSelect('word.definitions', 'definition')
       .leftJoinAndSelect('definition.examples', 'example')
+      .leftJoinAndSelect('definition.relations', 'defRelation')
+      .leftJoinAndSelect('word.relations', 'wordRelation')
       .where('word.id IN (:...ids)', { ids })
       .getMany();
 
@@ -114,8 +124,37 @@ export class VocabularyWordRepository
         defEntity.examples?.forEach((exEntity) => {
           def.addExample(new VocabularyExample(exEntity.id, exEntity.sentence));
         });
+        defEntity.relations?.forEach((relEntity) => {
+          def.addRelation(
+            new VocabularyWordRelation(
+              relEntity.id,
+              relEntity.sourceWordId,
+              relEntity.definitionId,
+              relEntity.targetWordId,
+              relEntity.targetTerm,
+              relEntity.relationType,
+              relEntity.displayOrder,
+            ),
+          );
+        });
         return def;
       }) || [];
+
+    const wordRelations =
+      entity.relations
+        ?.filter((rel) => !rel.definitionId)
+        .map(
+          (rel) =>
+            new VocabularyWordRelation(
+              rel.id,
+              rel.sourceWordId,
+              rel.definitionId,
+              rel.targetWordId,
+              rel.targetTerm,
+              rel.relationType,
+              rel.displayOrder,
+            ),
+        ) || [];
 
     return VocabularyWord.restore(
       entity.id,
@@ -129,6 +168,7 @@ export class VocabularyWordRepository
       entity.audioUkUrl,
       entity.phoneticUs,
       entity.phoneticUk,
+      wordRelations,
     );
   }
 

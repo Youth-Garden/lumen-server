@@ -53,6 +53,46 @@ describe('Dictionary Providers Unit Tests', () => {
       });
     });
 
+    it('fetches sense-level synonyms and antonyms', async () => {
+      const provider = new FreeDictionaryProvider();
+
+      mockedAxios.get.mockResolvedValueOnce({
+        data: [
+          {
+            meanings: [
+              {
+                partOfSpeech: 'adjective',
+                synonyms: ['inexpensive'],
+                definitions: [
+                  {
+                    definition: 'Low in price.',
+                    synonyms: ['cheap', 'affordable'],
+                    antonyms: ['expensive'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      const relations = await provider.fetchSenseRelations('budget');
+      expect(relations).toHaveLength(1);
+      expect(relations[0].partOfSpeech).toBe('adjective');
+      expect(relations[0].synonyms).toContain('cheap');
+      expect(relations[0].synonyms).toContain('affordable');
+      expect(relations[0].synonyms).toContain('inexpensive');
+      expect(relations[0].antonyms).toEqual(['expensive']);
+    });
+
+    it('returns empty array on error for fetchSenseRelations', async () => {
+      const provider = new FreeDictionaryProvider();
+      mockedAxios.get.mockRejectedValueOnce(new Error('Network error'));
+
+      const relations = await provider.fetchSenseRelations('unknownword');
+      expect(relations).toEqual([]);
+    });
+
     it('returns null on error', async () => {
       const provider = new FreeDictionaryProvider();
       mockedAxios.get.mockRejectedValueOnce(new Error('404 Not Found'));
@@ -81,6 +121,33 @@ describe('Dictionary Providers Unit Tests', () => {
       expect(meta?.enDef).toBe('A common round fruit');
       expect(meta?.pos).toBe('n');
       expect(meta?.phoneticUs).toBe('/ˈæpəl/');
+    });
+
+    it('fetches collocations and fallback synonyms/antonyms correctly', async () => {
+      const provider = new DatamuseDictionaryProvider();
+
+      // Mock 6 parallel requests: rel_syn, rel_ant, rel_jjb, rel_jja, rel_bga, rel_bgb
+      mockedAxios.get
+        .mockResolvedValueOnce({
+          data: [{ word: 'inexpensive' }, { word: 'cheap' }],
+        }) // rel_syn
+        .mockResolvedValueOnce({ data: [{ word: 'expensive' }] }) // rel_ant
+        .mockResolvedValueOnce({ data: [{ word: 'low' }] }) // rel_jjb -> "low budget"
+        .mockResolvedValueOnce({ data: [{ word: 'airline' }] }) // rel_jja -> "budget airline"
+        .mockResolvedValueOnce({
+          data: [{ word: 'deficit' }, { word: 'surplus' }],
+        }) // rel_bga -> "budget deficit", "budget surplus"
+        .mockResolvedValueOnce({ data: [{ word: 'operation' }] }); // rel_bgb -> "operation budget"
+
+      const rels = await provider.fetchRelations('budget');
+
+      expect(rels.synonyms).toEqual(['inexpensive', 'cheap']);
+      expect(rels.antonyms).toEqual(['expensive']);
+      expect(rels.relatedWords).toContain('low budget');
+      expect(rels.relatedWords).toContain('budget airline');
+      expect(rels.relatedWords).toContain('budget deficit');
+      expect(rels.relatedWords).toContain('budget surplus');
+      expect(rels.relatedWords).toContain('operation budget');
     });
   });
 });

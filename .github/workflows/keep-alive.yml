@@ -19,10 +19,10 @@ jobs:
     steps:
       - name: Send keep-alive ping to server
         env:
-          SERVER_URL: ${{ secrets.SERVER_HEALTH_URL }}
+          SERVER_URL: ${{ secrets.SERVER_URL }}
         run: |
           if [ -z "${SERVER_URL}" ]; then
-            echo "Error: SERVER_HEALTH_URL secret is not set in GitHub Repository Secrets."
+            echo "Error: SERVER_URL secret is not set in GitHub Repository Secrets."
             exit 1
           fi
           echo "Sending keep-alive request to ${SERVER_URL}..."

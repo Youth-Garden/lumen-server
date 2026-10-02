@@ -107,6 +107,48 @@ describe('LearningProfile Aggregate', () => {
 
       expect(profile.currentStreak).toBe(1);
     });
+
+    it('should consume available freeze and advance lastActivityDate even when streak breaks due to subsequent missed day', () => {
+      const profile = LearningProfile.reconstitute(
+        mockUserId,
+        2,
+        new Date('2026-09-01T04:00:00Z'), // Tuesday
+        300,
+        15,
+        1, // 1 freeze
+      );
+
+      // Now Friday (missed Sept 2 Wed and Sept 3 Thu)
+      const now = new Date('2026-09-04T04:00:00Z');
+      const changed = profile.syncStreak(now, false);
+
+      expect(changed).toBe(true);
+      expect(profile.currentStreak).toBe(0);
+      expect(profile.streakFreezes).toBe(0);
+      // lastActivityDate should be advanced by 1 day to Sept 2 (Wed) because freeze protected Wed
+      expect(profile.lastActivity).toEqual(new Date('2026-09-02T04:00:00Z'));
+    });
+
+    it('should self-heal legacy profile state where streak and freezes were wiped to 0 without advancing lastActivityDate', () => {
+      const profile = LearningProfile.reconstitute(
+        mockUserId,
+        0, // streak already wiped to 0 by legacy code
+        new Date('2026-09-01T04:00:00Z'), // Tuesday
+        300,
+        15,
+        0, // freezes already wiped to 0
+      );
+
+      // Now Friday
+      const now = new Date('2026-09-04T04:00:00Z');
+      const changed = profile.syncStreak(now, false);
+
+      expect(changed).toBe(true);
+      expect(profile.currentStreak).toBe(0);
+      expect(profile.streakFreezes).toBe(0);
+      // lastActivityDate should self-heal and advance to Sept 2 (Wed)
+      expect(profile.lastActivity).toEqual(new Date('2026-09-02T04:00:00Z'));
+    });
   });
 
   describe('buyStreakFreeze & Points Badges', () => {

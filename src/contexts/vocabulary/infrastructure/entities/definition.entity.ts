@@ -10,6 +10,7 @@ import type { I18nString } from '../../../../shared/domain/types/translation.typ
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
 import { ExampleEntity } from './example.entity';
 import { WordEntity } from './word.entity';
+import { WordRelationEntity } from './word-relation.entity';
 
 @Entity('vocab_definitions')
 export class DefinitionEntity extends BaseEntity {
@@ -31,4 +32,7 @@ export class DefinitionEntity extends BaseEntity {
 
   @OneToMany(() => ExampleEntity, (example) => example.definition)
   examples: ExampleEntity[];
+
+  @OneToMany(() => WordRelationEntity, (relation) => relation.definition)
+  relations: WordRelationEntity[];
 }

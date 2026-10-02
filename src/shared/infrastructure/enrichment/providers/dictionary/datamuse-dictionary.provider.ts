@@ -75,6 +75,44 @@ interface DatamuseResult {
   tags?: string[];
 }
 
+export interface DatamuseRelationGroup {
+  synonyms: string[];
+  antonyms: string[];
+  relatedWords: string[];
+}
+
+const STOPWORDS = new Set([
+  'a',
+  'an',
+  'the',
+  'and',
+  'or',
+  'but',
+  'in',
+  'on',
+  'at',
+  'to',
+  'for',
+  'of',
+  'with',
+  'by',
+  'from',
+  'up',
+  'about',
+  'into',
+  'over',
+  'after',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'it',
+  'its',
+]);
+
 export class DatamuseDictionaryProvider
   extends BaseHttpClient
   implements IDictionaryProvider
@@ -90,6 +128,114 @@ export class DatamuseDictionaryProvider
 
   isEnabled(): boolean {
     return true;
+  }
+
+  async fetchRelations(term: string): Promise<DatamuseRelationGroup> {
+    const cleanTerm = term.trim().toLowerCase();
+    const result: DatamuseRelationGroup = {
+      synonyms: [],
+      antonyms: [],
+      relatedWords: [],
+    };
+
+    const apiKey = process.env.DATAMUSE_API_KEY;
+    const baseParams: Record<string, string | number> = { max: 20 };
+    if (apiKey) {
+      baseParams.key = apiKey;
+    }
+
+    try {
+      // 1. Fetch Fallback Synonyms & Antonyms
+      const [synData, antData] = await Promise.all([
+        this.get<DatamuseResult[]>(EnrichmentEndpointEnum.DATAMUSE_DICTIONARY, {
+          params: { ...baseParams, rel_syn: cleanTerm },
+          timeoutMs: this.timeoutMs,
+        }).catch(() => []),
+        this.get<DatamuseResult[]>(EnrichmentEndpointEnum.DATAMUSE_DICTIONARY, {
+          params: { ...baseParams, rel_ant: cleanTerm },
+          timeoutMs: this.timeoutMs,
+        }).catch(() => []),
+      ]);
+
+      const filterTerms = (rawList: DatamuseResult[] | null): string[] => {
+        const seen = new Set<string>();
+        const res: string[] = [];
+        for (const item of rawList || []) {
+          const t = item.word?.trim().toLowerCase();
+          if (
+            t &&
+            t !== cleanTerm &&
+            /^[a-z\s-]+$/i.test(t) &&
+            !STOPWORDS.has(t) &&
+            !seen.has(t)
+          ) {
+            seen.add(t);
+            res.push(t);
+            if (res.length >= 8) break;
+          }
+        }
+        return res;
+      };
+
+      result.synonyms = filterTerms(synData);
+      result.antonyms = filterTerms(antData);
+
+      // 2. Fetch Collocations (rel_jjb, rel_jja, rel_bga, rel_bgb)
+      const [jjbData, jjaData, bgaData, bgbData] = await Promise.all([
+        this.get<DatamuseResult[]>(EnrichmentEndpointEnum.DATAMUSE_DICTIONARY, {
+          params: { ...baseParams, rel_jjb: cleanTerm },
+          timeoutMs: this.timeoutMs,
+        }).catch(() => []),
+        this.get<DatamuseResult[]>(EnrichmentEndpointEnum.DATAMUSE_DICTIONARY, {
+          params: { ...baseParams, rel_jja: cleanTerm },
+          timeoutMs: this.timeoutMs,
+        }).catch(() => []),
+        this.get<DatamuseResult[]>(EnrichmentEndpointEnum.DATAMUSE_DICTIONARY, {
+          params: { ...baseParams, rel_bga: cleanTerm },
+          timeoutMs: this.timeoutMs,
+        }).catch(() => []),
+        this.get<DatamuseResult[]>(EnrichmentEndpointEnum.DATAMUSE_DICTIONARY, {
+          params: { ...baseParams, rel_bgb: cleanTerm },
+          timeoutMs: this.timeoutMs,
+        }).catch(() => []),
+      ]);
+
+      const seenCollocations = new Set<string>();
+      const collocations: string[] = [];
+
+      const processCollocation = (
+        format: (w: string) => string,
+        items: DatamuseResult[] | null,
+      ) => {
+        for (const item of items || []) {
+          const w = item.word?.trim().toLowerCase();
+          if (
+            !w ||
+            w === cleanTerm ||
+            STOPWORDS.has(w) ||
+            !/^[a-z\s-]+$/i.test(w)
+          )
+            continue;
+          const phrase = format(w).trim().toLowerCase();
+          if (phrase && !seenCollocations.has(phrase)) {
+            seenCollocations.add(phrase);
+            collocations.push(phrase);
+            if (collocations.length >= 8) break;
+          }
+        }
+      };
+
+      processCollocation((w) => `${w} ${cleanTerm}`, jjbData);
+      processCollocation((w) => `${cleanTerm} ${w}`, jjaData);
+      processCollocation((w) => `${cleanTerm} ${w}`, bgaData);
+      processCollocation((w) => `${w} ${cleanTerm}`, bgbData);
+
+      result.relatedWords = collocations.slice(0, 8);
+    } catch {
+      // Ignore enrichment network failures
+    }
+
+    return result;
   }
 
   async fetchMetadata(

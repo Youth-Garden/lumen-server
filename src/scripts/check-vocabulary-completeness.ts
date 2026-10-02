@@ -128,14 +128,30 @@ export async function checkVocabularyCompleteness() {
     console.log(`📌 Total Definitions (vocab_definitions): ${totalDefs}`);
     console.log(`📌 Total Examples (vocab_examples):      ${totalExamples}`);
     console.log('---------------------------------------------------------');
-    console.log(`🔊 Missing Audio URLs:                   ${missingAudio} / ${totalWords}`);
-    console.log(`🔤 Missing IPA Phonetics:               ${missingPhonetics} / ${totalWords}`);
-    console.log(`🖼️  Missing Illustration Images:          ${missingImages} / ${totalWords}`);
-    console.log(`🇻🇳 Missing VI Definitions:               ${missingViDefs} / ${totalDefs}`);
-    console.log(`🇬🇧 Missing EN Definitions:               ${missingEnDefs} / ${totalDefs}`);
-    console.log(`📝 Words without Example Sentences:      ${wordsNoExamples} / ${totalWords}`);
-    console.log(`🇻🇳 Examples missing VI Translation:     ${missingViExamples} / ${totalExamples}`);
-    console.log(`⚠️ Words without Definitions:            ${wordsNoDefs} / ${totalWords}`);
+    console.log(
+      `🔊 Missing Audio URLs:                   ${missingAudio} / ${totalWords}`,
+    );
+    console.log(
+      `🔤 Missing IPA Phonetics:               ${missingPhonetics} / ${totalWords}`,
+    );
+    console.log(
+      `🖼️  Missing Illustration Images:          ${missingImages} / ${totalWords}`,
+    );
+    console.log(
+      `🇻🇳 Missing VI Definitions:               ${missingViDefs} / ${totalDefs}`,
+    );
+    console.log(
+      `🇬🇧 Missing EN Definitions:               ${missingEnDefs} / ${totalDefs}`,
+    );
+    console.log(
+      `📝 Words without Example Sentences:      ${wordsNoExamples} / ${totalWords}`,
+    );
+    console.log(
+      `🇻🇳 Examples missing VI Translation:     ${missingViExamples} / ${totalExamples}`,
+    );
+    console.log(
+      `⚠️ Words without Definitions:            ${wordsNoDefs} / ${totalWords}`,
+    );
     console.log('---------------------------------------------------------');
 
     if (incompleteSample.length > 0) {

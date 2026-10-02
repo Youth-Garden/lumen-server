@@ -40,6 +40,8 @@ import { UserProgressRepository } from './infrastructure/repositories/user-progr
 import { VOCABULARY_QUERY_REPOSITORY } from './application/ports/vocabulary-query.repository';
 import { VocabularyQueryRepository } from './infrastructure/repositories/vocabulary-query.repository';
 
+import { WordRelationEntity } from './infrastructure/entities/word-relation.entity';
+
 @Module({
   imports: [
     CqrsModule,
@@ -52,6 +54,7 @@ import { VocabularyQueryRepository } from './infrastructure/repositories/vocabul
       TopicEntity,
       UserProgressEntity,
       SeedVersionEntity,
+      WordRelationEntity,
     ]),
   ],
   controllers: [VocabularyController],

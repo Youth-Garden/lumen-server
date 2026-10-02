@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { DataSource } from 'typeorm';

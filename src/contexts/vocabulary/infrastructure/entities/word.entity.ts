@@ -1,8 +1,9 @@
+import { Column, Entity, Index, OneToMany } from 'typeorm';
+import type { I18nString } from '../../../../shared/domain/types/translation.type';
 import { BaseEntity } from '../../../../shared/infrastructure/database/base.entity';
-import { Entity, Column, OneToMany, Index } from 'typeorm';
 import { DefinitionEntity } from './definition.entity';
 import { FlashcardEntity } from './flashcard.entity';
-import type { I18nString } from '../../../../shared/domain/types/translation.type';
+import { WordRelationEntity } from './word-relation.entity';
 
 @Entity('vocab_words')
 @Index('idx_words_cefr', ['cefrLevel'])
@@ -45,4 +46,7 @@ export class WordEntity extends BaseEntity {
 
   @OneToMany(() => FlashcardEntity, (flashcard) => flashcard.word)
   flashcards: FlashcardEntity[];
+
+  @OneToMany(() => WordRelationEntity, (relation) => relation.sourceWord)
+  relations: WordRelationEntity[];
 }
