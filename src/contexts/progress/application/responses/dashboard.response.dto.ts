@@ -33,6 +33,9 @@ export class DashboardResponseDto {
   @ApiProperty()
   streakFreezes: number;
 
+  @ApiProperty({ type: [String] })
+  frozenDates: string[];
+
   @ApiProperty({ type: [DailyGoalHistoryItemDto] })
   goalHistories: DailyGoalHistoryItemDto[];
 
@@ -45,6 +48,7 @@ export class DashboardResponseDto {
     unlockedBadges: string[],
     streakFreezes: number = 0,
     goalHistories: DailyGoalHistoryItemDto[] = [],
+    frozenDates: string[] = [],
   ) {
     this.streak = streak;
     this.lastActivityDate = lastActivityDate;
@@ -54,5 +58,6 @@ export class DashboardResponseDto {
     this.unlockedBadges = unlockedBadges;
     this.streakFreezes = streakFreezes;
     this.goalHistories = goalHistories;
+    this.frozenDates = frozenDates;
   }
 }

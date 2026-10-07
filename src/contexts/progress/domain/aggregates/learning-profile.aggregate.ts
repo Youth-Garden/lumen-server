@@ -7,10 +7,11 @@ export class LearningProfile {
     private _dailyGoalMinutes: number,
     private _streakFreezes: number = 0,
     private _unlockedBadges: string[] = [],
+    private _frozenDates: string[] = [],
   ) {}
 
   static create(userId: string): LearningProfile {
-    return new LearningProfile(userId, 0, null, 0, 15, 0);
+    return new LearningProfile(userId, 0, null, 0, 15, 0, [], []);
   }
 
   static reconstitute(
@@ -20,6 +21,7 @@ export class LearningProfile {
     totalPoints: number,
     dailyGoalMinutes: number,
     streakFreezes: number,
+    frozenDates: string[] = [],
   ): LearningProfile {
     return new LearningProfile(
       userId,
@@ -29,6 +31,7 @@ export class LearningProfile {
       dailyGoalMinutes,
       streakFreezes,
       [],
+      frozenDates,
     );
   }
 
@@ -120,15 +123,16 @@ export class LearningProfile {
     if (diffDays > 1) {
       let availableFreezes = this._streakFreezes;
 
-      if (this.streak === 0 && availableFreezes === 0) {
-        availableFreezes = 1;
-      }
-
       const missedDays = diffDays - 1;
       const usedFreezes = Math.min(availableFreezes, missedDays);
       this._streakFreezes = Math.max(0, availableFreezes - usedFreezes);
 
       if (usedFreezes > 0) {
+        for (let k = 1; k <= usedFreezes; k++) {
+          const freezeDate = new Date(this.lastActivityDate.getTime());
+          freezeDate.setDate(freezeDate.getDate() + k);
+          this.recordFrozenDate(freezeDate);
+        }
         const protectedDate = new Date(this.lastActivityDate.getTime());
         protectedDate.setDate(protectedDate.getDate() + usedFreezes);
         this.lastActivityDate = protectedDate;
@@ -164,6 +168,17 @@ export class LearningProfile {
 
   get unlockedBadges(): string[] {
     return [...this._unlockedBadges];
+  }
+
+  get frozenDates(): string[] {
+    return [...this._frozenDates];
+  }
+
+  private recordFrozenDate(date: Date) {
+    const dStr = date.toISOString().slice(0, 10);
+    if (!this._frozenDates.includes(dStr)) {
+      this._frozenDates.push(dStr);
+    }
   }
 
   public restoreBadges(badges: string[]) {
@@ -230,16 +245,26 @@ export class LearningProfile {
     } else if (diffDays > 1) {
       // Missed a day
       const missedDays = diffDays - 1;
-      if (this._streakFreezes >= missedDays) {
-        // Used freeze
-        this._streakFreezes -= missedDays;
+      const usedFreezes = Math.min(this._streakFreezes, missedDays);
+      this._streakFreezes -= usedFreezes;
+
+      if (usedFreezes > 0) {
+        for (let k = 1; k <= usedFreezes; k++) {
+          const freezeDate = new Date(lastDate.getTime());
+          freezeDate.setDate(freezeDate.getDate() + k);
+          this.recordFrozenDate(freezeDate);
+        }
+      }
+
+      if (usedFreezes >= missedDays) {
+        // Used freeze to cover all missed days
         this.streak += 1;
         this._streakFreezes = Math.min(
           MAX_STREAK_FREEZES,
           this._streakFreezes + 1,
         );
       } else {
-        // Streak lost
+        // Streak lost (insufficient freezes)
         this.streak = 1;
         this._streakFreezes = 1;
       }

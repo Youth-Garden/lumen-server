@@ -17,6 +17,7 @@
     "seed": "ts-node -r tsconfig-paths/register src/seed.ts",
     "seed:toeic": "ts-node -r tsconfig-paths/register src/scripts/seed-toeic.ts",
     "seed:ngsl": "ts-node -r tsconfig-paths/register src/scripts/seed-ngsl-vocabulary.ts",
+    "seed:relations": "ts-node -r tsconfig-paths/register src/scripts/run-seed-relations.ts",
     "seed:enrich": "ts-node -r tsconfig-paths/register src/scripts/enrich-vocabulary-data.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",

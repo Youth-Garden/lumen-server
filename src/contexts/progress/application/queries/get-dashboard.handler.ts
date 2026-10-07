@@ -81,6 +81,7 @@ export class GetDashboardHandler implements IQueryHandler<
         newProfile.unlockedBadges,
         newProfile.streakFreezes,
         mappedHistories,
+        newProfile.frozenDates,
       );
     }
 
@@ -97,6 +98,7 @@ export class GetDashboardHandler implements IQueryHandler<
       profile.unlockedBadges,
       profile.streakFreezes,
       mappedHistories,
+      profile.frozenDates,
     );
   }
 }

@@ -25,4 +25,7 @@ export class LearningProfileEntity extends BaseEntity {
 
   @Column({ type: 'int', default: 0 })
   streakFreezes: number;
+
+  @Column({ type: 'simple-array', nullable: true })
+  frozenDates: string[] | null;
 }

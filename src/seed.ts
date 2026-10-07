@@ -21,6 +21,7 @@ import { materialMockData } from './seed/material-data';
 import { progressData } from './seed/progress-data';
 import { userData } from './seed/user-data';
 import { seedToeicVocabulary } from './scripts/seed-toeic';
+import { seedWordRelations } from './scripts/seed-word-relations';
 import { runNgslVocabularySeeder } from './contexts/vocabulary/infrastructure/seed/ngsl-seeder.service';
 import { StorageService } from './shared/infrastructure/storage/storage.service';
 import { Locale } from './shared/domain/types/translation.type';
@@ -156,6 +157,7 @@ async function bootstrap() {
   console.log('--- Starting Vocabulary Database Seeding ---');
   await seedToeicVocabulary(dataSource);
   await runNgslVocabularySeeder(dataSource);
+  await seedWordRelations(dataSource);
 
   console.log('--- Starting Progress Database Seeding ---');
   if (targetUserId) {

@@ -129,14 +129,14 @@ describe('LearningProfile Aggregate', () => {
       expect(profile.lastActivity).toEqual(new Date('2026-09-02T04:00:00Z'));
     });
 
-    it('should self-heal legacy profile state where streak and freezes were wiped to 0 without advancing lastActivityDate', () => {
+    it('should maintain lastActivityDate and zero freezes when streak is 0 and no freezes are available', () => {
       const profile = LearningProfile.reconstitute(
         mockUserId,
-        0, // streak already wiped to 0 by legacy code
+        0, // streak 0
         new Date('2026-09-01T04:00:00Z'), // Tuesday
         300,
         15,
-        0, // freezes already wiped to 0
+        0, // 0 freezes available
       );
 
       // Now Friday
@@ -146,8 +146,8 @@ describe('LearningProfile Aggregate', () => {
       expect(changed).toBe(true);
       expect(profile.currentStreak).toBe(0);
       expect(profile.streakFreezes).toBe(0);
-      // lastActivityDate should self-heal and advance to Sept 2 (Wed)
-      expect(profile.lastActivity).toEqual(new Date('2026-09-02T04:00:00Z'));
+      // lastActivityDate remains Sept 1 since no freeze was consumed
+      expect(profile.lastActivity).toEqual(new Date('2026-09-01T04:00:00Z'));
     });
   });
 
